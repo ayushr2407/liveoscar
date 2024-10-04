@@ -53,7 +53,7 @@ Varicella Immunoglobulin	VarIg
 			layout="injection" 
             atc=""
 			showIfMinRecordNum="1"/>
-
+			
 	<item
 			resultDesc=""
 			desc="DT-IPV=Diphtheria, Tetanus, Polio - pediatric"
@@ -609,6 +609,20 @@ Varicella Immunoglobulin	VarIg
 			desc="Fecal Occult Blood Test or Fecal Immunochemical Test" name="FOBT"
 			headingName="Screenings" link="" layout="PAPMAM"
 			minAge="49" maxAge="80" showIfMinRecordNum="1" />
+			
+	<item
+			resultDesc=""
+			displayName="Abdominal U/S"
+			desc="One-time screening with ultrasound for abdominal aortic aneurysm" name="FOBT"
+			headingName="Screenings" link="" layout="PAPMAM"
+			minAge="65" maxAge="80" sex="M" showIfMinRecordNum="1" />
+
+	<item
+			resultDesc=""
+			displayName="Chest CT"
+			desc="Low Dose chest CT for 30 pack year smokers up to three times" name="FOBT"
+			headingName="Screenings" link="" layout="PAPMAM"
+			minAge="55" maxAge="74" showIfMinRecordNum="1" />
 
 	<item
 			resultDesc=""
