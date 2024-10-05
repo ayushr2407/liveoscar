@@ -613,14 +613,14 @@ Varicella Immunoglobulin	VarIg
 	<item
 			resultDesc=""
 			displayName="Abdominal U/S"
-			desc="One-time screening with ultrasound for abdominal aortic aneurysm" name="FOBT"
+			desc="One-time screening with ultrasound for abdominal aortic aneurysm" name="AAA"
 			headingName="Screenings" link="" layout="PAPMAM"
 			minAge="65" maxAge="80" sex="M" showIfMinRecordNum="1" />
 
 	<item
 			resultDesc=""
 			displayName="Chest CT"
-			desc="Low Dose chest CT for 30 pack year smokers up to three times" name="FOBT"
+			desc="Low Dose chest CT for 30 pack year smokers up to three times" name="CTC"
 			headingName="Screenings" link="" layout="PAPMAM"
 			minAge="55" maxAge="74" showIfMinRecordNum="1" />
 
