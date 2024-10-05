@@ -577,6 +577,66 @@
               prev.addWarning("MAM", "MAM is overdue for this patient");
         </java:consequence>
 	</rule>
+	<rule name="MAM 5">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>
+		<java:condition>prev.getAgeInYears() &gt;= 40</java:condition>
+		<java:condition>prev.getAgeInYears() &lt; 50</java:condition>
+		<java:condition>prev.isFemale()</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("MAM") &gt;= 22</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("MAM") &lt;= 24</java:condition>
+		<java:condition>!prev.isPreventionNever("MAM")</java:condition>
+		<java:condition>!prev.isNextDateSet("MAM")</java:condition>
+		<java:condition>!prev.isInelligible("MAM")</java:condition>
+		<java:consequence>
+              prev.log("MAM 5");
+              prev.addReminder("Consider Mammogram councilling for this patient");
+        </java:consequence>
+	</rule>
+	<rule name="MAM 6">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>
+		<java:condition>prev.getAgeInYears() &gt;= 40</java:condition>
+		<java:condition>prev.getAgeInYears() &lt; 50</java:condition>
+		<java:condition>prev.isFemale()</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("MAM") &gt; 24</java:condition>
+		<java:condition>!prev.isPreventionNever("MAM")</java:condition>
+		<java:condition>!prev.isNextDateSet("MAM")</java:condition>
+		<java:condition>!prev.isInelligible("MAM")</java:condition>
+		<java:consequence>
+              prev.log("MAM 6");
+              prev.addWarning("MAM", "Mammogram councilling may be due for this patient");
+        </java:consequence>
+	</rule>
+	<rule name="MAM 7">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>
+		<java:condition>prev.getAgeInYears() &gt;= 40</java:condition>
+		<java:condition>prev.getAgeInYears() &lt; 50</java:condition>
+		<java:condition>prev.isFemale()</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("MAM") == -1</java:condition>
+		<java:condition>!prev.isInelligible("MAM")</java:condition>
+		<java:consequence>
+              prev.log("MAM 7");
+              prev.addWarning("MAM", "No Mammogram records can be found for this patient");
+        </java:consequence>
+	</rule>
+	<rule name="MAM 8">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>
+		<java:condition>prev.isFemale()</java:condition>
+		<java:condition>prev.isNextDateSet("MAM")</java:condition>
+		<java:condition>prev.isPassedNextDate("MAM")</java:condition>
+		<java:condition>!prev.isInelligible("MAM")</java:condition>
+		<java:consequence>
+              prev.log("MAM 8");
+              prev.addWarning("MAM", "Mammogram councilling may be due for this patient");
+        </java:consequence>
+	</rule>
 	<rule name="MAM debug">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
@@ -592,6 +652,19 @@
         </java:consequence>
 	</rule>
 	<!-- Mammogram Rules End -->
+	<rule name="AAA 1">
+		<parameter identifier="prev">
+			<class>oscar.oscarPrevention.Prevention</class>
+		</parameter>\
+		<java:condition>prev.isMale()</java:condition>
+		<java:condition>prev.getAgeInYears() &gt;= 65</java:condition>
+		<java:condition>prev.getAgeInYears() &lt;= 80</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("AAA") == -1</java:condition>
+		<java:consequence>
+              prev.log("AAA 1 debug");
+              prev.addWarning("AAA", "One time AAA screening is reccomended for male 30 pack year smokers over 65");
+        </java:consequence>
+	</rule>	
 	<!-- FOBT Rules -->
 	<rule name="FOBT 1">
 		<parameter identifier="prev">
