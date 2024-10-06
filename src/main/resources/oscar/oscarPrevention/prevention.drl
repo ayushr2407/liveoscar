@@ -662,7 +662,7 @@
 		<java:condition>prev.getHowManyMonthsSinceLast("AAA") == -1</java:condition>
 		<java:consequence>
               prev.log("AAA 1 debug");
-              prev.addWarning("AAA", "One time AAA screening is reccomended for male 30 pack year smokers over 65");
+              prev.addWarning("AAA", "One time AAA screening is reccomended for males over 65");
         </java:consequence>
 	</rule>	
 	<!-- FOBT Rules -->
