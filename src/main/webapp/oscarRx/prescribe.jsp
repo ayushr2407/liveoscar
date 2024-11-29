@@ -49,6 +49,16 @@
 	}
 %>
 
+  <% 
+   String startDate = (String) request.getAttribute("startDate");
+   String duration = (String) request.getAttribute("duration");
+   String endDate = (String) request.getAttribute("endDate");
+   if (startDate == null) startDate = ""; // Default empty value
+   if (duration == null) duration = "";   // Default empty value
+   if (endDate == null) endDate = "";     // Default empty value
+%>
+
+  
     <%
 
 List<RxPrescriptionData.Prescription> listRxDrugs=(List)request.getAttribute("listRxDrugs");
@@ -61,7 +71,8 @@ if(listRxDrugs!=null){
          String rand            = Long.toString(rx.getRandomId());
          String instructions    = rx.getSpecial();
          String specialInstruction=rx.getSpecialInstruction();
-         String startDate       = RxUtil.DateToString(rx.getRxDate(), "yyyy-MM-dd");
+         String startDateStr = (rx.getStartDate() != null) ? RxUtil.DateToString(rx.getStartDate(), "yyyy-MM-dd") : "";
+         String endDatestr = (rx.getEndDate() != null) ? RxUtil.DateToString(rx.getEndDate(), "yyyy-MM-dd") : "";
          String writtenDate     = RxUtil.DateToString(rx.getWrittenDate(), "yyyy-MM-dd");
          String lastRefillDate  = RxUtil.DateToString(rx.getLastRefillDate(), "yyyy-MM-dd");
          int gcn=rx.getGCN_SEQNO();//if gcn is 0, rx is customed drug.
@@ -122,7 +133,6 @@ if(listRxDrugs!=null){
          }
          Boolean pastMed            = rx.getPastMed();
          boolean dispenseInternal = rx.getDispenseInternal();
-         boolean startDateUnknown	= rx.getStartDateUnknown();
          boolean nonAuthoritative   = rx.isNonAuthoritative();
          boolean nosubs = rx.getNosubs();
          String quantity            = rx.getQuantity();
@@ -134,7 +144,7 @@ if(listRxDrugs!=null){
          else{
              quantityText=quantity+" "+rx.getUnitName();
          }
-         String duration        = rx.getDuration();
+          duration        = rx.getDuration();
          String method          = rx.getMethod();
          String outsideProvName = rx.getOutsideProviderName();
          boolean isDiscontinuedLatest = rx.isDiscontinuedLatest();
@@ -206,12 +216,25 @@ if(listRxDrugs!=null){
     <a tabindex="-1" href="javascript:void(0);"  style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;" onclick="$('set_<%=rand%>').remove();deletePrescribe('<%=rand%>');removeReRxDrugId('<%=DrugReferenceId%>')"><img src='<c:out value="${ctx}/images/close.png"/>' border="0"></a>
     <a tabindex="-1" href="javascript:void(0);" style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;" onclick="checkRxInteract();" title="Drug-Drug interactions limited to this Rx">dd</a>
     <a tabindex="-1" href="javascript:void(0);"  style="float:right;;margin-left:5px;margin-top:0px;padding-top:0px;" title="Add to Favorites" onclick="addFav('<%=rand%>','<%=drugName%>')">F</a>
-    <a tabindex="-1" href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="$('rx_more_<%=rand%>').toggle();">  <span id="moreLessWord_<%=rand%>" onclick="updateMoreLess(id)" >more</span> </a>
+    <%-- <a tabindex="-1" href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="$('rx_more_<%=rand%>').toggle();">  <span id="moreLessWord_<%=rand%>" onclick="updateMoreLess(id)" >more</span> </a> --%>
 
 
     <label style="float:left;width:80px;" title="<%=ATC%>" >Name:</label>
     <input type="hidden" name="atcCode" value="<%=ATCcode%>" />
-    <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="40" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>&nbsp;<span id="inactive_<%=rand%>" style="color:red;"></span>
+    <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="40" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>&nbsp;<bean:message key="WriteScript.msgDrugForm"/>:
+                <%if(rx.getDrugFormList()!=null && rx.getDrugFormList().indexOf(",")!=-1){ %>
+                <select name="drugForm_<%=rand%>">
+                	<%
+                		String[] forms = rx.getDrugFormList().split(",");
+                		for(String form:forms) {
+                	%>
+                		<option value="<%=form%>" <%=form.equals(drugForm)?"selected":"" %>><%=form%></option>
+                	<% } %>
+                </select>
+				<%} else { %>
+					<%=drugForm%>
+				<% } %>
+    <span id="inactive_<%=rand%>" style="color:red;"></span>
 
 	<!-- Allergy Alert Table-->
 	<table style="border-collapse: collapse;display: none; width: 100%; margin-top:10px; border:whitesmoke thin solid;" id="alleg_tbl_<%=rand%>">
@@ -230,21 +253,21 @@ if(listRxDrugs!=null){
 
     <%-- Splice in the Indication field --%>
 <br />
-	<label style="float:left;width:80px;" for="jsonDxSearch_<%=rand%>" >Indication</label>
-		<select name="codingSystem_<%=rand%>" id="codingSystem_<%=rand%>" >
-		<option value="icd9">icd9</option>
-		<%-- option value="limitUse">Limited Use</option --%>
-	</select>
-	<input type="hidden" name="reasonCode_<%=rand%>" id="codeTxt_<%=rand%>" />
-	<input type="text" class="codeTxt" name="jsonDxSearch_<%=rand%>" id="jsonDxSearch_<%=rand%>" placeholder="Search Dx" style="width:280px;"/>
+        <label style="float:left;width:80px;" for="jsonDxSearch_<%=rand%>" >Indication</label>
+                <select name="codingSystem_<%=rand%>" id="codingSystem_<%=rand%>" >
+                <option value="icd9">icd9</option>
+                <%-- option value="limitUse">Limited Use</option --%>
+        </select>
+        <input type="hidden" name="reasonCode_<%=rand%>" id="codeTxt_<%=rand%>" />
+        <input type="text" class="codeTxt" name="jsonDxSearch_<%=rand%>" id="jsonDxSearch_<%=rand%>" placeholder="Search Dx" style="width:280px;"/>
 <br />
      <%-- Splice in the Indication field --%>
 
-    <a tabindex="-1" href="javascript:void(0);" onclick="showHideSpecInst('siAutoComplete_<%=rand%>')" style="float:left;width:80px;">Instructions:</a>
+        <a tabindex="-1" href="javascript:void(0);" onclick="showHideSpecInst('siAutoComplete_<%=rand%>')" style="float:left;width:80px;">Instructions:</a>
         <input type="text" id="instructions_<%=rand%>" name="instructions_<%=rand%>" onkeypress="handleEnter(this,event);" value="<%=instructions%>" size="60" onchange="parseIntr(this);" /><a href="javascript:void(0);" tabindex="-1" onclick="displayMedHistory('<%=rand%>');" style="color:red;font-size:13pt;vertical-align:super;text-decoration:none" TITLE="Instruction Examples"><b>*</b></a>  <a href="javascript:void(0);" tabindex="-1" onclick="displayInstructions('<%=rand%>');"><img src="<c:out value="${ctx}/images/icon_help_sml.gif"/>" border="0" TITLE="Instructions Field Reference"></a> <span id="major_<%=rand%>" style="display:none;background-color:red"></span>&nbsp;<span id="moderate_<%=rand%>" style="display:none;background-color:orange"></span>&nbsp;<span id='minor_<%=rand%>' style="display:none;background-color:yellow;"></span>&nbsp;<span id='unknown_<%=rand%>' style="display:none;background-color:#B1FB17"></span>
-       <br>
+       <br><br>
        <label for="siInput_<%=rand%>" ></label>
-       <div id="siAutoComplete_<%=rand%>" <%if(isSpecInstPresent){%> style="overflow:visible;"<%} else{%> style="overflow:visible;display:none;"<%}%> >
+       <div id="siAutoComplete_<%=rand%>" <%if(isSpecInstPresent){%> style="overflow:visible;"<%} else{%> style="overflow:visible;"<%}%> >
            <label style="float:left;width:80px;">&nbsp;&nbsp;</label><input id="siInput_<%=rand%>"  type="text" size="60" <%if(!isSpecInstPresent) {%>style="color:gray; width:auto" value="Enter Special Instruction" <%} else {%> style="color:black; width:auto" value="<%=specialInstruction%>" <%}%> onblur="changeText('siInput_<%=rand%>');updateSpecialInstruction('siInput_<%=rand%>');" onfocus="changeText('siInput_<%=rand%>');" >
            <div id="siContainer_<%=rand%>" style="float:right" >
            </div>
@@ -252,12 +275,93 @@ if(listRxDrugs!=null){
         </div>
 		<div>
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input size="8" <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);getCost('cost_<%=rand%>','<%=rand%>','<%=rx.getRegionalIdentifier()%>',this.value);" />
-        <label style="">Repeats:</label><input type="text" size="5" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" onInput="updateLongTerm('<%=rand %>',this)" onblur="updateProperty(this.id)"/>
+        <label style="">Repeats/Refills:</label><input type="text" size="5" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" onInput="updateLongTerm('<%=rand %>',this)" onblur="updateProperty(this.id)"/>
 
         <span id="cost_<%=rand%>" ></span>
         <script type="text/javascript">console.log("costing "+"<%=rx.getRegionalIdentifier()%>"+" x "+"<%=quantityText%>"+" with random = "+"<%=rand%>");getCost('cost_<%=rand%>','<%=rand%>','<%=rx.getRegionalIdentifier()%>','1');</script>
 		</div>
-		<div id="medTerm_<%=rand%>">
+        <br>
+
+<%-- <div class="drug-section">
+   <label for="startDate_<%=rand%>">Start Date:</label>
+   <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>"
+          value="<%= (startDate != null) ? startDate : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
+          onblur="calculateEndDate('<%=rand%>'); updateStartDate('<%=rand%>');" />
+
+   <label for="duration_<%=rand%>">Duration:</label>
+   <input type="text" id="duration_<%=rand%>" name="duration_<%=rand%>"
+          value="<%= (duration != null) ? duration : "1" %>"
+          onblur="calculateEndDate('<%=rand%>'); updateDuration('<%=rand%>');" />
+
+   <label for="endDate_<%=rand%>">End Date:</label>
+   <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
+          value="<%= (endDate != null) ? endDate : "" %>"
+          onblur="updateEndDate('<%=rand%>');" />
+</div> --%>
+
+<div class="drug-section">
+   <label for="startDate_<%=rand%>">Start Date:</label>
+   <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>"
+          value="<%= (startDate != null) ? startDate : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" />
+
+   <label for="duration_<%=rand%>">Duration:</label>
+   <input type="text" id="duration_<%=rand%>" name="duration_<%=rand%>"
+          value="<%= (duration != null) ? duration : "1" %>" />
+
+   <label for="endDate_<%=rand%>">End Date:</label>
+   <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
+          value="<%= (endDate != null) ? endDate : "" %>" />
+
+    <%-- <label for="endDate_<%=rand%>">End Date:</label>
+    <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>" 
+           value="<%= (endDate_p != null) ? endDate_p : "" %>" /> --%>
+
+</div>
+
+
+    <br />
+     <!-- Additional Settings -->
+<div class="drug-section" style="display: flex; align-items: center;">
+ <label for="longTerm_<%=rand%>">Long Term:</label>
+<select id="longTerm_<%=rand%>" name="longTerm_<%=rand%>">
+    <option value="yes" <% if (rx.getLongterm_p() != null && rx.getLongterm_p()) { %> selected <% } %>>Yes</option>
+    <option value="no" <% if (rx.getLongterm_p() != null && !rx.getLongterm_p()) { %> selected <% } %>>No</option>
+</select>
+
+<label for="compliance_<%=rand%>">Patient Compliance:</label>
+<select id="compliance_<%=rand%>" name="compliance_<%=rand%>" onchange="handleComplianceChange('<%=rand%>')">
+    <option value="">Select</option>
+    <option value="yes" <% if (patientCompliance != null && patientCompliance.equals("yes")) { %> selected <% } %>>Yes</option>
+    <option value="no" <% if (patientCompliance != null && patientCompliance.equals("no")) { %> selected <% } %>>No</option>
+    <option value="unknown" <% if (patientCompliance != null && patientCompliance.equals("unknown")) { %> selected <% } %>>Unknown</option>
+</select>
+
+<div id="frequencyOptions_<%=rand%>" style="display: none; margin-top: 10px;">
+    <label><input type="radio" name="frequency_<%=rand%>" value="Daily" <% if ("Daily".equals(frequency)) { %> checked <% } %>> Daily</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="Weekly" <% if ("Weekly".equals(frequency)) { %> checked <% } %>> Weekly</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="Bi-Weekly" <% if ("Bi-Weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="Monthly" <% if ("Monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
+</div>
+
+
+
+
+  <%-- <label for="compliance" style="margin-right: 10px; margin-left: 20px;">Patient Compliance:</label>
+  <select class="compliance" name="compliance" style="margin-right: 10px;">
+    <option value="">Select</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+    <option value="Unknown">Unknown</option>
+  </select>
+  <div class="frequencyOptions" style="display:none; margin-right: 20px;">
+    <label><input type="radio" name="frequency" value="Daily" /> Daily</label>
+    <label><input type="radio" name="frequency" value="Weekly" /> Weekly</label>
+        <label><input type="radio" name="frequency" value="Weekly" /> Bi-Weekly</label>
+    <label><input type="radio" name="frequency" value="Monthly" /> Monthly</label>
+  </div> --%>
+</div>
+
+		<%-- <div id="medTerm_<%=rand%>">
 			<label><bean:message key="WriteScript.msgLongTermMedication" />: </label>
 			<span>
 				<label for="longTermY_<%=rand%>" ><bean:message key="WriteScript.msgYes" /> </label>
@@ -273,11 +377,12 @@ if(listRxDrugs!=null){
 	        		<input  type="checkbox" id="shortTerm_<%=rand%>"  name="shortTerm_<%=rand%>" class="med-term" <%if(shortTerm) {%> checked="checked" <%}%> />
 	        	</div>
 	        </span>
-		</div>
+		</div> --%>
 
-        <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%>
-        <div class="tooltip">Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style="cursor:pointer;" onclick="window.open('<%=OscarProperties.getInstance().getProperty("rx_search_url","https://online.epocrates.com/results?query=")%><%=genericName%>',width=1030,height=895)"><%=genericName%></a><span class="tooltiptext"><%=OscarProperties.getInstance().getProperty("rx_search_text","See drug information on Epocrates")%></span></div><%}%>
-       <div class="rxStr" title="not what you mean?" >
+        <%-- <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%> --%>
+        <%-- <div class="tooltip">Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style="cursor:pointer;" onclick="window.open('<%=OscarProperties.getInstance().getProperty("rx_search_url","https://online.epocrates.com/results?query=")%><%=genericName%>',width=1030,height=895)"><%=genericName%></a><span class="tooltiptext"><%=OscarProperties.getInstance().getProperty("rx_search_text","See drug information on Epocrates")%></span></div><%}%> --%>
+           </div>
+       <%-- <div class="rxStr" title="not what you mean?" >
            <a tabindex="-1" href="javascript:void(0);" onclick="focusTo('method_<%=rand%>')">Method:</a><a   id="method_<%=rand%>" onclick="focusTo(this.id)" onfocus="lookEdittable(this.id)" onblur="lookNonEdittable(this.id);updateProperty(this.id);"><%=methodStr%></a>
            <a tabindex="-1" href="javascript:void(0);" onclick="focusTo('route_<%=rand%>')">Route:</a><a id="route_<%=rand%>" onclick="focusTo(this.id)" onfocus="lookEdittable(this.id)" onblur="lookNonEdittable(this.id);updateProperty(this.id);"> <%=routeStr%></a>
            <a tabindex="-1" href="javascript:void(0);" onclick="focusTo('frequency_<%=rand%>')">Frequency:</a><a  id="frequency_<%=rand%>" onclick="focusTo(this.id) " onfocus="lookEdittable(this.id)" onblur="lookNonEdittable(this.id);updateProperty(this.id);"> <%=frequencyStr%></a>
@@ -290,9 +395,9 @@ if(listRxDrugs!=null){
            <a> </a><a tabindex="-1" href="javascript:void(0);" id="prn_<%=rand%>" onclick="setPrn('<%=rand%>');updateProperty('prnVal_<%=rand%>');"><%=prnStr%></a>
            <input id="prnVal_<%=rand%>"  style="display:none" <%if(prnStr.trim().length()==0){%>value="false"<%} else{%>value="true" <%}%> />
            <input id="rx_save_updates_<%=rand%>" type="button" value="Save Changes" onclick="saveLinks('<%=rand%>')"/>
-       </div>
-       <div id="rx_more_<%=rand%>" style="display:none;padding:2px;">
-        <div>
+       </div> --%>
+       <%-- <div id="rx_more_<%=rand%>" style="display:none;padding:2px;"> --%>
+        <%-- <div>
        	  <bean:message key="WriteScript.msgPrescribedRefill"/>:
        	  &nbsp;
        	  <bean:message key="WriteScript.msgPrescribedRefillDuration"/>
@@ -319,8 +424,9 @@ if(listRxDrugs!=null){
           <div id="otext_<%=rand%>" <%if(isOutsideProvider){%>style="display:table;padding:2px;"<%}else{%>style="display:none;padding:2px;"<%}%> >
                 <b><label style="float:left;width:80px;">Name :</label></b> <input type="text" id="outsideProviderName_<%=rand%>" name="outsideProviderName_<%=rand%>" <%if(outsideProvName!=null){%> value="<%=outsideProvName%>"<%}else {%> value=""<%}%> />
                 <b><label style="width:80px;">OHIP No:</label></b> <input type="text" id="outsideProviderOhip_<%=rand%>" name="outsideProviderOhip_<%=rand%>"  <%if(outsideProvOhip!=null){%>value="<%=outsideProvOhip%>"<%}else {%> value=""<%}%>/>
-          </div>
-    </div><div>
+          </div> --%>
+
+    <%-- <div>
 
         <label for="pastMedSelection" title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" /></label>
 
@@ -334,7 +440,8 @@ if(listRxDrugs!=null){
             <label for="pastMedE_<%=rand%>"><bean:message key="WriteScript.msgUnknown"/></label>
             <input  type="radio" value="unset" name="pastMed_<%=rand%>" id="pastMedE_<%=rand%>" <%if(pastMed == null) {%> checked="checked" <%}%>  />
          </span>
-	</div><div>
+	</div> --%>
+    <%-- <div>
 
 	<label for="patientCompliantSelection"><bean:message key="WriteScript.msgPatientCompliance"/>:</label>
 	<span id="patientCompliantSelection">
@@ -347,21 +454,25 @@ if(listRxDrugs!=null){
 		<label for="patientComplianceE_<%=rand%>"><bean:message key="WriteScript.msgUnset"/></label>
             <input type="radio" value="unset" name="patientCompliance_<%=rand%>" id="patientComplianceE_<%=rand%>" <%if(patientCompliance==null) {%> checked="checked" <%}%> />
     </span>
-	</div><div>
+	</div> --%>
+    <%-- <div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
             <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />
-    </div><div>
+    </div> --%>
+    <%-- <div>
 
     		<bean:message key="WriteScript.msgSubNotAllowed"/>
     		<input type="checkbox" name="nosubs_<%=rand%>" id="nosubs_<%=rand%>" <%if(nosubs) {%> checked="checked" <%}%> />
-    </div><div>
+    </div> --%>
+    <%-- <div>
 
         <label style="float:left;width:80px;">Start Date:</label>
            <input type="text" id="rxDate_<%=rand%>" name="rxDate_<%=rand%>" value="<%=startDate%>" <%if(startDateUnknown) {%> disabled="disabled" <%}%>/>
         <bean:message key="WriteScript.msgUnknown"/>
            <input  type="checkbox" name="startDateUnknown_<%=rand%>" id="startDateUnknown_<%=rand%>" <%if(startDateUnknown) {%> checked="checked" <%}%> onclick="toggleStartDateUnknown('<%=rand%>');"/>
 
-           </div><div>
+           </div> --%>
+           <%-- <div>
 	<label style="">Last Refill Date:</label>
            <input type="text" id="lastRefillDate_<%=rand%>"  name="lastRefillDate_<%=rand%>" value="<%=lastRefillDate%>" />
 	</div><div>
@@ -372,14 +483,15 @@ if(listRxDrugs!=null){
            </div><div>
 
 			<bean:message key="WriteScript.msgProtocolReference"/>:
-           <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />
+           <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" /> --%>
 
            <%--  OMD Revalidation: field not required currently. Commented out as this may be used again in the future.
           <label style="">Prior Rx Protocol:</label>
            <input type="text" id="protocol_<%=rand%>"  name="priorRxProtocol_<%=rand%>" value="<%=priorRxProtocol%>" />
             --%>
 
-           </div><div>
+           <%-- </div> --%>
+           <%-- <div>
 
            <bean:message key="WriteScript.msgPickUpDate"/>:
            <input type="text" id="pickupDate_<%=rand%>"  name="pickupDate_<%=rand%>" value="<%=pickupDate%>" onchange="if (!isValidDate(this.value)) {this.value=null}" />
@@ -407,7 +519,8 @@ if(listRxDrugs!=null){
                          <option value="Obsolete" <%=rxStatus.equals("Obsolete")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.Obsolete"/></option>
                          <option value="Nullified" <%=rxStatus.equals("Nullified")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.Nullified"/></option>
            </select>
-                </div><div>
+                </div> --%>
+                <%-- <div>
                 <bean:message key="WriteScript.msgDrugForm"/>:
                 <%if(rx.getDrugFormList()!=null && rx.getDrugFormList().indexOf(",")!=-1){ %>
                 <select name="drugForm_<%=rand%>">
@@ -425,7 +538,7 @@ if(listRxDrugs!=null){
 
 
 
-       			</div>
+       			</div> --%>
 
         </div>
 
@@ -682,6 +795,7 @@ if(listRxDrugs!=null){
            }
         </script>
                 <%}%>
+
 <script type="text/javascript">
 counterRx=0;
 

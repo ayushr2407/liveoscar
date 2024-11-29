@@ -35,6 +35,23 @@
 <%@ page import="oscar.oscarRx.data.*,java.util.*"%>
 <%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="oscar.oscarRx.util.PharmacyAPIFetcher" %>
+<%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
+
+<%
+    if ("update".equals(request.getParameter("action"))) {
+        PharmacyAPIFetcher pharmacyAPIFetcher = new PharmacyAPIFetcher();
+        pharmacyAPIFetcher.fetchAndSavePharmacies();
+    }
+
+    RxPharmacyData rxPharmacyData = new RxPharmacyData();
+    List<PharmacyInfo> pharmacies = rxPharmacyData.getAllPharmacies();
+    request.setAttribute("pharmacies", pharmacies);
+%>
+
+
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -102,6 +119,22 @@ th {
 
 </style>
 <script>
+  function updatePharmacyList() {
+    if (confirm('<bean:message key="SelectPharmacy.confirmUpdate" />')) {
+        $.ajax({
+            url: '<%=request.getContextPath()%>/oscarRx/SelectPharmacy2.jsp?action=update',
+            method: 'GET',
+            success: function(response) {
+                alert('<bean:message key="SelectPharmacy.updateSuccess" />');
+                window.location.reload();
+            },
+            error: function() {
+                alert('<bean:message key="SelectPharmacy.updateError" />');
+            }
+        });
+    }
+}
+
 ( function($) {
 	$(function() {
 		var demo = $("#demographicNo").val();
@@ -291,27 +324,66 @@ th {
 			});
 		});
 
-      $(".pharmacyItem").on( "click", function(){
-		  var pharmId = $(this).attr("pharmId");
+$(".pharmacyItem").on("click", function() {
+  var pharmId = $(this).attr("pharmId");
+  var demo = $("#demographicNo").val();
 
-		  $("#preferredList div").each(function(){
-			  if($(this).attr("pharmId") == pharmId){
-				  alert("Selected pharamacy is already selected");
-				  return false;
-			  }
-		  });
+  var data = "pharmId=" + pharmId + "&demographicNo=" + demo;
 
-		  var data = "pharmId=" + pharmId + "&demographicNo=" + demo + "&preferredOrder=" + $("#preferredList div").length;
+  $.ajax({
+    url: "<%=request.getContextPath()%>/oscarRx/managePharmacy.do?method=setPreferred",
+    method: 'POST',
+    data: data,
+    dataType: 'json',
+    success: function(response) {
+      if (response.success) {
+        // Clear existing preferred pharmacy
+        $("#preferredList").empty();
 
-		  $.post("<%=request.getContextPath() + "/oscarRx/managePharmacy.do?method=setPreferred"%>", data, function( data ) {
-			if( data.id ) {
-				window.location.reload(false);
-			}
-			else {
-				alert("There was an error setting your preferred Pharmacy");
-			}
-		  },"json");
-      });
+        // Add the new preferred pharmacy
+        var newPharmacy = $("<div>").addClass("linkedPrefPharmacy")
+                                    .attr("pharmId", pharmId)
+                                    .html("Preferred Pharmacy: " + response.pharmacyName + "<br>" +
+                                          "Address: " + response.address + "<br>" +
+                                          "Phone: " + response.phone);
+        $("#preferredList").append(newPharmacy);
+
+        // Update the pharmacy list to reflect the change
+        $(".pharmacyItem").removeClass("preferred");
+        $(".pharmacyItem[pharmId='" + pharmId + "']").addClass("preferred");
+
+        alert("Preferred pharmacy updated successfully");
+      } else {
+        alert("Error updating preferred pharmacy: " + (response.message || "Unknown error"));
+      }
+    },
+    error: function() {
+      alert("Error communicating with the server");
+    }
+  });
+});
+
+    //    $(".pharmacyItem").on( "click", function(){
+	// 	  var pharmId = $(this).attr("pharmId");
+
+	// 	  $("#preferredList div").each(function(){
+	// 		  if($(this).attr("pharmId") == pharmId){
+	// 			  alert("Selected pharamacy is already selected");
+	// 			  return false;
+	// 		  }
+	// 	  });
+
+	// 	  var data = "pharmId=" + pharmId + "&demographicNo=" + demo + "&preferredOrder=" + $("#preferredList div").length;
+
+	// 	  $.post("<%=request.getContextPath() + "/oscarRx/managePharmacy.do?method=setPreferred"%>", data, function( data ) {
+	// 		if( data.id ) {
+	// 			window.location.reload(false);
+	// 		}
+	// 		else {
+	// 			alert("There was an error setting your preferred Pharmacy");
+	// 		}
+	// 	  },"json");
+    //   });
 
 	$(".deletePharm").on( "click", function(){
 		if( confirm("You are about to remove this pharmacy for all users. Are you sure you want to continue?")) {
@@ -427,6 +499,7 @@ function returnToRx(){
 					<input placeholder="<bean:message key="SelectPharmacy.table.fax" />" type="text" id="pharmacyFaxSearch" style="width: 82px"> &nbsp;&nbsp;
 					<input placeholder="<bean:message key="SelectPharmacy.table.address" />" type="text" id="pharmacyAddressSearch" style="width: 125px">  &nbsp;&nbsp;
 					<a href="javascript:void(0)" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
+					<a href="javascript:void(0)" onclick="updatePharmacyList();"><bean:message key="SelectPharmacy.updateList" /></a>
 				</th>
 			</tr>
 			<tr>
@@ -437,9 +510,8 @@ function returnToRx(){
 					</div>
 				</td>
 				<td>
-					<% RxPharmacyData pharmacy = new RxPharmacyData();
-                         List< org.oscarehr.common.model.PharmacyInfo> pharList = pharmacy.getAllPharmacies();
-                       %>
+					<% List<PharmacyInfo> pharList = (List<PharmacyInfo>)request.getAttribute("pharmacies"); %>
+
 					<div style="width:100%; height:560px; overflow:auto;">
 					<table id="pharmacyList" style="width:100%;">
 						<tr>
@@ -449,32 +521,33 @@ function returnToRx(){
 							<th><bean:message key="SelectPharmacy.table.postalCode" /></th>
 							<th><bean:message key="SelectPharmacy.table.phone" /></th>
 							<th><bean:message key="SelectPharmacy.table.fax" /></th>
+							<%-- <th><bean:message key="SelectPharmacy.table.status" /></th> --%>
 							<th>&nbsp;</th>
 							<th>&nbsp;</th>
 						</tr>
 						<tr><td colspan="8"><br><hr style="border:1px solid black;">
 						<p style="padding:4px;background-color:#FDFEC7;font-size:12px; text-align:center;"><bean:message key="SelectPharmacy.instructions" /></p>
                         </td></tr>
-						<% for (int i = 0 ; i < pharList.size(); i++){
-								   org.oscarehr.common.model.PharmacyInfo ph = pharList.get(i);
-								%>
-
-						<tr class="pharmacyItem" pharmId="<%=ph.getId()%>">
-							<td class="pharmacyName" ><%=Encode.forHtml(ph.getName())%></td>
-							<td class="address" ><%=Encode.forHtml(ph.getAddress())%></td>
-							<td class="city" ><%=Encode.forHtml(ph.getCity())%></td>
-							<td class="postalCode" ><%=Encode.forHtml(ph.getPostalCode())%></td>
-							<td class="phone" ><%=Encode.forHtml(ph.getPhone1())%></td>
-							<td class="fax" ><%=Encode.forHtml(ph.getFax())%></td>
-
-							<td onclick='event.stopPropagation();return false;'><a href="#"  onclick="editPharmacy(<%=ph.getId()%>);"><bean:message
-								key="SelectPharmacy.editLink" /></a></td>
-							<td onclick='event.stopPropagation();return false;'><a href="#" class="deletePharm"><bean:message
-								key="SelectPharmacy.deleteLink" /></a></td>
-
-						</tr>
-						<% } %>
-					</table>
+						  <% if (pharList != null && !pharList.isEmpty()) { %>
+            <% for (org.oscarehr.common.model.PharmacyInfo ph : pharList) { %>
+                <tr class="pharmacyItem" pharmId="<%=ph.getId()%>">
+                    <td class="pharmacyName" ><%=Encode.forHtml(ph.getName())%></td>
+                    <td class="address" ><%=Encode.forHtml(ph.getAddress())%></td>
+                    <td class="city" ><%=Encode.forHtml(ph.getCity())%></td>
+                    <td class="postalCode" ><%=Encode.forHtml(ph.getPostalCode())%></td>
+                    <td class="phone" ><%=Encode.forHtml(ph.getPhone1())%></td>
+                    <td class="fax" ><%=Encode.forHtml(ph.getFax())%></td>
+					<td class="status">
+                    <%= ph.getStatus() == '1' ? "Active" : "Inactive" %>
+</td>
+                    <td onclick='event.stopPropagation();return false;'><a href="#"  onclick="editPharmacy(<%=ph.getId()%>);"><bean:message key="SelectPharmacy.editLink" /></a></td>
+                    <td onclick='event.stopPropagation();return false;'><a href="#" class="deletePharm"><bean:message key="SelectPharmacy.deleteLink" /></a></td>
+                </tr>
+            <% } %>
+        <% } else { %>
+            <tr><td colspan="8">No pharmacies found</td></tr>
+        <% } %>
+    </table>
 					</div>
 				</td>
 			</tr>

@@ -38,6 +38,20 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 
+<style>
+  body {
+            padding: 20px;
+        }
+
+        .searchBox {
+           padding: 20px;
+           margin-bottom: 20px;
+           background-color: #f9f9f9;
+           border-radius: 5px;
+        }
+        
+</style>
+
 <script language="JavaScript">
 function searchInactive() {
     document.titlesearch.ptstatus.value="inactive";

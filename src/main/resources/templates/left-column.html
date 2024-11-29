@@ -1,0 +1,28 @@
+    <div class="left-column">
+        <img src="${logo}" alt="Clinic Logo" class="logo" />
+        <p>Date: <strong>${rxDate}</strong></p>
+        <br />
+        <p>
+            ${sigDoctorName}<br />
+            License #${pracNo}
+        </p>
+        <br />
+        <p>${clinicName}</p>
+        <p>Ph. ${clinicTel}<br />Fax. ${clinicFax}</p>
+        <div class="divider"></div>
+        <p>${deliveryOption}</p><br />
+        <div class="section">
+            <p style="margin: 0;">Recipient</p><br />
+            <p>
+                <strong>${pharmaName}</strong><br />
+                ${pharmaAddress1}<br />
+                ${pharmaAddress2}<br />
+                Ph. ${pharmaTel}<br />
+                Fax. ${pharmaFax}
+            </p>
+        </div>
+        <br /><br /><br />
+        <p style="font-size: 11px;">
+            Fax was sent to ${pharmaName} on ${currentDate} at ${currentTime}
+        </p>
+    </div>

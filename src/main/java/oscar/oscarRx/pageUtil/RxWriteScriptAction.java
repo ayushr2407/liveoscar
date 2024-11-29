@@ -785,7 +785,80 @@ public final class RxWriteScriptAction extends DispatchAction {
 			} catch (Exception e) {
 				logger.error("Error", e);
 			}
-		} 
+		} else if ("updateLongTerm".equals(action)) {
+
+			try {
+				String randomId = request.getParameter("randomId");
+				String longTermValue = request.getParameter("longTerm");
+				RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+		
+				if (longTermValue != null) {
+					Boolean longTerm = "true".equalsIgnoreCase(longTermValue); // Parse string to Boolean
+					rx.setLongTerm(longTerm);
+				}
+		
+				// Update the RxSessionBean with the modified Prescription
+				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
+				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+		
+				response.getWriter().write("LongTerm updated successfully");
+			} catch (Exception e) {
+				logger.error("Error updating longTerm", e);
+			}
+		}else if ("updateStartDate".equals(action)) {
+
+			try {
+				String randomId = request.getParameter("randomId");
+				String startDate = request.getParameter("startDate");
+				RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+		
+				if (startDate != null && !startDate.isEmpty()) {
+					rx.setRxDate(RxUtil.StringToDate(startDate, "yyyy-MM-dd"));
+				}
+		
+				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
+				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+				response.getWriter().write("Start date updated successfully");
+			} catch (Exception e) {
+				logger.error("Error", e);
+			}
+		
+		}else if ("updateDuration".equals(action)) {
+
+			try {
+				String randomId = request.getParameter("randomId");
+				String duration = request.getParameter("duration");
+				RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+		
+				if (duration != null && !duration.isEmpty()) {
+					rx.setDuration(duration);
+				}
+		
+				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
+				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+				response.getWriter().write("Duration updated successfully");
+			} catch (Exception e) {
+				logger.error("Error", e);
+			}
+		
+		}else if ("updateEndDate".equals(action)) {
+
+			try {
+				String randomId = request.getParameter("randomId");
+				String endDate = request.getParameter("endDate");
+				RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+		
+				if (endDate != null && !endDate.isEmpty()) {
+					rx.setEndDate(RxUtil.StringToDate(endDate, "yyyy-MM-dd"));
+				}
+		
+				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
+				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+				response.getWriter().write("End date updated successfully");
+			} catch (Exception e) {
+				logger.error("Error", e);
+			}
+		}
 			
 		return null;
 
@@ -932,7 +1005,15 @@ public final class RxWriteScriptAction extends DispatchAction {
 								rx.setRepeat(Integer.parseInt(val));
 							}
 						
-						} else if(elem.equals("codingSystem_" + num)) {
+						} else if (elem.equals("startDate_" + num)) {
+							rx.setStartDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
+						} else if (elem.equals("duration_" + num)) {
+							rx.setDuration(val);
+						} else if (elem.equals("endDate_" + num)) {
+							String endDateValue = val.trim(); // Retrieve end date value
+							rx.setEndDate_p(endDateValue); // Map end date to Prescription class
+						}
+						 else if(elem.equals("codingSystem_" + num)) {
 							if(val != null) {
 								rx.setDrugReasonCodeSystem(val);
 							}
@@ -955,13 +1036,26 @@ public final class RxWriteScriptAction extends DispatchAction {
 									rx.setUnitName(RxUtil.getUnitNameFromQuantityText(val));
 								}
 							}
-						} else if (elem.equals("longTerm_" + num)) {
+						} if (elem.equals("longTerm_" + num)) {
 							if ("yes".equals(val)) {
-								isLongTerm = true;
-							} else if("no".equals(val)) {
-								isLongTerm = false;
-							} 
-						} else if (elem.equals("shortTerm_" + num)) {
+								rx.setLongterm_p(true);
+							} else if ("no".equals(val)) {
+								rx.setLongterm_p(false);
+							}
+							System.out.println("DEBUG: LongTerm Value Set: " + rx.getLongTerm());
+						} else if (elem.equals("compliance_" + num)) {
+							String complianceValue = val.trim().toLowerCase(); // Retrieve dropdown value
+							rx.setPatientCompliance_p(complianceValue); // Map dropdown to Prescription class
+						
+							if ("no".equals(complianceValue)) {
+								String frequencyValue = request.getParameter("frequency_" + num);
+								if (frequencyValue != null && !frequencyValue.isEmpty()) {
+									rx.setFrequency(frequencyValue); // Map frequency to Prescription class
+								}
+							}
+						}
+						
+						else if (elem.equals("shortTerm_" + num)) {
 							if (val.equals("on")) {
 								isShortTerm = true;
 							} else {

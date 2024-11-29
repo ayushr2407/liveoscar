@@ -24,487 +24,394 @@
 
 --%>
 
+
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+    boolean authed = true;
 %>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
+    <% authed = false; %>
+    <% response.sendRedirect("../securityError.jsp?type=_admin"); %>
 </security:oscarSec>
 <%
-if(!authed) {
-	return;
+if (!authed) {
+    return;
 }
 %>
-
-<%@page import="org.oscarehr.common.dao.FaxConfigDao"%>
-<%@page import="org.oscarehr.common.model.FaxConfig"%>
-<%@page import="org.oscarehr.common.dao.QueueDao"%>
-<%@page import="org.oscarehr.common.model.Queue" %>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-
-<%@page import="java.util.List"%>
-<%@page import="java.util.HashMap"%>
 
 <!DOCTYPE html>
 <html>
 <head>
-<title>Manage Fax</title>
-
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-                              
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/bootstrap.css" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" type="text/css">
-
-<style type="text/css">
-
-.center { float: none; margin-left: auto; margin-right: auto; }
-
+    <title>SR Fax Configuration</title>
+    <script src="<%=request.getContextPath() %>/js/jquery-1.12.3.js"></script>
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/bootstrap.min.css">
+<style>
+    body { 
+        padding: 10px; 
+    }
+    .container-fluid { 
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .card { 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    .form-check {
+        padding-left: 0;
+    }
+    .text-right {
+        text-align: right;
+    }
+    .table { 
+        margin-top: 15px; 
+        font-size: 0.9em;
+    }
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    @media (min-width: 768px) {
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+    }
+    @media (max-width: 767px) {
+        .text-right {
+            text-align: left !important;
+        }
+    }
 </style>
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.12.3.js"></script>
-        <script src="<%=request.getContextPath() %>/library/jquery/jquery-migrate-1.4.1.js"></script>
-
-<script type="text/javascript">
-	
-	$(document).on( "keypress", function() {
-		$("#submit").prop("disabled", false);
-		$(this).off();
-	});
-			
-	
-	$(document).ready(function() {
-		$("#faxUrl").trigger( "focus" );				
-		
-		//$("select").on("change",function() {
-		$("select").on("change", function() {
-			$("#submit").prop("disabled", false);
-			$(this).off();
-		});
-				
-		$("#submit").on( "click", function(e) {
-			e.preventDefault();
-			
-			if( verify() ) {
-				var url = "<%=request.getContextPath() %>/admin/ManageFax.do";
-				var data = $("#configFrm").serialize();
-				
-				$.ajax({
-					url: url,
-					method: 'POST',
-					data: data,
-					dataType: "json",
-					success: function(data){
-						
-						if( data.success ) {
-							$("#msg").html("Configuration saved!");
-							$('.alert').removeClass('alert-error');
-							$('.alert').addClass('alert-success');
-							$('.alert').show();
-						}
-						else {
-							$("#msg").html("There was a problem saving your configuration.  Check the logs for further details.");
-							$('.alert').removeClass('alert-success');
-							$('.alert').addClass('alert-error');
-							$('.alert').show(); 
-						}
-					}});
-				
-			} 
-			else {
-				alert("The configuration form is incomplete");
-			}//end if
-		});
-		
-		if( $("#faxUrl").val().substr(0,2) == "ip" ) {
-			$("#faxUrl").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-		}
-		else {
-			$("#faxUrl").on( "dblclick", function() {
-				$(this).val("");
-			});
-		}
-		
-		
-		if( $("#faxServiceUser").val() == "Fax Service login" ) {
-			$("#faxServiceUser").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-		}
-		else {
-			$("#faxServiceUser").on( "dblclick", function() {
-				$(this).val("");
-			});
-		}
-				
-		if( $("#faxServicePasswd").val() == "**********" ) {
-			$("#faxServicePasswd").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-		}
-		else {
-			$("#faxServicePasswd").on( "dblclick", function() {
-				$(this).val("");
-			});
-		}
-		
-		if( $("#faxUser").val() == "user login" ) {
-			$("#faxUser").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-		}
-		
-		
-		if( $("#faxPasswd").val() == "**********" ) {
-			$("#faxPasswd").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-		}
-		
-		if( $("#faxNumber").val() == "Clinic Fax Number" ) {
-			$("#faxNumber").on( "keypress", function() {
-				$(this).val("");
-				$(this).off();
-				$(this).on( "dblclick", function() {
-					$(this).val("");
-				});
-			});
-			//blur() deprecated in jQuery 3.3
-			//$("#faxNumber").blur(function() {
-			$("#faxNumber").on("blur", function() {
-				if( !$(this).val().match("^\\d{10}$")) {
-					alert("please enter fax number in form 1234567890");
-					var input = $(this);
-					setTimeout(function() {input.focus();},10);
-				}
-			});
-		}
-
-
-		$("input[type='text']").filter(function() {
-			return this.id.match("^faxUser\d+")
-		}).each(function() {			
-			$(this).on( "dblclick", function() {
-				$(this).val("");
-			});
-		});
-			
-		$("input[type='password']").filter(function() {
-			return this.id.match("^faxPasswd\\d+")
-		}).each(function() {			
-			$(this).on( "dblclick", function() {
-				$(this).val("");
-			});
-						
-		});
-		
-		
-		$("input[type='text']").filter(function() {
-			return this.id.match("^faxNumber\\d+")
-		}).each(function() {				
-			$(this).on( "dblclick", function() {
-				$(this).val("");
-			});
-			
-			$(this).blur(function() {
-				if( !$(this).val().match("^\\d{10}")) {
-					alert("please enter fax number in form 1234567890");
-					var input = $(this);
-					setTimeout(function() {input.focus();},10);
-				}
-			});
-						
-		});
-				
-		$("input[type='radio']").on( "click", function() {
-			$("#submit").prop("disabled", false);
-			setState(this);
-		});
-		
-		
-	});
-
-	<%
-
-	FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-	List<FaxConfig>faxConfigList = faxConfigDao.findAll(null, null);
-	Integer count = 0;
-
-	QueueDao queueDao = SpringUtils.getBean(QueueDao.class);
-	HashMap<Integer,String>queueMap = queueDao.getHashMapOfQueues();
-
-	%>
-
-	
-	var userCount = <%=faxConfigList.isEmpty() ? "0" : faxConfigList.size()%>;
-	function addUser() {
-		++userCount;
-		
-		var userDivId = "user" + userCount;
-		var div = $("#user").clone(true,true);
-		
-		$(div).attr("id",userDivId);
-		$(div).find("#faxUser").attr("id","faxUser" + userCount);
-		$(div).find("#faxPasswd").attr("id","faxPasswd" + userCount);
-		$(div).find("#faxPasswd"+userCount).val("");
-		
-		$(div).find("#remove").attr("id","r"+userCount);
-		$(div).find("#r"+userCount).attr("onclick","removeUser("+userCount+");return false;");
-		$(div).find('input[type="text"]').val("");
-		$(div).find('input[type="radio"]').prop('checked', false);
-		$(div).find("#on").attr("name","active" + userCount);
-		$(div).find("#of").attr("name","active" + userCount);
-		$(div).find("#on").attr("id","on" + userCount);
-		$(div).find("#of").attr("id","of" + userCount);
-		$(div).find("#activeState").val("");
-		$(div).find("#activeState").attr("id","activeState"+userCount);
-		$(div).find("#id").val("-1");
-		$(div).find("#id").attr("id","id"+userCount);
-		
-	  	
-		$(div).find("#id").val("-1");
-		$(div).find("select").val("-1");
-		
-		var theSpan = document.createElement("span");
-		//<div class="span12">
-		theSpan.setAttribute("class","span12");
-		$(div).appendTo(theSpan);
-		
-		$("#content").append(theSpan);
-		
-		//$(div).appendTo("#content");
-		$("#faxUser"+userCount).trigger( "focus" );	
-		$("#submit").prop("disabled", false);
-	}
-	
-	function removeUser(divCount) {
-		var divId;
-		
-		$("#submit").prop("disabled", false);
-		
-		if( divCount > 0 ) {
-			divId = "user" + divCount;
-			$("#"+divId).remove();
-		}
-		else {
-			divId = "user";
-			$('#'+divId + ' input[type="text"]').val("");			
-			$('#'+divId + ' input[type="radio"]').attr("checked",false);
-			$('#'+divId + ' input[type="hidden"]').val("");
-			$('#'+divId + ' select').val("-1");				
-		}
-	}
-	
-	function verify() {
-		var names = ["faxUrl","siteUser","sitePasswd","faxUser","faxPassword","faxNumber","activeState","inboxQueue"];
-		var valid = true;
-		var incomplete = new Object();
-		
-		for( var idx = 0; idx < names.length; ++idx ) {
-			try {
-			 	$('[name="'+names[idx] + '"]').each(function(index) {	
-			 		if( index == 0 ) {
-			 			return;
-			 		}			 					 	
-			 		
-			 		if( $(this).val() == "" || $(this).val() == "-1" || $(this).val() == "ip addr of fax service" || $(this).val() == "Fax Service login" ||
-			 				$(this).val() == "Fax Service Passwd" || $(this).val() == "user login" || $(this).val() == "login passwd" || $(this).val() == "Clinic Fax Number" ) {			 			
-			 			throw incomplete;
-			 		}
-			 	});
-			 	}
-				catch( incomplete ) {
-					valid = false;
-					break;
-				}
-			
-		}
-		
-		return valid;
-	}
-	
-	function setState(elem) {
-		var id = "#activeState" + elem.id.substring(2);
-		$(id).val($(elem).val());
-	}
-	
-
-</script>
 </head>
-
-
 <body>
-	<div class="container-fluid">
-		<form id="configFrm" method="post" onSubmit="return verify()"> 
-		<input type="hidden" name="method" value="configure"/> 
-		<div id="bodyrow" class="row">
-			<div class="span12">
-				<legend>Fax Server Credentials</legend>
-			</div>
-	
-	
-				<div class="span12">
-					<label for="faxUrl" > Fax Server URL</label>
-					<input class="span12" id="faxUrl" type="text" name="faxUrl" placeholder="fax web service URL" value="<%=faxConfigList.isEmpty() ?  "" : faxConfigList.get(0).getUrl()%>" />				
-				</div>			
-			
-				<div class="span6">
-					<label for="faxServiceUser">Fax Server Username</label>
-					<input class="span6" id="faxServiceUser" type="text" name="siteUser" value="<%=faxConfigList.isEmpty() || faxConfigList.get(0).getSiteUser() == null ? "Fax Service login" : faxConfigList.get(0).getSiteUser() %>" />				
-				</div>			
-	
-				<div class="span6">
-					<%
-						String faxServicePassword = "";
-						
-						if(faxConfigList != null && !faxConfigList.isEmpty() && faxConfigList.get(count) != null && faxConfigList.get(count).getPasswd() != null
-								&& faxConfigList.get(count).getPasswd().length() > 0) {
-							faxServicePassword="**********";
-						}
-						
-					%>
-					<label for="faxServicePasswd">Fax Server Password</label>
-					<input class="span6" id="faxServicePasswd" type="password" name="sitePasswd" value="<%=faxServicePassword%>" />
-				</div>
-		</div>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">SR Fax Configuration</h4>
+            <div id="msg" class="alert" style="display: none;"></div>
+            
+            <form id="configFrm" method="post">
+                <input type="hidden" name="method" value="configure"/>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="faxUser">Account ID</label>
+                            <input type="text" class="form-control" id="faxUser" name="faxUser" required/>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="faxPasswd">Password</label>
+                            <input type="password" class="form-control" id="faxPasswd" name="faxPassword" required/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="faxNumber">Fax Number</label>
+                            <input type="text" class="form-control" id="faxNumber" name="faxNumber" required pattern="\d{10}" title="Please enter a 10-digit fax number"/>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="senderEmail">Email</label>
+                            <input type="email" class="form-control" id="senderEmail" name="senderEmail" required/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="isActive" name="isActive">
+                            <label class="form-check-label" for="isActive">Set as Active</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-		<div id="content" class="row">
-			
-			<div class="span12">
-				<legend>Fax Gateway Accounts <a class="pull-right" style="margin-right:40px;" href="" onclick="addUser();return false;">+Add</a></legend>
-			</div>
-			
-			<div class="span12">
-		
-				<% do { %>
-				<div class="row" id="user<%=count == 0 ? "" : count%>">
-				<div class="span12">
-				
-				<div class="row">
-					<div class="span6">
-						<label for="faxUser<%=count == 0 ? "" : count%>">User</label>
-							<input class="span6" type="text" id="faxUser<%=count == 0 ? "" : count%>" name="faxUser" value="<%=faxConfigList.isEmpty() ? "user login" : faxConfigList.get(count).getFaxUser()%>"/>
-							<input type="hidden" id="id<%=count == 0 ? "" : count%>" name="id" value="<%=faxConfigList.isEmpty() ? "-1" : faxConfigList.get(count).getId()%>"/>
-						
-					</div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="card-title">Saved Configurations</h4>
+            <table id="configTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Fax Number</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- This will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    <script>
+    $(document).ready(function() {
 
-					<div class="span6">
-						<label for="faxPasswd<%=count == 0 ? "" : count%>" >Password</label>
-						<%
-						String faxPassword = "";
-						
-						if(faxConfigList != null && !faxConfigList.isEmpty() && faxConfigList.get(count) != null && faxConfigList.get(count).getFaxPasswd() != null
-								&& faxConfigList.get(count).getFaxPasswd().length() > 0) {
-							faxPassword="**********";
-						}
-						
-						%>
-						<input class="span6" type="password" id="faxPasswd<%=count == 0 ? "" : count%>" name="faxPassword" value="<%=faxPassword%>"/>
-						
-					</div>
-				</div>
-				<div class="row">
-					<div class="span6">
-						<label for="faxNumber<%=count == 0 ? "" : count%>" >Fax Number (##########)</label>
-						<input class="span6" type="text" id="faxNumber<%=count == 0 ? "" : count%>" name="faxNumber" value="<%=faxConfigList.isEmpty() ? "Clinic Fax Number" : faxConfigList.get(count).getFaxNumber()%>"/>
-					</div>	
-					
-					<div class="span6">
-					<label for="senderEmail<%=count == 0 ? "" : count%>">Email</label>
-					<input class="span6" type="email" id="senderEmail<%=count == 0 ? "" : count%>" name="senderEmail" placeholder="Account email" value="<%=faxConfigList.isEmpty() ? "Sender Email" :  faxConfigList.get(count).getSenderEmail()%>" />
-				</div>
-				</div>
-				<div class="row">
-					<div class="span6">
-						<label for="inBoxQueue<%=count == 0 ? "" : count%>">Inbox Queue</label>
-							<select class="span6" id="inBoxQueue<%=count == 0 ? "" : count%>" name="inboxQueue">
-								<option value="-1">-</option>						
-								<%
-									for( Integer queueId : queueMap.keySet() ) {
-							 	
-							 			out.print("<option value='" + queueId+"'");
-							 			
-							 			if( !faxConfigList.isEmpty() ) {
-																		    							
-											if( faxConfigList.get(count).getQueue().compareTo(queueId) == 0 ) {						
-												out.print(" selected");											
-											}
-									    }
-									    
-									    out.print(">" + queueMap.get(queueId) + "</option>");
-									}
-								%>
-							</select>
-						
-					</div>
-					<div class="span6">
-						<label>Enable/Disable Gateway</label>
-						
-							<label class="radio inline control-label">
-							<input type="radio" id="on<%=count == 0 ? "" : count %>" name="active<%=count == 0 ? "" : count%>" value="true" <%=faxConfigList.isEmpty() ? "" : faxConfigList.get(count).isActive() ? "checked" : ""%>  />
-							On</label>
-							<label class="radio inline control-label">
-							<input type="radio" id="of<%=count == 0 ? "" : count %>" name="active<%=count == 0 ? "" : count%>" value="false" <%=faxConfigList.isEmpty() ? "" : faxConfigList.get(count).isActive()  ? "" : "checked"%> />
-							Off</label>
-							
-							<input type="hidden" id="activeState<%=count == 0 ? "" : count%>" name="activeState" value="<%=faxConfigList.isEmpty() ? "" : faxConfigList.get(count).isActive()%>" />			
-					</div>
-				</div>
+		 $("#faxNumber").on("input", function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    });
+        // Load existing configurations
+        loadConfigurations();
 
-						<% if( count <= faxConfigList.size() ) { %>
-						<div class="row">
-							<div class="span12">
-								<a class="pull-right" style="color:red;" id="remove" href="" onclick="removeUser(<%=count%>);return false;">-Delete</a>
-							</div>
-						</div>
-					    <%} %>					
-				</div> <!--  end master column -->
-				</div>	<!-- end account row -->		
-					<%
-						++count;
-					} while(count < faxConfigList.size());
-					%>
-				
-			</div> <!-- end master column -->
-		</div> <!-- end content -->
-				
-				<div class="row">
-					<div class="span12">
-						<input class="btn btn-default" id="submit" type="submit" disabled value="Save" />
-					</div>
-				</div>
-			</form>
-			
-		<div id="msg" class="row alert">
-   		</div>								
-</div>	<!-- end container -->	
-		
+        $("#configFrm").on("submit", function(e) {
+            e.preventDefault();
+            var url = "<%=request.getContextPath() %>/admin/ManageFax.do?method=configure";
+            var data = $(this).serialize();
 
-	
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: data,
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        showMessage("Configuration saved!", "success");
+                        loadConfigurations();
+                        $("#configFrm")[0].reset();
+                    } else {
+                        showMessage("Error saving configuration: " + data.error, "danger");
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showMessage("Error communicating with the server: " + textStatus, "danger");
+                }
+            });
+        });
+
+        function loadConfigurations() {
+    $.ajax({
+        url: "<%=request.getContextPath() %>/admin/ManageFax.do?method=getAllConfigurations",
+        method: 'GET',
+        dataType: "json",
+        success: function(data) {
+            if (data.success) {
+                var tbody = $('#configTable tbody');
+                tbody.empty();
+                // Reverse the array to show the latest configuration first
+                data.configurations.reverse().forEach(function(config) {
+                    var row = $('<tr>');
+                    row.append($('<td>').text(config.faxUser));
+                    row.append($('<td>').text(config.faxNumber));
+                    row.append($('<td>').text(config.senderEmail));
+                    row.append($('<td>').text(config.active ? 'Active' : 'Inactive'));
+                    var actionCell = $('<td>');
+                    actionCell.append($('<button>').text('Delete').addClass('btn btn-sm btn-danger').click(function() {
+                        deleteConfiguration(config.id);
+                    }));
+                    row.append(actionCell);
+                    tbody.append(row);
+                });
+            } else {
+                showMessage("Error loading configurations: " + data.error, "danger");
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            showMessage("Error loading configurations: " + textStatus, "danger");
+        }
+    });
+}
+
+        function deleteConfiguration(id) {
+            if (confirm('Are you sure you want to delete this configuration?')) {
+                $.ajax({
+                    url: "<%=request.getContextPath() %>/admin/ManageFax.do?method=deleteConfiguration",
+                    method: 'POST',
+                    data: { id: id },
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.success) {
+                            showMessage("Configuration deleted successfully!", "success");
+                            loadConfigurations();
+                        } else {
+                            showMessage("Error deleting configuration: " + data.error, "danger");
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        showMessage("Error deleting configuration: " + textStatus, "danger");
+                    }
+                });
+            }
+        }
+
+        function showMessage(message, type) {
+            $("#msg").removeClass().addClass("alert alert-" + type).text(message).show().delay(3000).fadeOut();
+        }
+    });
+    </script>
 </body>
 </html>
+
+
+<%-- <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+    boolean authed = true;
+%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>">
+    <% authed = false; %>
+    <% response.sendRedirect("../securityError.jsp?type=_admin"); %>
+</security:oscarSec>
+<%
+if (!authed) {
+    return;
+}
+%>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fax Configuration</title>
+    <script src="<%=request.getContextPath() %>/js/jquery-1.12.3.js"></script>
+</head>
+<body>
+    <h2>Fax Configuration</h2>
+    <div id="msg" class="alert"></div>
+    
+    <form id="configFrm" method="post">
+        <input type="hidden" name="method" value="configure"/>
+        
+        <label for="faxUser">Account ID</label>
+        <input type="text" id="faxUser" name="faxUser" required/>
+
+        <label for="faxPasswd">Password</label>
+        <input type="password" id="faxPasswd" name="faxPassword" required/>
+
+        <label for="faxNumber">Fax Number</label>
+        <input type="text" id="faxNumber" name="faxNumber" required/>
+
+        <label for="senderEmail">Email</label>
+        <input type="email" id="senderEmail" name="senderEmail" required/>
+
+        <input type="submit" value="Save"/>
+    </form>
+
+<script>
+$(document).ready(function() {
+    // Load existing configurations
+    loadConfigurations();
+
+    $("#configFrm").on("submit", function(e) {
+        e.preventDefault();
+        var url = "<%=request.getContextPath() %>/admin/ManageFax.do?method=configure";
+        var data = $(this).serialize();
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: data,
+            dataType: "json",
+            success: function(data) {
+                if (data.success) {
+                    $("#msg").html("Configuration saved!");
+                    $('.alert').removeClass('alert-error').addClass('alert-success');
+                    loadConfigurations(); // Reload configurations after saving
+                } else {
+                    $("#msg").html("There was a problem saving your configuration. Check the logs for further details.");
+                    $('.alert').removeClass('alert-success').addClass('alert-error');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX error:", textStatus, errorThrown);
+                $("#msg").html("Error communicating with the server. Status: " + textStatus + ", Error: " + errorThrown);
+                $('.alert').removeClass('alert-success').addClass('alert-error');
+            }
+        });
+    });
+
+    // Function to load configurations
+    function loadConfigurations() {
+        $.ajax({
+            url: "<%=request.getContextPath() %>/admin/ManageFax.do?method=getAllConfigurations",
+            method: 'GET',
+            dataType: "json",
+            success: function(data) {
+                if (data.success) {
+                    var tbody = $('#configTable tbody');
+                    tbody.empty();
+                    data.configurations.forEach(function(config) {
+                        var row = $('<tr>');
+                        row.append($('<td>').text(config.faxUser));
+                        row.append($('<td>').text(config.faxNumber));
+                        row.append($('<td>').text(config.senderEmail));
+                        var deleteButton = $('<button>').text('Delete').addClass('btn btn-danger btn-sm').click(function() {
+                            deleteConfiguration(config.id);
+                        });
+                        row.append($('<td>').append(deleteButton));
+                        tbody.append(row);
+                    });
+                } else {
+                    $("#msg").html("Error loading configurations: " + data.error);
+                    $('.alert').removeClass('alert-success').addClass('alert-error');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $("#msg").html("Error loading configurations. Status: " + textStatus + ", Error: " + errorThrown);
+                $('.alert').removeClass('alert-success').addClass('alert-error');
+            }
+        });
+    }
+
+    // Function to delete a configuration
+    function deleteConfiguration(id) {
+        if (confirm('Are you sure you want to delete this configuration?')) {
+            $.ajax({
+                url: "<%=request.getContextPath() %>/admin/ManageFax.do?method=deleteConfiguration",
+                method: 'POST',
+                data: { id: id },
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        $("#msg").html("Configuration deleted successfully!");
+                        $('.alert').removeClass('alert-error').addClass('alert-success');
+                        loadConfigurations(); // Reload configurations after deleting
+                    } else {
+                        $("#msg").html("Error deleting configuration: " + data.error);
+                        $('.alert').removeClass('alert-success').addClass('alert-error');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $("#msg").html("Error deleting configuration. Status: " + textStatus + ", Error: " + errorThrown);
+                    $('.alert').removeClass('alert-success').addClass('alert-error');
+                }
+            });
+        }
+    }
+});
+</script> --%>
+

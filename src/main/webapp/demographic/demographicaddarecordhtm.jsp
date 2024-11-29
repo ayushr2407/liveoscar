@@ -796,7 +796,7 @@ $(document).ready(function(){
         	var defaultCountry = '';
 
         	if(defaultProvince == '' && defaultCountry == '') {
-        		defaultProvince = 'CA-ON';
+        		defaultProvince = 'CA-BC';
         	}
         	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
 
@@ -822,7 +822,7 @@ $(document).ready(function(){
         	var defaultCountry = '';
 
         	if(defaultProvince == '' && defaultCountry == '') {
-        		defaultProvince = 'CA-ON';
+        		defaultProvince = 'CA-BC';
         	}
         	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
 
@@ -1007,22 +1007,71 @@ legend {
 				<td>
 <div class="container-fluid well form-horizontal span12 accordion" id="editWrapper">
     <div  id="demographicSection" class="span11 accordion-group">
-		<fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>" id="demotoggle">
+		<%-- <fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>" id="demotoggle">
 			<legend class="accordion-toggle" data-toggle="collapse" data-parent="#editWrapper" data-target="#demographicSectionContent">
                 <bean:message key="demographic.demographiceditdemographic.msgDemographic" /><span style="color:red;">*</span>
                 <i id="toggleD" class="icon-edit" style="float: right; margin-top: 10px;" title="<bean:message key="demographic.demographiceditdemographic.msgEdit"/>"></i>
             </legend>
-		</fieldset>
-    <div id="demographicSectionContent" class="accordion-body in collapse" >
+		</fieldset> --%>
+            <%-- <div id="demographicSectionContent" class="accordion-body in collapse" > --%>
+        <h3><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></h3>
+        <div id="demographicSectionContent">
+    <div class="control-group span5">
+            <label class="control-label" for="selectTitle"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/></label>
+            <div class="controls">
+								<select name="title" id="selectTitle" >
+									<option value="" label="<bean:message key="demographic.demographiceditdemographic.msgNotSet"/>"><bean:message key="demographic.demographiceditdemographic.msgNotSet"/></option>
+									<option value="DR"  ><bean:message key="demographic.demographicaddrecordhtm.msgDr"/></option>
+								    <option value="MS"  ><bean:message key="demographic.demographiceditdemographic.msgMs"/></option>
+								    <option value="MISS" ><bean:message key="demographic.demographiceditdemographic.msgMiss"/></option>
+								    <option value="MRS" ><bean:message key="demographic.demographiceditdemographic.msgMrs"/></option>
+								    <option value="MR" ><bean:message key="demographic.demographiceditdemographic.msgMr"/></option>
+								    <option value="MSSR" ><bean:message key="demographic.demographiceditdemographic.msgMssr"/></option>
+								    <option value="PROF" ><bean:message key="demographic.demographiceditdemographic.msgProf"/></option>
+								    <option value="REEVE"><bean:message key="demographic.demographiceditdemographic.msgReeve"/></option>
+								    <option value="REV" ><bean:message key="demographic.demographiceditdemographic.msgRev"/></option>
+								    <option value="RT_HON" ><bean:message key="demographic.demographiceditdemographic.msgRtHon"/></option>
+								    <option value="SEN" ><bean:message key="demographic.demographiceditdemographic.msgSen"/></option>
+								    <option value="SGT" ><bean:message key="demographic.demographiceditdemographic.msgSgt"/></option>
+								    <option value="SR"  ><bean:message key="demographic.demographiceditdemographic.msgSr"/></option>
+								    <option value="MADAM" ><bean:message key="demographic.demographiceditdemographic.msgMadam"/></option>
+								    <option value="MME" ><bean:message key="demographic.demographiceditdemographic.msgMme"/></option>
+								    <option value="MLLE"  ><bean:message key="demographic.demographiceditdemographic.msgMlle"/></option>
+								    <option value="MAJOR" ><bean:message key="demographic.demographiceditdemographic.msgMajor"/></option>
+								    <option value="MAYOR" ><bean:message key="demographic.demographiceditdemographic.msgMayor"/></option>
+
+								    <option value="BRO" ><bean:message key="demographic.demographiceditdemographic.msgBro"/></option>
+								    <option value="CAPT" ><bean:message key="demographic.demographiceditdemographic.msgCapt"/></option>
+								    <option value="CHIEF" ><bean:message key="demographic.demographiceditdemographic.msgChief"/></option>
+								    <option value="CST" ><bean:message key="demographic.demographiceditdemographic.msgCst"/></option>
+								    <option value="CORP"  ><bean:message key="demographic.demographiceditdemographic.msgCorp"/></option>
+								    <option value="FR" ><bean:message key="demographic.demographiceditdemographic.msgFr"/></option>
+								    <option value="HON"  ><bean:message key="demographic.demographiceditdemographic.msgHon"/></option>
+								    <option value="LT"  ><bean:message key="demographic.demographiceditdemographic.msgLt"/></option>
+
+								</select>
+            </div>
+        </div>
+
         <div class="control-group span5"  >
             <label class="control-label" for="last_name"><bean:message
                 key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text"  placeholder="<bean:message key="demographic.demographiceditdemographic.formLastName" />"
                     name="last_name" id="last_name" required ="required" data-validation-required-message="<bean:message key="global.missing" />" onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
-<p class="help-block text-danger"></p>
+                 <p class="help-block text-danger"></p>
             </div>
         </div>
+         <div class="control-group span5">
+            <label class="control-label" for="inputMN"><bean:message
+					key="demographic.demographiceditdemographic.formMiddleNames" /></label>
+            <div class="controls">
+              <input type="text" id="inputMN" name="middleNames" placeholder="<bean:message
+					key="demographic.demographiceditdemographic.formMiddleNames" />"
+					onBlur="upCaseCtrl(this)">
+            </div>
+        </div>
+
         <div class="control-group span5">
             <label class="control-label" for="first_name"><bean:message key="demographic.demographiceditdemographic.formFirstName" /><span style="color:red">*</span></label>
             <div class="controls">
@@ -1069,6 +1118,17 @@ legend {
             </select>
             </div>
         </div>
+              <div class="control-group span5">
+            <label class="control-label" for="official_lang"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/></label>
+            <div class="controls">
+								<select name="official_lang" id="official_lang" >
+								    <option value="English" ><bean:message key="demographic.demographiceditdemographic.msgEnglish"/></option>
+								    <option value="French" ><bean:message key="demographic.demographiceditdemographic.msgFrench"/></option>
+								    <option value="Other" ><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
+								</select>
+            </div>
+        </div>
+
         <div class="control-group span5">
             <label class="control-label" for="inputAlias"><bean:message
 					key="demographic.demographiceditdemographic.alias" /></label>
@@ -1079,7 +1139,7 @@ legend {
 					onBlur="upCaseCtrl(this)">
             </div>
         </div>
-        <div class="control-group span5">
+        <%-- <div class="control-group span5">
             <label class="control-label" for="inputMN"><bean:message
 					key="demographic.demographiceditdemographic.formMiddleNames" /></label>
             <div class="controls">
@@ -1087,8 +1147,8 @@ legend {
 					key="demographic.demographiceditdemographic.formMiddleNames" />"
 					onBlur="upCaseCtrl(this)">
             </div>
-        </div>
-        <div class="control-group span5">
+        </div> --%>
+        <%-- <div class="control-group span5">
             <label class="control-label" for="selectTitle"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/></label>
             <div class="controls">
 								<select name="title" id="selectTitle" >
@@ -1123,8 +1183,8 @@ legend {
 
 								</select>
             </div>
-        </div>
-        <div class="control-group span5">
+        </div> --%>
+        <%-- <div class="control-group span5">
             <label class="control-label" for="official_lang"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/></label>
             <div class="controls">
 								<select name="official_lang" id="official_lang" >
@@ -1133,15 +1193,15 @@ legend {
 								    <option value="Other" ><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
 								</select>
             </div>
-        </div>
-        <div class="control-group span5">
+        </div> --%>
+        <%-- <div class="control-group span5">
             <label class="control-label" for="spoken"><bean:message key="demographic.demographiceditdemographic.msgSpoken"/></label>
             <div class="controls">
 			    <select name="spoken_lang" id="spoken" >
                     <option value="" label="<bean:message key="demographic.demographiceditdemographic.msgNotSet"/>"></option>
-<%for (String splang : Util.spokenLangProperties.getLangSorted()) { %>
+                   <%for (String splang : Util.spokenLangProperties.getLangSorted()) { %>
                     <option value="<%=splang %>" ><%=splang %></option>
-<%} %>
+                     <%} %>
 				</select>
             </div>
         </div>
@@ -1173,18 +1233,21 @@ legend {
             <div class="controls">
               <input type="text" id="sin" placeholder="<bean:message key="web.record.details.sin" />" name="sin">
             </div>
-</div>
+        </div> --%>
         </div><!-- end demographicSectionContent -->
     </div><!-- end demographicSection -->
 
     <div id="contactSection" class="span11 accordion-group">
-		<fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>">
+		<%-- <fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>">
 			<legend class="accordion-toggle" data-toggle="collapse" data-parent="#editWrapper" data-target="#contactSectionContent">
 			    <bean:message key="demographic.demographiceditdemographic.msgContactInfo" />
                 <i class="icon-edit" style="float: right; margin-top: 10px;" title="<bean:message key="demographic.demographiceditdemographic.msgEdit"/>"></i>
             </legend>
 		</fieldset>
-        <div id="contactSectionContent" class="accordion-body collapse" >
+        
+        <div id="contactSectionContent" class="accordion-body collapse" > --%>
+         <h3><bean:message key="demographic.demographiceditdemographic.msgContactInfo" /></h3>
+        <div id="contactSectionContent">
         <!-- "postalfield" -->
         <div class="control-group span5">
             <label class="control-label" for="address"><bean:message key="demographic.demographiceditdemographic.formAddr" /></label>
@@ -1216,8 +1279,8 @@ legend {
 
 				<% } else  {  %>
 				<select id="province" name="province">
-					<option value="OT"
-						<%=defaultProvince.equals("")||defaultProvince.equals("OT")?" selected":""%>>Other</option>
+					<option value="BC"
+						<%=defaultProvince.equals("")||defaultProvince.equals("BC")?" selected":""%>>Other</option>
 					<%-- <option value="">None Selected</option> --%>
 					<% if (pNames.isDefined()) {
                    for (ListIterator li = pNames.listIterator(); li.hasNext(); ) {
@@ -1333,8 +1396,8 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
             								<input type="radio" value="yes" name="consentToUseEmailForCare" id="consentEmail">
           							 <bean:message key="WriteScript.msgNo"/>
             								<input type="radio" value="no" name="consentToUseEmailForCare" >
-									 <bean:message key="WriteScript.msgUnset"/>
-            								<input type="radio" value="unset" name="consentToUseEmailForCare" checked >
+									 <%-- <bean:message key="WriteScript.msgUnset"/>
+            								<input type="radio" value="unset" name="consentToUseEmailForCare" checked > --%>
             </div>
         </div>
 <!-- residential -->
@@ -1366,12 +1429,13 @@ function clearResidence(){
         <div class="control-group span5">
             <label class="control-label" for="residential"><bean:message key="demographic.demographiceditdemographic.sameresidence" /></label>
             <div class="controls" style="white-space: nowrap;">
-              <bean:message key="WriteScript.msgYes"/>
-            		<input type="radio" value="yes" name="residential" onclick="loadResidence();" id="residential">
+              <%-- <bean:message key="WriteScript.msgYes"/>
+            		<input type="radio" value="yes" name="residential" onclick="loadResidence();" id="residential"> --%>
+                    <bean:message key="WriteScript.msgUnset"/>
+            		<input type="radio" value="unset" name="residential" onclick="clearResidence();" checked >
           		<bean:message key="WriteScript.msgNo"/>
             		<input type="radio" value="no" name="residential" onclick="loadResidence();" >
-				<bean:message key="WriteScript.msgUnset"/>
-            		<input type="radio" value="unset" name="residential" onclick="clearResidence();" checked >
+				
             </div>
         </div>
         <div class="control-group span5" id="residence_div">
@@ -1558,7 +1622,7 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
 					 />
             </div>
         </div>
-        <div class="control-group span5">
+        <%-- <div class="control-group span5">
             <label class="control-label" for="news"><bean:message key="demographic.demographiceditdemographic.formNewsLetter" /></label>
             <div class="controls">
               <% String newsletter =  "Unknown";
@@ -1586,18 +1650,20 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
 
 
             </div>
-        </div>
+        </div> --%>
         </div><!-- end contactSectionContent -->
     </div><!-- end contactSection -->
 
     <div id="insurance" class="span11 accordion-group">
-		<fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>">
+		<%-- <fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>">
 			<legend class="accordion-toggle" data-toggle="collapse" data-parent="#editWrapper" data-target="#insuranceSectionContent">
 			    <bean:message key="demographic.demographiceditdemographic.msgHealthIns"/>
                 <i class="icon-edit" style="float: right; margin-top: 10px;" title="<bean:message key="demographic.demographiceditdemographic.msgEdit"/>"></i>
             </legend>
 		</fieldset>
-        <div id="insuranceSectionContent" class="accordion-body collapse" >
+        <div id="insuranceSectionContent" class="accordion-body collapse" > --%>
+        <h3><bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></h3>
+        <div id="insuranceSectionContent">
         <div class="control-group span5">
             <label class="control-label" for="hc_type"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
             <div class="controls">
@@ -2196,6 +2262,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
             </legend>
 		</fieldset>
         <div id="additionalSectionContent" class="accordion-body collapse" >
+    
         <div class="control-group span5">
             <label class="control-label" for="cyto"><bean:message key="demographic.demographiceditdemographic.cytolNum" /></label>
             <div class="controls">
@@ -2567,9 +2634,9 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')">
-				<input type="button" name="showButton" class="btn"
+				<%-- <input type="button" name="showButton" class="btn"
 					value="<bean:message key="global.expandall"/>"
-					onclick="openAccordion();">
+					onclick="openAccordion();"> --%>
 				&nbsp;
 				<caisi:isModuleLoad moduleName="caisi" reverse="true">
 				<input type="button" name="closeButton" class="btn btn-link"

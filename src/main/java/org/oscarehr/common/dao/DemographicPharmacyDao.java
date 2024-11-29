@@ -41,71 +41,94 @@ public class DemographicPharmacyDao extends AbstractDao<DemographicPharmacy> {
 	}
 
 	public DemographicPharmacy addPharmacyToDemographic(Integer pharmacyId, Integer demographicNo, Integer preferredOrder) {
-
-		String sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.pharmacyId = ?";
-		Query query = entityManager.createQuery(sql);		
-		query.setParameter(1, DemographicPharmacy.ACTIVE);
-		query.setParameter(2, demographicNo);
-		query.setParameter(3, pharmacyId);
-		DemographicPharmacy demographicPharmacy = getSingleResultOrNull(query);
-		int currentOrder;
-		if( demographicPharmacy != null ) {
-			
-			int min,max;
-			currentOrder = demographicPharmacy.getPreferredOrder();
-			min = currentOrder > preferredOrder ? preferredOrder : currentOrder;
-			max = currentOrder > preferredOrder ? currentOrder : preferredOrder;
-			
-			sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.preferredOrder >= ? and x.preferredOrder < ?";
-			query = entityManager.createQuery(sql);
-			query.setParameter(1, DemographicPharmacy.ACTIVE);
-			query.setParameter(2, demographicNo);
-			query.setParameter(3, min);
-			query.setParameter(4, max);			
-		}
-		else {
-			sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.preferredOrder >= ?";
-			query = entityManager.createQuery(sql);
-			query.setParameter(1, DemographicPharmacy.ACTIVE);
-			query.setParameter(2, demographicNo);
-			query.setParameter(3, preferredOrder);
-		}
-		 		
-		@SuppressWarnings("unchecked")
-		List<DemographicPharmacy> results = query.getResultList();
-		
-		for( DemographicPharmacy demographicPharmacy2 : results ) {
-			currentOrder = demographicPharmacy2.getPreferredOrder();
-			++currentOrder;
-			if( currentOrder > 10 ) {
-				demographicPharmacy2.setStatus(DemographicPharmacy.INACTIVE);
-			}
-			
-			demographicPharmacy2.setPreferredOrder(currentOrder);
-			merge(demographicPharmacy2);
-		}
-		
-		
-		if( demographicPharmacy == null ) {
-		
-			DemographicPharmacy dp = new DemographicPharmacy();
-			dp.setAddDate(new Date());
-			dp.setStatus(DemographicPharmacy.ACTIVE);
-			dp.setDemographicNo(demographicNo);
-			dp.setPharmacyId(pharmacyId);
-			dp.setPreferredOrder(preferredOrder);
-			persist(dp);
-			return dp;
-		}
-		else {
-			
-			demographicPharmacy.setPreferredOrder(preferredOrder);
-			merge(demographicPharmacy);
-			return demographicPharmacy;
-		}
-		
-		
+		// Step 1: Delete all existing pharmacies for this demographic
+		String sql = "DELETE FROM DemographicPharmacy WHERE demographicNo = ?";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, demographicNo);
+		query.executeUpdate();
+	
+		// Step 2: Create new link
+		DemographicPharmacy demographicPharmacy = new DemographicPharmacy();
+		demographicPharmacy.setAddDate(new Date());
+		demographicPharmacy.setDemographicNo(demographicNo);
+		demographicPharmacy.setPharmacyId(pharmacyId);
+		demographicPharmacy.setStatus(DemographicPharmacy.ACTIVE);
+		demographicPharmacy.setPreferredOrder(1); // Always set to 1 since it's the only preferred pharmacy
+	
+		persist(demographicPharmacy);
+	
+		return demographicPharmacy;
 	}
+	
+
+
+
+	// public DemographicPharmacy addPharmacyToDemographic(Integer pharmacyId, Integer demographicNo, Integer preferredOrder) {
+
+	// 	String sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.pharmacyId = ?";
+	// 	Query query = entityManager.createQuery(sql);		
+	// 	query.setParameter(1, DemographicPharmacy.ACTIVE);
+	// 	query.setParameter(2, demographicNo);
+	// 	query.setParameter(3, pharmacyId);
+	// 	DemographicPharmacy demographicPharmacy = getSingleResultOrNull(query);
+	// 	int currentOrder;
+	// 	if( demographicPharmacy != null ) {
+			
+	// 		int min,max;
+	// 		currentOrder = demographicPharmacy.getPreferredOrder();
+	// 		min = currentOrder > preferredOrder ? preferredOrder : currentOrder;
+	// 		max = currentOrder > preferredOrder ? currentOrder : preferredOrder;
+			
+	// 		sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.preferredOrder >= ? and x.preferredOrder < ?";
+	// 		query = entityManager.createQuery(sql);
+	// 		query.setParameter(1, DemographicPharmacy.ACTIVE);
+	// 		query.setParameter(2, demographicNo);
+	// 		query.setParameter(3, min);
+	// 		query.setParameter(4, max);			
+	// 	}
+	// 	else {
+	// 		sql = "select x from DemographicPharmacy x where x.status = ? and x.demographicNo = ? and x.preferredOrder >= ?";
+	// 		query = entityManager.createQuery(sql);
+	// 		query.setParameter(1, DemographicPharmacy.ACTIVE);
+	// 		query.setParameter(2, demographicNo);
+	// 		query.setParameter(3, preferredOrder);
+	// 	}
+		 		
+	// 	@SuppressWarnings("unchecked")
+	// 	List<DemographicPharmacy> results = query.getResultList();
+		
+	// 	for( DemographicPharmacy demographicPharmacy2 : results ) {
+	// 		currentOrder = demographicPharmacy2.getPreferredOrder();
+	// 		++currentOrder;
+	// 		if( currentOrder > 10 ) {
+	// 			demographicPharmacy2.setStatus(DemographicPharmacy.INACTIVE);
+	// 		}
+			
+	// 		demographicPharmacy2.setPreferredOrder(currentOrder);
+	// 		merge(demographicPharmacy2);
+	// 	}
+		
+		
+	// 	if( demographicPharmacy == null ) {
+		
+	// 		DemographicPharmacy dp = new DemographicPharmacy();
+	// 		dp.setAddDate(new Date());
+	// 		dp.setStatus(DemographicPharmacy.ACTIVE);
+	// 		dp.setDemographicNo(demographicNo);
+	// 		dp.setPharmacyId(pharmacyId);
+	// 		dp.setPreferredOrder(preferredOrder);
+	// 		persist(dp);
+	// 		return dp;
+	// 	}
+	// 	else {
+			
+	// 		demographicPharmacy.setPreferredOrder(preferredOrder);
+	// 		merge(demographicPharmacy);
+	// 		return demographicPharmacy;
+	// 	}
+		
+		
+	// }
 	
 	public void unlinkPharmacy(Integer pharmacyId, Integer demographicNo ) {
 		

@@ -156,7 +156,11 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private Integer position;
 	@Column(name = "start_date_unknown")
 	private boolean startDateUnknown;
-	private String comment;
+	@Column(name = "start_date")
+	private Date startDate;
+	@Column(name = "frequency")
+private String frequency;
+		private String comment;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
@@ -893,6 +897,23 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public void setStartDateUnknown(boolean startDateUnknown) {
 		this.startDateUnknown = startDateUnknown;
 	}
+	public Date getStartDate() {
+        return startDate;
+    }
+
+    // Setter for startDate
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+    
+	public String getFrequency() {
+    return frequency;
+}
+
+// Setter for frequency
+public void setFrequency(String frequency) {
+    this.frequency = frequency;
+}
 
 	public String getComment() {
 		return comment;

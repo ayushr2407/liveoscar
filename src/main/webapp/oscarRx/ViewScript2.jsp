@@ -265,29 +265,31 @@ if (userAgent != null) {
     }
 
     function onPrint2(method, scriptId) {
-        var useSC=false;
-        var scAddress="";
-        var rxPageSize=$('printPageSize').value;
-        //console.log("rxPagesize  "+rxPageSize);
+    var useSC = false;
+    var scAddress = "";
+    var rxPageSize = "A4";  // Set default page size to A4
 
-
-  <% if(vecAddressName != null) {
-    %>
-        useSC=true;
-   <%      for(int i=0; i<vecAddressName.size(); i++) {%>
-	    if(document.getElementById("addressSel").value=="<%=i%>") {
-    	       scAddress="<%=vecAddress.get(i)%>";
+    <% if (vecAddressName != null) { %>
+        useSC = true;
+        <% for (int i = 0; i < vecAddressName.size(); i++) { %>
+            if (document.getElementById("addressSel").value == "<%= i %>") {
+                scAddress = "<%= vecAddress.get(i) %>";
             }
-<%       }
-      }%>
-              var action="../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
-            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
-            //if (method!="oscarRxFax"){
-             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
-            //}
-            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
-       return true;
-    }
+        <% } %>
+    <% } %>
+
+    var action = "../form/createcustomedpdf?__title=Rx&__method=" + method +
+                 "&useSC=" + useSC + 
+                 "&scAddress=" + scAddress + 
+                 "&rxPageSize=" + rxPageSize + 
+                 "&scriptId=" + scriptId;
+
+    document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
+    document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target = "_blank";
+    document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
+    return true;
+}
+
 
 function setComment(){
     frames['preview'].document.getElementById('additNotes').innerHTML = '<%=comment%>';
@@ -304,17 +306,33 @@ function setDefaultAddr(){
 
 
 
-function addNotes(){
-
-
+function addNotes() {
     var url = "AddRxComment.jsp";
-    var ran_number=Math.round(Math.random()*1000000);
+    var ran_number = Math.round(Math.random() * 1000000);
     var comment = encodeURIComponent(document.getElementById('additionalNotes').value);
-    var params = "scriptNo=<%=request.getAttribute("scriptId")%>&comment="+comment+"&rand="+ran_number;  //]
-    new Ajax.Request(url, {method: 'post',parameters:params});        
-    frames['preview'].document.getElementById('additNotes').innerHTML =  document.getElementById('additionalNotes').value.replace(/\n/g, "<br>");
-    frames['preview'].document.getElementsByName('additNotes')[0].value=  document.getElementById('additionalNotes').value.replace(/\n/g, "\r\n");
+    var params = "scriptNo=<%=request.getAttribute("scriptId")%>&comment=" + comment + "&rand=" + ran_number;
+    new Ajax.Request(url, { method: 'post', parameters: params });
+
+    // Get the entered text from the input box
+    var additionalNotesValue = document.getElementById('additionalNotes').value.trim();
+
+    // Reference the 'additNotes' container in the iframe
+    var additNotesContainer = frames['preview'].document.getElementById('additNotes');
+
+    if (additionalNotesValue) {
+        // If there are notes, display them with the label
+        additNotesContainer.innerHTML =
+            "Additional Instructions: " + additionalNotesValue.replace(/\n/g, "<br>");
+    } else {
+        // If notes are cleared, remove the entire content
+        additNotesContainer.innerHTML = "";
+    }
+
+    // Update the hidden input field for server-side persistence
+    frames['preview'].document.getElementsByName('additNotes')[0].value =
+        additionalNotesValue.replace(/\n/g, "\r\n");
 }
+
 
 
 function printIframe(){
@@ -664,9 +682,9 @@ function toggleView(form) {
 			width="100%" height="100%">
 
 			<tr>
-				<td width=420px>
+				<td width=320px>
 				<div class="DivContentPadding"><!-- src modified by vic, hsfo -->
-				<iframe id='preview' name='preview' width=420px height=1000px
+				<iframe id='preview' name='preview' width=450px height=1000px
 					src="<%= dx<0?"Preview2.jsp?scriptId="+request.getParameter("scriptId")+"&rePrint="+reprint+"&pharmacyId="+request.getParameter("pharmacyId"):dx==7?"HsfoPreview.jsp?dxCode=7":"about:blank" %>"
 					align=center border=0 frameborder=0></iframe></div>
 				</td>
@@ -704,8 +722,8 @@ function toggleView(form) {
                                 }
                                 function expandPreview(text){
                                     parent.document.getElementById('lightwindow_container').style.width="1140px";
-                                    parent.document.getElementById('lightwindow_contents').style.width="1120px";
-                                    document.getElementById('preview').style.width="580px";
+                                    parent.document.getElementById('lightwindow_contents').style.width="1000px";
+                                    document.getElementById('preview').style.width="450px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
@@ -723,7 +741,7 @@ function toggleView(form) {
                                 
                             </script>
 
-				<table cellpadding=10 cellspacingp=0>
+<table cellpadding="10" cellspacing="0" style="table-layout: fixed; width: 100%; border-collapse: collapse;">					
 					<% //vecAddress=null;
                                         if(vecAddress != null) { %>
 					<tr>
@@ -743,93 +761,127 @@ function toggleView(form) {
                                                 </td>
 					</tr>
 					<% } %>
-					<tr>
-						<td colspan=2 style="font-size:15px;font-weight: bold;"><span><bean:message key="ViewScript.msgActions"/></span>
-						</td>
-					</tr>
 
-                                        
-					<tr>
-						<!--td width=10px></td-->
-						<td>
-						<span>
-							<input type=button value="<bean:message key="oscarRx.Preview.GeneratePDF"/>" class="ControlPushButton" style="width: 155px" onClick="<%=reprint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint', "+request.getParameter("scriptId")+");" : "javascript:return onPrint2('print', "+request.getParameter("scriptId")+");" %>" />
-						</span>
-						&nbsp;&nbsp;&nbsp; <bean:message key="oscarRx.Preview.SizeOfGeneratePDF"/>
-                                                <select name="printPageSize" id="printPageSize" style="height:20px;font-size:10px" >
-                                                     <%
-                                                     String rxPageSize=(String)request.getSession().getAttribute("rxPageSize");
-                                                     for(int i=0;i<vecPageSizes.size();i++){
-                                                                String te=(String)vecPageSizes.get(i);
-                                                                String tf=(String)vecPageSizeValues.get(i);%>
-                                                    <option value="<%=tf%>" <%if(rxPageSize!=null && rxPageSize.equals(tf)){%>SELECTED<%}%>
-                                                        ><%=te%>
-                                                    </option>
-                                                    <%  }%>
-                                                </select>
-						</td>
-					</tr>
+                   <tr>
+    <td colspan="2">
+        <span style="background: #f1f1f1; display: inline-block; padding: 10px; border: 1px solid #e1e1e1;">
+            <p style="margin: 0 0 7px 0; padding: 0; font-weight: bold; font-size: 16px;">Choose Delivery Option</p>
 
-					<tr>
-						<!--td width=10px></td-->
-						<td><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
-							class="ControlPushButton" style="width: 155px"
-							onClick="javascript:printIframe();" /></span></td>
+            <!-- Radio buttons for Delivery Option -->
+            <label style="display: inline-block; font-size: 16px;">
+                <input type="radio" name="deliveryOption" value="Delivery" onclick="updateDeliveryOption(this.value)"> Delivery
+            </label>
+            <label style="display: inline-block; font-size: 16px;">
+                <input type="radio" name="deliveryOption" value="Pickup" onclick="updateDeliveryOption(this.value)"> Pickup
+            </label>
+
+            <!-- Hidden input field -->
+            <input type="hidden" id="deliveryOptionInput" name="deliveryOption" />
+        </span>
+    </td>
+</tr>
+<tr>
+						<td colspan=2 style="font-size:15px;font-weight: bold"><span><bean:message key="ViewScript.msgAddNotesRx"/></span></td>
 					</tr>
+                                        <tr>
+    <td>
+        <!-- Textarea with oninput event -->
+        <textarea id="additionalNotes" style="width: 350px; height: 75px;" oninput="javascript:addNotes();"></textarea>
+    </td>
+</tr>
+                                         <tr>
+						<td colspan=2 style="font-size:15px;font-weight: bold"><span>Signature</span></td>
+					</tr>               
 					<tr>
-						<td><span><input type=button
-							value="<bean:message key="ViewScript.msgPasteEmr"/>"
-							class="ControlPushButton" style="width: 155px"
-							onClick="printPaste2Parent('justPaste');setTimeout(function() {self.parent.close()}, 2500);" /></span></td>
+                        <td>
+                            <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
+                            <iframe style="width:350px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
+                        </td>
 					</tr>
-					<tr>
-						<td><span><input type=button
-							value="<bean:message key="ViewScript.msgPrintPasteEmr"/>"
-							class="ControlPushButton" style="width: 155px"
-							onClick="printPaste2Parent('print');setTimeout(function() {self.parent.close()}, 2500);" /></span></td>
-					</tr>
-					<% if (OscarProperties.getInstance().isRxFaxEnabled()) {
-					    	FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-					    	List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
-					    
-					    %>
-					<tr>                            
-                            <td><span><input type=button value="<bean:message key="ViewScript.msgFaxPasteEmr"/>"
-                                    class="ControlPushButton" id="faxButton" style="width: 155px" 
-                                    onClick="sendFax();printPaste2Parent('fax');setTimeout(function() {self.parent.close()}, 2500);" disabled/></span> 
-                                 <span>&nbsp;&nbsp;&nbsp;
-                                            <select id="faxNumber" name="faxNumber" <% if (faxConfigs.size() == 1) {
-                                                    // hide the picklist of fax gateways if only exists
-                                                   %> hidden <%}%>>
-                                 	<%
-                                 		for( FaxConfig faxConfig : faxConfigs ) {
-                                 	%>
-                                 			<option value="<%=faxConfig.getFaxNumber()%>"><%=faxConfig.getFaxUser()%></option>
-                                 	<%	    
-                                 		}                                 	
-                                 	%>
-                                 	</select>
-                                 </span>
-                           </td>
-                    </tr>
-                    <% } %>
-					<tr>
-						<!--td width=10px></td-->
-						<td><span><input type=button
-							value="<bean:message key="ViewScript.msgCreateNewRx"/>" class="ControlPushButton"
-                                                        style="width: 155px"  onClick="resetStash();resetReRxDrugList();javascript:parent.myLightWindow.deactivate();" /></span></td>
-					</tr>
-					<tr>
-						<!--td width=10px></td-->
-						<td><span><input type=button id="close" value="<bean:message key="ViewScript.msgBackToOscar"/>"
-							class="ControlPushButton" style="width: 155px"
-                                                        onClick="javascript:clearPending('close');parent.window.close();" /></span></td>
-							<!--onClick="javascript:clearPending('close');" /></span></td>-->
-					</tr>
+                    <tr>
+    <td>
+        <span>
+            <input 
+                type="button" 
+                value="<bean:message key='oscarRx.Preview.GeneratePDF'/>" 
+                class="ControlPushButton" 
+                style="width: 155px" 
+               onClick="<%=reprint.equalsIgnoreCase("true") 
+                    ? "javascript:return onPrint2('rePrint', "+request.getParameter("scriptId")+", 'A4');" 
+                    : "javascript:return onPrint2('print', "+request.getParameter("scriptId")+", 'A4');" %>" 
+            />
+        </span>
+    </td>
+    <td>
+        <span>
+            <input 
+                type="button" 
+                value="<bean:message key='ViewScript.msgCreateNewRx'/>" 
+                class="ControlPushButton" 
+                style="width: 155px" 
+                onClick="resetStash();resetReRxDrugList();javascript:parent.myLightWindow.deactivate();" 
+            />
+        </span>
+    </td>
+</tr>
+<tr>
+    <td>
+        <span>
+            <input 
+                type="button" 
+                value="<bean:message key='ViewScript.msgPrintPasteEmr'/>" 
+                class="ControlPushButton" 
+                style="width: 155px" 
+                onClick="printPaste2Parent('print');setTimeout(function() {self.parent.close()}, 2500);" 
+            />
+        </span>
+    </td>
+    <td>
+        <span>
+            <input 
+                type="button" 
+                id="close" 
+                value="<bean:message key='ViewScript.msgBackToOscar'/>" 
+                class="ControlPushButton" 
+                style="width: 155px" 
+                onClick="javascript:clearPending('close');parent.window.close();" 
+            />
+        </span>
+    </td>
+</tr>
+<% if (OscarProperties.getInstance().isRxFaxEnabled()) {
+        FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+        List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+    %>
+<tr>
+    <td colspan="2">
+        <span>
+            <input 
+                type="button" 
+                value="<bean:message key='ViewScript.msgFaxPasteEmr'/>" 
+                class="ControlPushButton" 
+                id="faxButton" 
+                style="width: 155px" 
+                onClick="sendFax();printPaste2Parent('fax');setTimeout(function() {self.parent.close()}, 2500);" 
+                disabled
+            />
+        </span>
+        <span>
+            &nbsp;&nbsp;&nbsp;
+            <select id="faxNumber" name="faxNumber" <% if (faxConfigs.size() == 1) { %> hidden <%}%>>
+                <% for (FaxConfig faxConfig : faxConfigs) { %>
+                <option value="<%=faxConfig.getFaxNumber()%>"><%=faxConfig.getFaxUser()%></option>
+                <% } %>
+            </select>
+        </span>
+    </td>
+</tr>
+<% } %>
+
+   
                                        <%if(prefPharmacy.length()>0 && prefPharmacyId.length()>0){   %>
-                                           <tr><td><span><input id="selectPharmacyButton" type=button value="<bean:message key='oscarRx.printPharmacyInfo.addPharmacyButton'/>" class="ControlPushButton" style="width:155px;"
-                                                             onclick="printPharmacy('<%=prefPharmacyId%>','<%=prefPharmacy%>');"/>
-                                                </span>
+                                           <tr><td><input id="selectPharmacyButton" type="button" value="<bean:message key='oscarRx.printPharmacyInfo.addPharmacyButton'/>" class="ControlPushButton" style="width:155px; display:none;"
+                                                         onclick="printPharmacy('<%=prefPharmacyId%>', '<%=prefPharmacy%>');"/>
 
                                             </td>
                                         </tr><%}%>
@@ -842,38 +894,15 @@ function toggleView(form) {
                                         <%
                         if (request.getSession().getAttribute("rePrint") == null ){%>
 
-                                        <tr>
-						<td colspan=2 style="font-size:15px;font-weight: bold"><span><bean:message key="ViewScript.msgAddNotesRx"/></span></td>
-					</tr>
-                                        <tr>
-                                                <!--td width=10px></td-->
-                                                <td>
-                                                    <textarea id="additionalNotes" style="width: 200px" onchange="javascript:addNotes();" ></textarea>
-                                                    <input type="button" value="<bean:message key="ViewScript.msgAddToRx"/>" onclick="javascript:addNotes();"/>
-                                                </td>
-                                        </tr>
+                                        
 
                                         <%}%>
 					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { %>
                                         
-                    <tr>
-						<td colspan=2 style="font-size:15px;font-weight: bold"><span>Signature</span></td>
-					</tr>               
-					<tr>
-                        <td>
-                            <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
-                            <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
-                        </td>
-					</tr>
+                   
 		            <%}%>
                     			
 				</table>
-				</td>
-			</tr>
-			<tr height="100%">
-				<td></td>
-			</tr>
-		</table>
 		</td>
 	</tr>
 	<tr>
@@ -886,5 +915,29 @@ function toggleView(form) {
 </table>
 
 </div>
+<script type="text/javascript">
+    window.onload = function() {
+        // Check if pharmacy ID and name exist, then call the function directly
+        var pharmacyId = '<%=prefPharmacyId%>';
+        var pharmacyName = '<%=prefPharmacy%>';
+
+        // Only trigger the function if both ID and name are not empty
+        if (pharmacyId.length > 0 && pharmacyName.length > 0) {
+            printPharmacy(pharmacyId, pharmacyName);
+        }
+    };
+</script>
+
+<script type="text/javascript">
+    function updateDeliveryOption(selectedOption) {
+        // Update the delivery option display in the preview
+        frames['preview'].document.getElementById('deliveryOption').innerHTML = selectedOption;
+
+        // Update hidden input field in preview2.jsp so it can be submitted to the servlet
+        frames['preview'].document.querySelector('input[name="deliveryOption"]').value = selectedOption;
+    }
+</script>
+
+
 </body>
 </html:html>

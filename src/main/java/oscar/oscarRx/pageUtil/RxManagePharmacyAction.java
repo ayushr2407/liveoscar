@@ -53,6 +53,8 @@ import org.oscarehr.util.MiscUtils;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarRx.data.RxPharmacyData;
+import java.util.Map;
+
 
 /**
  *
@@ -146,21 +148,37 @@ public final class RxManagePharmacyAction extends DispatchAction {
     	return null;
     }
     
-    public ActionForward setPreferred(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-    	RxPharmacyData pharmacy = new RxPharmacyData();
-    	try {
-    		PharmacyInfo pharmacyInfo = pharmacy.addPharmacyToDemographic(request.getParameter("pharmId"), request.getParameter("demographicNo"), request.getParameter("preferredOrder"));
-    		ObjectMapper mapper = new ObjectMapper();
-    		response.setContentType("text/x-json");
-    		mapper.writeValue(response.getWriter(), pharmacyInfo);
-    	}
-    	catch( Exception e ) {
-    		MiscUtils.getLogger().error("ERROR SETTING PREFERRED ORDER", e);
-    	}
-    	
-    	return null;
-    }
-    
+	public ActionForward setPreferred(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		RxPharmacyData pharmacy = new RxPharmacyData();
+		try {
+			String pharmId = request.getParameter("pharmId");
+			String demographicNo = request.getParameter("demographicNo");
+			
+			PharmacyInfo pharmacyInfo = pharmacy.addPharmacyToDemographic(pharmId, demographicNo, "1");
+			
+			Map<String, Object> result = new HashMap<>();
+			result.put("success", true);
+			result.put("id", pharmacyInfo.getId());
+			result.put("pharmacyName", pharmacyInfo.getName());
+			result.put("address", pharmacyInfo.getAddress());
+			result.put("phone", pharmacyInfo.getPhone1());
+			
+			ObjectMapper mapper = new ObjectMapper();
+			response.setContentType("application/json");
+			mapper.writeValue(response.getWriter(), result);
+		}
+		catch( Exception e ) {
+			MiscUtils.getLogger().error("ERROR SETTING PREFERRED PHARMACY", e);
+			try {
+				response.setContentType("application/json");
+				response.getWriter().write("{\"success\":false,\"message\":\"" + e.getMessage() + "\"}");
+			} catch (IOException ioException) {
+				MiscUtils.getLogger().error("Error writing error response", ioException);
+			}
+		}
+		
+		return null;
+	}
     public ActionForward add(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
     	RxPharmacyData pharmacy = new RxPharmacyData();
     	

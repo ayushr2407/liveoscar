@@ -24,6 +24,7 @@
 
 package oscar.oscarRx.data;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -81,6 +82,18 @@ public class RxPrescriptionData {
 		Drug drug = drugDao.find(drugId);
 
 		Prescription prescription = new Prescription(drugId, drug.getProviderNo(), drug.getDemographicId());
+		prescription.setStartDate(drug.getStartDate());
+		if (drug.getEndDate() != null) {
+			prescription.setEndDate_p(RxUtil.DateToString(drug.getEndDate(), "yyyy-MM-dd"));
+		} else {
+			prescription.setEndDate_p(""); // Default to empty string
+		}		
+		if (drug.getPatientCompliance() != null) {
+			prescription.setPatientCompliance_p(drug.getPatientCompliance() ? "yes" : "no");
+		} else {
+			prescription.setPatientCompliance_p("unknown");
+		}      
+		prescription.setFrequency(drug.getFrequency());
 		prescription.setRxCreatedDate(drug.getCreateDate());
 		prescription.setRxDate(drug.getRxDate());
 		prescription.setEndDate(drug.getEndDate());
@@ -113,6 +126,8 @@ public class RxPrescriptionData {
 		prescription.setCustomInstr(drug.isCustomInstructions());
 		prescription.setDosage(drug.getDosage());
 		prescription.setLongTerm(drug.getLongTerm());
+		prescription.setLongterm_p(drug.getLongTerm());
+        prescription.setFrequency(drug.getFrequency()); // Map frequency
 		prescription.setShortTerm(drug.getShortTerm());
 		prescription.setCustomNote(drug.isCustomNote());
 		prescription.setPastMed(drug.getPastMed());
@@ -150,7 +165,12 @@ public class RxPrescriptionData {
 	public Prescription newPrescription(String providerNo, int demographicNo, Favorite favorite) {
 		// Create new prescription from favorite (only in memory)
 		Prescription prescription = new Prescription(0, providerNo, demographicNo);
-
+		Date startDate = new Date(); // Initialize startDate
+		prescription.setStartDate(startDate);
+		prescription.setLongterm_p(false);
+		prescription.setEndDate_p(""); // Initialize to empty for new prescriptions
+		prescription.setPatientCompliance_p("unknown"); // Default value for patient compliance
+        prescription.setFrequency(null); // Default value for frequency
 		prescription.setRxDate(RxUtil.Today());
 		prescription.setWrittenDate(RxUtil.Today());
 		prescription.setEndDate(null);
@@ -184,7 +204,12 @@ public class RxPrescriptionData {
 	public Prescription newPrescription(String providerNo, int demographicNo, Prescription rePrescribe) {
 		// Create new prescription
 		Prescription prescription = new Prescription(0, providerNo, demographicNo);
-
+		Date startDate = new Date(); // Initialize startDate
+		prescription.setStartDate(startDate);
+		prescription.setLongterm_p(rePrescribe.getLongterm_p());
+		prescription.setEndDate_p(rePrescribe.getEndDate_p());
+		prescription.setPatientCompliance_p(rePrescribe.getPatientCompliance_p()); // Map patient compliance
+        prescription.setFrequency(rePrescribe.getFrequency()); // Map frequency
 		prescription.setRxDate(RxUtil.Today());
 		prescription.setWrittenDate(RxUtil.Today());
 		prescription.setEndDate(null);
@@ -262,6 +287,7 @@ public class RxPrescriptionData {
 
 	public Prescription toPrescription(Drug drug, int demographicNo) {
 		Prescription p = new Prescription(drug.getId(), drug.getProviderNo(), demographicNo);
+		p.setStartDate(drug.getStartDate());
 		p.setRxCreatedDate(drug.getCreateDate());
 		p.setRxDate(drug.getRxDate());
 		p.setEndDate(drug.getEndDate());
@@ -294,6 +320,19 @@ public class RxPrescriptionData {
 		p.setCustomInstr(drug.isCustomInstructions());
 		p.setDosage(drug.getDosage());
 		p.setLongTerm(drug.getLongTerm());
+		p.setLongterm_p(drug.getLongTerm());
+if (drug.getPatientCompliance() != null) {
+	p.setPatientCompliance_p(drug.getPatientCompliance() ? "yes" : "no");
+} else {
+	p.setPatientCompliance_p("unknown");
+}
+if (drug.getEndDate() != null) {
+    String formattedEndDate = new SimpleDateFormat("yyyy-MM-dd").format(drug.getEndDate());
+    p.setEndDate_p(formattedEndDate); // Map formatted date to endDate_p
+} else {
+    p.setEndDate_p(""); // Default to an empty string
+}
+	p.setFrequency(drug.getFrequency()); // Map frequency
 		p.setShortTerm(drug.getShortTerm());
 		p.setCustomNote(drug.isCustomNote());
 		p.setPastMed(drug.getPastMed());
@@ -630,10 +669,15 @@ public class RxPrescriptionData {
 		java.util.Date lastRefillDate = null;
 		boolean nosubs = false;
 		boolean prn = false;
-		Boolean longTerm = null;
+		Boolean longTerm = false;
 		boolean shortTerm = false;
 		Boolean pastMed = null;
 		boolean startDateUnknown = false;
+		Date startDate = null;
+		Boolean longterm_p = null;
+		String endDate_p = null;
+		String patientCompliance_p = null;
+		String frequency = null;
 		Boolean patientCompliance = null;
 		String special = null;
 		String genericName = null;
@@ -726,7 +770,14 @@ public class RxPrescriptionData {
 		public void setStartDateUnknown(boolean startDateUnknown) {
 			this.startDateUnknown = startDateUnknown;
 		}
-
+        
+		public Date getStartDate() {
+			return startDate;
+		}
+		
+		public void setStartDate(Date startDate) {
+			this.startDate = startDate;
+		}
 		public String getComment() {
 			return comment;
 		}
@@ -1279,6 +1330,35 @@ public class RxPrescriptionData {
 		public void setLongTerm(Boolean trueFalseNull) {
 			this.longTerm = trueFalseNull;
 		}
+		public Boolean getLongterm_p() {
+			return this.longterm_p;
+		}
+		
+		public void setLongterm_p(Boolean longterm_p) {
+			this.longterm_p = longterm_p;
+		}
+		public String getEndDate_p() {
+			return this.endDate_p;
+		}
+		
+		public void setEndDate_p(String endDate_p) {
+			this.endDate_p = endDate_p;
+		}
+		public String getPatientCompliance_p() {
+			return this.patientCompliance_p;
+		}
+		
+		public void setPatientCompliance_p(String patientCompliance_p) {
+			this.patientCompliance_p = patientCompliance_p;
+		}
+		
+		public String getFrequency() {
+			return this.frequency;
+		}
+		
+		public void setFrequency(String frequency) {
+			this.frequency = frequency;
+		}
 		
 		public boolean getShortTerm() {
 			return this.shortTerm;
@@ -1432,6 +1512,32 @@ public class RxPrescriptionData {
 			if((getRefillQuantity() != null && getRefillQuantity() > 0) || (getRefillDuration() != null && getRefillDuration() > 0)) {
 				extra = "Refill: Qty:" + (getRefillQuantity() != null ? getRefillQuantity() : "0") + " Duration:" + (getRefillDuration() != null ? getRefillDuration() : "0") + " Days";
 			}
+
+    // Append new fields for startDate, endDate, and duration
+    if (getStartDate() != null) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String formattedDate = dateFormat.format(getStartDate()); // Convert Date to String
+		extra += "StartDate:" + formattedDate + "; ";
+	}
+	
+	if (getEndDate_p() != null && !getEndDate_p().isEmpty()) {
+		extra += "EndDate_p:" + getEndDate_p() + "; ";
+	}
+
+    if (getDuration() != null && !getDuration().isEmpty()) {
+        extra += "Duration:" + getDuration() + " Days; ";
+    }
+	if (getPatientCompliance_p() != null) {
+		extra += "PatientCompliance:" + getPatientCompliance_p();
+		if ("no".equals(getPatientCompliance_p()) && getFrequency() != null) {
+			extra += " (Frequency:" + getFrequency() + ")";
+		}    if (!"yes".equals(getPatientCompliance_p()) && !"unknown".equals(getPatientCompliance_p())) {
+		extra += "; ";
+	}}
+if (getLongterm_p() != null) {
+    extra += " LongTerm:" + (getLongterm_p() ? "Yes" : "No");
+}
+
 			return (RxPrescriptionData.getFullOutLine(getSpecial() + "\n" + extra));
 		}
 

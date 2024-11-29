@@ -142,15 +142,25 @@ public class RxPharmacyData {
     * @param pharmacyId Id of the pharmacy
     * @param demographicNo Patient demographic number
     */
-   public PharmacyInfo addPharmacyToDemographic(String pharmacyId,String demographicNo, String preferredOrder){
-      demographicPharmacyDao.addPharmacyToDemographic(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo), Integer.parseInt(preferredOrder));
+   // public PharmacyInfo addPharmacyToDemographic(String pharmacyId,String demographicNo, String preferredOrder){
+   //    demographicPharmacyDao.addPharmacyToDemographic(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo), Integer.parseInt(preferredOrder));
       
+   //    PharmacyInfo pharmacyInfo = pharmacyInfoDao.find(Integer.parseInt(pharmacyId));
+   //    pharmacyInfo.setPreferredOrder(Integer.parseInt(preferredOrder));
+      
+   //    return pharmacyInfo;
+      
+   // }
+
+   public PharmacyInfo addPharmacyToDemographic(String pharmacyId, String demographicNo, String preferredOrder) {
+      // Call the modified method in DemographicPharmacyDao
+      demographicPharmacyDao.addPharmacyToDemographic(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo), Integer.parseInt(preferredOrder));
+  
+      // Retrieve the updated pharmacy information
       PharmacyInfo pharmacyInfo = pharmacyInfoDao.find(Integer.parseInt(pharmacyId));
       pharmacyInfo.setPreferredOrder(Integer.parseInt(preferredOrder));
-      
       return pharmacyInfo;
-      
-   }
+  }
 
 	/**
 	 * Used to get the most recent pharmacy associated with this patient.  Returns a Pharmacy object with the latest data about that pharmacy.
@@ -184,6 +194,8 @@ public class RxPharmacyData {
 		Collections.sort(pharmacyInfos);
 		return pharmacyInfos;
 	}
+
+
 	
 	public List<String> searchPharmacyCity( String searchTerm ) {
 		
@@ -219,4 +231,13 @@ public class RxPharmacyData {
 		demographicPharmacyDao.unlinkPharmacy(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo));
 		
 	}
+
+   public void addOrUpdatePharmacy(int id, String name, String address, String city, String province, String zipCodeOrPostalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character activationStatus) {
+      PharmacyInfo existingPharmacy = pharmacyInfoDao.findById(id);
+      if (existingPharmacy == null) {
+          pharmacyInfoDao.addapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
+      } else {
+          pharmacyInfoDao.updateapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
+      }
+  }
 }

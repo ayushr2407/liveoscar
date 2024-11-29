@@ -247,7 +247,9 @@
             return druglist;
         }
 
-        function assembleCurrentDrugs() {
+       
+    
+function assembleCurrentDrugs() {
             //iterate through the current names and assemble the array
             var druglist = []
             var ctag = document.getElementsByClassName('currentDrug');
@@ -271,6 +273,8 @@
             console.log("Searching the following current drugs for interactions:"+druglist)
             return druglist;
         }
+
+
 
         function getInteractions(drugs) {
             let drugsStr = drugs.toString().replace(/,/gi,', ');
@@ -365,6 +369,33 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
                 $('duration_' + randNumber).onblur();
                 $('durationUnit_' + randNumber).onblur();
             }
+            function handleComplianceChange(randomId) {
+    var complianceField = document.getElementById('compliance_' + randomId);
+    var frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
+
+    if (!complianceField || !frequencyDiv) {
+        console.warn('Missing elements for randomId:', randomId);
+        return;
+    }
+
+    if (complianceField.value === 'no') {
+        // Show the frequency options
+        frequencyDiv.style.display = 'block';
+        Effect.BlindDown(frequencyDiv); // For animation (Prototype.js)
+    } else {
+        // Hide the frequency options
+        frequencyDiv.style.display = 'none';
+        Effect.BlindUp(frequencyDiv); // For animation (Prototype.js)
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('select[id^="compliance_"]').forEach(function (complianceField) {
+        var randomId = complianceField.id.split('_')[1];
+        handleComplianceChange(randomId);
+    });
+});
+
 
             function handleEnter(inField, ev) {
                 var charCode;
@@ -470,30 +501,29 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
                 return display;
             };
 
-            var resultFormatter2 = function (oResultData, sQuery, sResultMatch) {
-                /*oscarLog("oResultData, sQuery, sResultMatch="+oResultData+"--"+sQuery+"--"+sResultMatch);
-               oscarLog("oResultData[0]="+oResultData[0]);
-               oscarLog("oResultData.name="+oResultData.name);
-               oscarLog("oResultData.name="+oResultData.id);*/
-                var query = sQuery.toUpperCase();
-                var drugName = oResultData.name;
-                var isInactive = oResultData.isInactive;
-                //oscarLog("isInactive="+isInactive);
-                var mIndex = drugName.toUpperCase().indexOf(query);
-                var display = '';
 
-                if (mIndex > -1 && (isInactive == 'true' || isInactive == true)) { //match and inactive
-                    display = highlightMatchInactiveMatchWord(drugName, query, mIndex);
-                } else if (mIndex > -1 && (isInactive == 'false' || isInactive == false || isInactive == undefined || isInactive == null)) { //match and active
-                    display = highlightMatch(drugName, query, mIndex);
-                } else if (mIndex <= -1 && (isInactive == 'true' || isInactive == true)) {//no match and inactive
-                    display = highlightMatchInactive(drugName, query, mIndex);
-                } else {//active and no match
-                    display = drugName;
-                }
+           var resultFormatter2 = function (oResultData, sQuery, sResultMatch) {
+    var query = sQuery.toUpperCase();
+    var drugName = oResultData.name;
+    var isInactive = oResultData.isInactive;
+    var mIndex = drugName.toUpperCase().indexOf(query);
+    var display = '';
 
-                return display;
-            };
+    // Skip inactive drugs by returning null or an empty string
+    if (isInactive == 'true' || isInactive === true) {
+        return null; // or you can use 'return "";' to return an empty string
+    }
+
+    if (mIndex > -1) { // match found and active
+        display = highlightMatch(drugName, query, mIndex);
+    } else { // no match found but active
+        display = drugName;
+    }
+
+    return display;
+};
+
+
 
             <% if (Boolean.valueOf(request.getParameter("autoSaveOpenerOnOpen"))) { %>
             self.opener.autoSave(true);
@@ -757,8 +787,8 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
 
             /*]]>*/
 
-            function toggleStartDateUnknown(rand) {
-                var cb = document.getElementById('startDateUnknown_' + rand);
+            function toggleStartDate(rand) {
+                var cb = document.getElementById('startDate_' + rand);
                 var txt = document.getElementById('rxDate_' + rand);
                 if (cb.checked) {
                     <%
@@ -852,6 +882,7 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
             .highlight {
                 background-color: #99FFCC;
                 border: 1px solid #008000;
+                color: #fff !important;
             }
 
             .rxStr a:hover {
@@ -871,6 +902,7 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
             .matchInactive {
                 background-color: #C0C0C0;
             }
+
 
             #myAutoComplete {
                 width: 25em; /* set width here or else widget will expand to fit its container */
@@ -2137,6 +2169,16 @@ THEME 2*/
                 resultsList: "results",
                 fields: ["name", "id", "isInactive"]
             };
+            // Add the filtering function to exclude inactive drugs
+    oDS.doBeforeParseData = function (oRequest, oFullResponse) {
+        // Filter out inactive drugs from the response
+        if (oFullResponse && oFullResponse.results) {
+            oFullResponse.results = oFullResponse.results.filter(function (result) {
+                return !result.isInactive; // Only include drugs where isInactive is false or undefined
+            });
+        }
+        return oFullResponse; // Return the modified response
+    };
             // Enable caching
             oDS.maxCacheEntries = 0;
             oDS.connXhrMode = "cancelStaleRequests";
@@ -2814,5 +2856,104 @@ THEME 2*/
     <script language="javascript" src="../commons/scripts/sort_table/css.js"></script>
     <script language="javascript" src="../commons/scripts/sort_table/common.js"></script>
     <script language="javascript" src="../commons/scripts/sort_table/standardista-table-sorting.js"></script>
+
+
+<script type="text/javascript">
+    // Function to calculate the end date based on start date and duration
+    function calculateEndDate(randomId) {
+        console.log("Triggered calculateEndDate for:", randomId);
+
+        const startDateField = document.getElementById('startDate_' + randomId);
+        const durationField = document.getElementById('duration_' + randomId);
+        const endDateField = document.getElementById('endDate_' + randomId);
+
+        if (!startDateField || !durationField || !endDateField) {
+            console.error("One or more fields are missing for randomId:", randomId);
+            return;
+        }
+
+        const startDate = startDateField.value; // Input in yyyy-MM-dd
+        const duration = parseInt(durationField.value, 10); // Convert duration to integer
+        console.log(`Start Date (${randomId}):`, startDate);
+        console.log(`Duration (${randomId}):`, duration);
+
+        if (startDate && !isNaN(duration)) {
+            // Parse the start date
+            const startDateObj = new Date(startDate);
+            console.log(`Start Date Object (${randomId}):`, startDateObj);
+
+            if (isNaN(startDateObj)) {
+                console.error("Invalid Date Object for Start Date:", startDate);
+                endDateField.value = "--"; // Set default value if date is invalid
+                return;
+            }
+
+            // Calculate the end date
+            startDateObj.setDate(startDateObj.getDate() + duration);
+
+            // Directly format the end date to yyyy-MM-dd
+            const formattedEndDate = startDateObj.toISOString().split('T')[0];
+            console.log("Formatted End Date:", formattedEndDate);
+
+            // Assign the formatted value to the field
+            endDateField.value = formattedEndDate;
+            console.log(`End Date Field Value (${randomId}):`, endDateField.value);
+        } else {
+            console.warn(`Invalid Inputs for End Date Calculation (${randomId}): Start Date or Duration`);
+            endDateField.value = "--"; // Set default value
+        }
+    }
+
+    // Function to attach event listeners to start date and duration fields
+    function attachEventListeners(randomId) {
+        console.log("Attaching event listeners for randomId:", randomId);
+
+        const startDateField = document.getElementById('startDate_' + randomId);
+        const durationField = document.getElementById('duration_' + randomId);
+
+        if (startDateField) {
+            startDateField.addEventListener('input', () => calculateEndDate(randomId));
+        } else {
+            console.error("Start Date field not found for randomId:", randomId);
+        }
+
+        if (durationField) {
+            durationField.addEventListener('input', () => calculateEndDate(randomId));
+        } else {
+            console.error("Duration field not found for randomId:", randomId);
+        }
+    }
+
+    // Function to initialize event listeners for all prescription fields
+    function initializePrescriptionFields() {
+        console.log("Initializing Prescription Fields...");
+        document.querySelectorAll('[id^="startDate_"]').forEach((startDateField) => {
+            const randomId = startDateField.id.split('_')[1];
+            attachEventListeners(randomId);
+        });
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', initializePrescriptionFields);
+
+    // MutationObserver to dynamically initialize fields added later
+    const prescriptionObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                    const startDateField = node.querySelector('[id^="startDate_"]');
+                    if (startDateField) {
+                        const randomId = startDateField.id.split('_')[1];
+                        attachEventListeners(randomId);
+                    }
+                }
+            });
+        });
+    });
+
+    // Start observing the document for dynamically added nodes
+    prescriptionObserver.observe(document.body, { childList: true, subtree: true });
+</script>
+
     </body>
 </html:html>

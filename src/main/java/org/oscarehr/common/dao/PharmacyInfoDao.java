@@ -113,18 +113,30 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
         return null;
      }
 
-    @SuppressWarnings("unchecked")
-    public List<PharmacyInfo> getAllPharmacies(){
-        List<PharmacyInfo>  pharmacyList =  new ArrayList<PharmacyInfo>();
-        String sql = "select x from PharmacyInfo x where x.status = :status order by name";
-        
-        Query query = entityManager.createQuery(sql);
-        query.setParameter("status", PharmacyInfo.ACTIVE);
-
-        pharmacyList = query.getResultList();
-
-        return pharmacyList;
+     @SuppressWarnings("unchecked")
+     public List<PharmacyInfo> getAllPharmacies() {
+         List<PharmacyInfo> pharmacyList;
+         String sql = "select x from PharmacyInfo x order by name";
+         
+         Query query = entityManager.createQuery(sql);
+         
+         pharmacyList = query.getResultList();
+         
+         return pharmacyList;
      }
+     
+    // @SuppressWarnings("unchecked")
+    // public List<PharmacyInfo> getAllPharmacies(){
+    //     List<PharmacyInfo>  pharmacyList =  new ArrayList<PharmacyInfo>();
+    //     String sql = "select x from PharmacyInfo x where x.status = :status order by name";
+        
+    //     Query query = entityManager.createQuery(sql);
+    //     query.setParameter("status", PharmacyInfo.ACTIVE);
+
+    //     pharmacyList = query.getResultList();
+
+    //     return pharmacyList;
+    //  }
     
     @SuppressWarnings("unchecked")
     public List<PharmacyInfo> searchPharmacyByNameAddressCity(String name, String city ) {
@@ -149,6 +161,50 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
     	
     	return query.getResultList();
     	
+    }
+
+	public PharmacyInfo findById(Integer id) {
+        return entityManager.find(PharmacyInfo.class, id);
+    }
+
+	
+	
+	public void addapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character status) {
+        PharmacyInfo pharmacyInfo = new PharmacyInfo();
+        pharmacyInfo.setId(id);  // Set the id from the API
+        pharmacyInfo.setName(name);
+        pharmacyInfo.setAddress(address);
+        pharmacyInfo.setCity(city);
+        pharmacyInfo.setProvince(province);
+        pharmacyInfo.setPostalCode(postalCode);
+        pharmacyInfo.setPhone1(phone1);
+        pharmacyInfo.setPhone2(phone2);
+        pharmacyInfo.setFax(fax);
+        pharmacyInfo.setEmail(email);
+        pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
+        pharmacyInfo.setNotes(notes);
+        pharmacyInfo.setStatus(status);
+        pharmacyInfo.setAddDate(new Date());
+        persist(pharmacyInfo);
+    }
+	
+	public void updateapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character status) {
+        PharmacyInfo pharmacyInfo = findById(id);
+        if (pharmacyInfo != null) {
+            pharmacyInfo.setName(name);
+            pharmacyInfo.setAddress(address);
+            pharmacyInfo.setCity(city);
+            pharmacyInfo.setProvince(province);
+            pharmacyInfo.setPostalCode(postalCode);
+            pharmacyInfo.setPhone1(phone1);
+            pharmacyInfo.setPhone2(phone2);
+            pharmacyInfo.setFax(fax);
+            pharmacyInfo.setEmail(email);
+            pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
+            pharmacyInfo.setNotes(notes);
+            pharmacyInfo.setStatus(status);
+            merge(pharmacyInfo);
+        }
     }
 
 }

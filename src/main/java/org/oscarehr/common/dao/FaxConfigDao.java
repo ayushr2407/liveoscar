@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
+import java.util.List;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.FaxConfig;
@@ -31,16 +32,61 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FaxConfigDao extends AbstractDao<FaxConfig> {
 
-	public FaxConfigDao() {		
-    	super(FaxConfig.class);
+    public FaxConfigDao() {
+        super(FaxConfig.class);
     }
 
+    public FaxConfig getConfigByNumber(String number) {
+        Query query = entityManager.createQuery("SELECT config FROM FaxConfig config WHERE config.faxNumber = :number");
+        query.setParameter("number", number);
+        return getSingleResultOrNull(query);
+    }
 
-	public FaxConfig getConfigByNumber(String number) {
-		Query query = entityManager.createQuery("select config from FaxConfig config where config.faxNumber = :number");
-		
-		query.setParameter("number", number);
-		
-		return getSingleResultOrNull(query);
+    // Add this method to get all fax configurations
+	@SuppressWarnings("unchecked")
+	public List<FaxConfig> getAllConfigurations() {
+		Query query = entityManager.createQuery("SELECT config FROM FaxConfig config");
+		return (List<FaxConfig>) query.getResultList();
 	}
+
+    // Add this method to delete a configuration by ID
+    public void deleteConfiguration(Integer id) {
+        FaxConfig config = find(id);
+        if (config != null) {
+            remove(config);
+        }
+    }
+
+    // If you need a method to find a configuration by ID, add this
+    public FaxConfig findById(Integer id) {
+        return find(id);
+    }
+    public FaxConfig findActive() {
+        Query query = entityManager.createQuery("FROM FaxConfig WHERE active = :activeStatus");
+        query.setParameter("activeStatus", true);
+        return getSingleResultOrNull(query);
+    }
 }
+
+
+// import javax.persistence.Query;
+
+// import org.oscarehr.common.model.FaxConfig;
+// import org.springframework.stereotype.Repository;
+
+// @Repository
+// public class FaxConfigDao extends AbstractDao<FaxConfig> {
+
+// 	public FaxConfigDao() {		
+//     	super(FaxConfig.class);
+//     }
+
+
+// 	public FaxConfig getConfigByNumber(String number) {
+// 		Query query = entityManager.createQuery("select config from FaxConfig config where config.faxNumber = :number");
+		
+// 		query.setParameter("number", number);
+		
+// 		return getSingleResultOrNull(query);
+// 	}
+// }

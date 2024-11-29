@@ -134,6 +134,51 @@ session.setAttribute("labSex","");
 %>
 <html:html locale="true">
 <head>
+
+ <style>
+           .styled-button {
+    display: inline-block; 
+    padding: 4px 12px; 
+    background-color: #007BFF;
+    color: #FFFFFF;
+    text-decoration: none; 
+    border: none; 
+    border-radius: 4px;
+    font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.styled-button:hover {
+    background-color: #0056b3; 
+    color: #FFFFFF;
+}
+
+body {
+            padding: 20px;
+        }
+
+        #demographicSearch {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        #searchResults {
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+
+       </style>
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/Oscar.js"/>"></script>
 
@@ -538,11 +583,13 @@ session.setAttribute("labSex","");
 }
 %>
 <br> 
-<div class="createNew">
-<a href="demographicaddarecordhtm.jsp?search_mode=<%=searchMode%>&keyword=<%=StringEscapeUtils.escapeHtml(keyWord)%>" title="<bean:message key="demographic.search.btnCreateNewTitle" />">
-<bean:message key="demographic.search.btnCreateNew" />
-</a>
-</div>
+   <div class="createNew">
+       <a href="demographicaddarecordhtm.jsp?search_mode=<%=searchMode%>&keyword=<%=StringEscapeUtils.escapeHtml(keyWord)%>" 
+          title="<bean:message key="demographic.search.btnCreateNewTitle" />" 
+          class="btn btn-primary" role="button"> <!-- Use Bootstrap classes -->
+           <bean:message key="demographic.search.btnCreateNew" />
+       </a>
+   </div>
 
 <caisi:isModuleLoad moduleName="caisi">
 <div class="goBackToSchedule">

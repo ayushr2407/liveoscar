@@ -45,7 +45,7 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 	public static final Character DELETED = '0';
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="recordID")
 	private Integer id;
 
@@ -78,7 +78,8 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 	private Date addDate;
 
 	private Character status;
-	
+
+
 	@Transient
 	private Boolean persistent;
 	

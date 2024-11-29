@@ -2,7 +2,7 @@
 <!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
 <struts-config>
 	<form-beans>
-	<form-bean name="TDISLabelForm" type="oscar.oscarLab.ca.all.pageUtil.CreateLabelTDISForm"></form-bean>
+		<form-bean name="TDISLabelForm" type="oscar.oscarLab.ca.all.pageUtil.CreateLabelTDISForm"></form-bean>
 		<!-- inbox manager -->
 		<form-bean name="inboxInputForm" type="org.apache.struts.validator.LazyValidatorForm" />
 
@@ -103,13 +103,13 @@
 		<form-bean name="EctIncomingConsultationForm" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctIncomingConsultationForm" />
 		<form-bean name="EctConAddSpecialistForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddSpecialistForm" />
 		<form-bean name="EctConAddInstitutionForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddInstitutionForm" />
-		<form-bean name="EctConAddDepartmentForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddDepartmentForm" />		
+		<form-bean name="EctConAddDepartmentForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddDepartmentForm" />
 		<form-bean name="EctConEnableReqRespForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConEnableReqRespForm" />
 		<form-bean name="EctConAddServiceForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddServiceForm" />
 		<form-bean name="EctConShowAllServicesForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConShowAllServicesForm" />
 		<form-bean name="EctConShowAllInstitutionsForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConShowAllInstitutionsForm" />
 		<form-bean name="EctConDisplayServiceForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceForm" />
-		<form-bean name="EctConDisplayInstitutionForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayInstitutionForm" />		
+		<form-bean name="EctConDisplayInstitutionForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayInstitutionForm" />
 		<form-bean name="EctConEditSpecialistsForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConEditSpecialistsForm" />
 		<form-bean name="EctConEditInstitutionsForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConEditInstitutionsForm" />
 		<form-bean name="EctConEditDepartmentsForm" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConEditDepartmentsForm" />
@@ -256,24 +256,24 @@
 			<form-property name="province" type="java.lang.String" />
 			<form-property name="postal" type="java.lang.String" />
 		</form-bean>
-                <form-bean name="editProviderPrinterForm" type="org.apache.struts.action.DynaActionForm">
+		<form-bean name="editProviderPrinterForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="defaultPrinterNameAppointmentReceipt" type="java.lang.String" />
-                        <form-property name="defaultPrinterNamePDFLabel" type="java.lang.String" />
-                        <form-property name="defaultPrinterNamePDFEnvelope" type="java.lang.String" />
-                        <form-property name="defaultPrinterNamePDFChartLabel" type="java.lang.String" />
-                        <form-property name="defaultPrinterNamePDFAddressLabel" type="java.lang.String" />
-                        <form-property name="defaultPrinterNameClientLabLabel" type="java.lang.String" />
-                        <form-property name="silentPrintAppointmentReceipt" type="java.lang.Boolean" />
-                        <form-property name="silentPrintPDFLabel" type="java.lang.Boolean" />
-                        <form-property name="silentPrintPDFEnvelope" type="java.lang.Boolean" />
-                        <form-property name="silentPrintPDFChartLabel" type="java.lang.Boolean" />
-                        <form-property name="silentPrintPDFAddressLabel" type="java.lang.Boolean" />
-                        <form-property name="silentPrintClientLabLabel" type="java.lang.Boolean" />
+			<form-property name="defaultPrinterNamePDFLabel" type="java.lang.String" />
+			<form-property name="defaultPrinterNamePDFEnvelope" type="java.lang.String" />
+			<form-property name="defaultPrinterNamePDFChartLabel" type="java.lang.String" />
+			<form-property name="defaultPrinterNamePDFAddressLabel" type="java.lang.String" />
+			<form-property name="defaultPrinterNameClientLabLabel" type="java.lang.String" />
+			<form-property name="silentPrintAppointmentReceipt" type="java.lang.Boolean" />
+			<form-property name="silentPrintPDFLabel" type="java.lang.Boolean" />
+			<form-property name="silentPrintPDFEnvelope" type="java.lang.Boolean" />
+			<form-property name="silentPrintPDFChartLabel" type="java.lang.Boolean" />
+			<form-property name="silentPrintPDFAddressLabel" type="java.lang.Boolean" />
+			<form-property name="silentPrintClientLabLabel" type="java.lang.Boolean" />
 		</form-bean>
 		<form-bean name="setProviderColour" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="colour" type="java.lang.String" />
 		</form-bean>
-		
+
 		<form-bean name="setTicklerPreferencesForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="taskAssigneeSelection" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="taskAssigneeMRP" type="org.oscarehr.common.model.UserProperty" />
@@ -283,7 +283,7 @@
 		<form-bean name="setViewConsultsPreferencesForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="consultsDefaultFilter" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
-		
+
 		<form-bean name="setProviderNoteStaleDateForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="dateProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="singleViewProperty" type="org.oscarehr.common.model.UserProperty" />
@@ -292,24 +292,24 @@
 			<form-property name="rxDefaultQuantityProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="rxProfileViewProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="rxUseRx3Property" type="org.oscarehr.common.model.UserProperty" />
-            <form-property name="useMyMedsProperty" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="useMyMedsProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="existingDefaultDocQueueProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="newDefaultDocQueueProperty" type="org.oscarehr.common.model.UserProperty" />
-            <form-property name="rxShowPatientDOBProperty" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="cppSingleLineProperty" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="eDocBrowserInMasterFileProperty" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="eDocBrowserInDocumentReportProperty" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="encounterWindowWidth" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="encounterWindowHeight" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="encounterWindowMaximize" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="quickChartSize" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="patientNameLength" type="org.oscarehr.common.model.UserProperty"/>
-            <form-property name="displayDocumentAsProperty" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="rxShowPatientDOBProperty" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="cppSingleLineProperty" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="eDocBrowserInMasterFileProperty" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="eDocBrowserInDocumentReportProperty" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="encounterWindowWidth" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="encounterWindowHeight" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="encounterWindowMaximize" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="quickChartSize" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="patientNameLength" type="org.oscarehr.common.model.UserProperty"/>
+			<form-property name="displayDocumentAsProperty" type="org.oscarehr.common.model.UserProperty"/>
 			<form-property name="labAckCommentProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="labRecallDelegate" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="labRecallMsgSubject" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="labRecallTicklerAssignee" type="org.oscarehr.common.model.UserProperty" />
-			<form-property name="labRecallTicklerPriority" type="org.oscarehr.common.model.UserProperty" />			
+			<form-property name="labRecallTicklerPriority" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="cobaltProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="hideOldEchartLinkInApptProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="bornPromptsProperty" type="org.oscarehr.common.model.UserProperty" />
@@ -366,8 +366,8 @@
 			<form-property name="client_status" type="org.oscarehr.PMmodule.model.ProgramClientStatus" />
 			<form-property name="searchStatus" type="java.lang.String"></form-property>
 			<form-property name="searchType" type="java.lang.String"></form-property>
-			<form-property name="searchFacilityId" type="java.lang.String"></form-property>	
-			<form-property name="vacancyOrTemplateId" type="java.lang.String"></form-property>				
+			<form-property name="searchFacilityId" type="java.lang.String"></form-property>
+			<form-property name="vacancyOrTemplateId" type="java.lang.String"></form-property>
 		</form-bean>
 		<form-bean name="vacancyClientMatchForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="clientList" type="java.util.List" />
@@ -545,7 +545,7 @@
 			<form-property name="followup" type="org.oscarehr.eyeform.model.EyeformFollowUp" />
 			<form-property name="cp" type="org.oscarehr.eyeform.model.EyeformConsultationReport" />
 		</form-bean>
-                <form-bean name="PatientEndYearStatementForm" type="oscar.oscarBilling.ca.on.pageUtil.PatientEndYearStatementForm" />
+		<form-bean name="PatientEndYearStatementForm" type="oscar.oscarBilling.ca.on.pageUtil.PatientEndYearStatementForm" />
 
 		<form-bean name="eyeformPlanForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="followup" type="org.oscarehr.eyeform.model.EyeformFollowUp" />
@@ -571,51 +571,51 @@
 			<form-property name="selectedStyle" type="java.lang.String"></form-property>
 			<form-property name="editStyle" type="java.lang.String"></form-property>
 		</form-bean>
-                <form-bean name="serviceform" type="org.apache.struts.validator.DynaValidatorForm">
-                     <form-property name="emailDemographic" type="java.lang.Boolean" initial="false"></form-property>
-                </form-bean>
-                <form-bean name="tsTicklerForm" type="org.apache.struts.validator.DynaValidatorForm">
-                    <form-property name="activeText" type="java.lang.String[]"></form-property>
-                    <form-property name="inactiveText" type="java.lang.String[]"></form-property>
-                </form-bean>
+		<form-bean name="serviceform" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="emailDemographic" type="java.lang.Boolean" initial="false"></form-property>
+		</form-bean>
+		<form-bean name="tsTicklerForm" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="activeText" type="java.lang.String[]"></form-property>
+			<form-property name="inactiveText" type="java.lang.String[]"></form-property>
+		</form-bean>
 		<form-bean name="episodeForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="episode" type="org.oscarehr.common.model.Episode"/>
 		</form-bean>
 
-                <form-bean name="groupPreference" type="org.apache.struts.action.DynaActionForm"/>
+		<form-bean name="groupPreference" type="org.apache.struts.action.DynaActionForm"/>
 
-                <form-bean name="billing3rdPartyPayment" type="org.apache.struts.validator.DynaValidatorForm"/>
-                <form-bean name="applyPractitionerPremium" type="org.apache.struts.validator.DynaValidatorForm"> 
-                </form-bean>
+		<form-bean name="billing3rdPartyPayment" type="org.apache.struts.validator.DynaValidatorForm"/>
+		<form-bean name="applyPractitionerPremium" type="org.apache.struts.validator.DynaValidatorForm">
+		</form-bean>
 		<form-bean name="remoteReferralForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="fdid" type="java.lang.String"/>
-                        <form-property name="appointment" type="java.lang.String"/>
+			<form-property name="appointment" type="java.lang.String"/>
 		</form-bean>
 
-		<form-bean name="quickBillingBC" type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCFormBean" ></form-bean>
+		<form-bean name="quickBillingBC" type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCFormBean"></form-bean>
 
 		<form-bean name="eaapsExportForm" type="org.oscarehr.research.eaaps.EaapsExportForm" />
-		
+
 		<form-bean name="mcedtResourceForm" type="org.oscarehr.integration.mcedt.ResourceForm" />
-		
+
 		<form-bean name="mcedtUploadForm" type="org.oscarehr.integration.mcedt.UploadForm" />
-		
+
 		<form-bean name="mcedtUploadAddForm" type="org.oscarehr.integration.mcedt.UploadAddForm" />
-		
+
 		<form-bean name="mcedtInfoForm" type="org.oscarehr.integration.mcedt.InfoForm" />
-		
+
 		<form-bean name="mcedtUpdateForm" type="org.oscarehr.integration.mcedt.UpdateForm" />
-		
-		<form-bean name="mcedtDownloadForm" type="org.oscarehr.integration.mcedt.mailbox.DownloadForm" />
-		
-		<form-bean name="kaiedtUploadForm" type="org.oscarehr.integration.mcedt.mailbox.UploadForm" />
-		
-		<form-bean name="kaiedtAutoUploadForm" type="org.oscarehr.integration.mcedt.mailbox.UploadForm" />
-		
+
 		<form-bean name="mcedtDownloadForm" type="org.oscarehr.integration.mcedt.mailbox.DownloadForm" />
 
-        <form-bean name="ValidateSwipeCard" type="org.oscarehr.integration.mchcv.ValidateSwipeCard" />
-        <form-bean name="bpmh" type="oscar.form.pharmaForms.formBPMH.bean.BpmhFormBean" />
+		<form-bean name="kaiedtUploadForm" type="org.oscarehr.integration.mcedt.mailbox.UploadForm" />
+
+		<form-bean name="kaiedtAutoUploadForm" type="org.oscarehr.integration.mcedt.mailbox.UploadForm" />
+
+		<form-bean name="mcedtDownloadForm" type="org.oscarehr.integration.mcedt.mailbox.DownloadForm" />
+
+		<form-bean name="ValidateSwipeCard" type="org.oscarehr.integration.mchcv.ValidateSwipeCard" />
+		<form-bean name="bpmh" type="oscar.form.pharmaForms.formBPMH.bean.BpmhFormBean" />
 	</form-beans>
 
 	<global-forwards>
@@ -626,127 +626,108 @@
 	</global-forwards>
 
 	<action-mappings>
-	
-		<action path="/lookupListManagerAction" type="org.oscarehr.admin.lookUpLists.LookupListManagerAction" 
-			scope="request" validate="false" parameter="method">
+
+		<action path="/admin/SaveFaxConfig" type="org.oscarehr.fax.admin.SaveFaxConfigAction" name="faxConfigForm" scope="request" validate="false">
+			<forward name="success" path="/admin/success.jsp"/>
+			<forward name="failure" path="/admin/failure.jsp"/>
+		</action>
+
+
+		<action path="/lookupListManagerAction" type="org.oscarehr.admin.lookUpLists.LookupListManagerAction" scope="request" validate="false" parameter="method">
 			<forward name="success" path="/admin/lookUpLists/" />
 		</action>
-		
+
 		<action path="/admin/oncallClinic" scope="request" parameter="method" type="org.oscarehr.admin.reports.SaveOnCallClinicAction"></action>
-	
+
 		<!-- OMD Dashboard Proof of Concept -->
-		<action input="/web/dashboard/admin/DashboardManager.jsp" name="FrmForm" path="/web/dashboard/admin/DashboardManager" 
-			parameter="method" type="org.oscarehr.dashboard.admin.ManageDashboardAction" scope="request" >
+		<action input="/web/dashboard/admin/DashboardManager.jsp" name="FrmForm" path="/web/dashboard/admin/DashboardManager" parameter="method" type="org.oscarehr.dashboard.admin.ManageDashboardAction" scope="request">
 			<forward name="success" path="/web/dashboard/admin/DashboardManager.jsp" />
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 			<forward name="ajax" path="/web/dashboard/admin/DashboardManager.do" />
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/DashboardDisplay" 
-			parameter="method" type="org.oscarehr.dashboard.display.DisplayDashboardAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/DashboardDisplay" parameter="method" type="org.oscarehr.dashboard.display.DisplayDashboardAction" scope="request">
 			<forward name="success" path="/web/dashboard/display/DashboardDisplay.jsp" />
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/DrilldownDisplay" 
-			parameter="method" type="org.oscarehr.dashboard.display.DisplayDrilldownAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/DrilldownDisplay" parameter="method" type="org.oscarehr.dashboard.display.DisplayDrilldownAction" scope="request">
 			<forward name="success" path="/web/dashboard/display/DrilldownDisplay.jsp" />
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/AssignTickler" 
-			parameter="method" type="org.oscarehr.dashboard.admin.AssignTicklerAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/AssignTickler" parameter="method" type="org.oscarehr.dashboard.admin.AssignTicklerAction" scope="request">
 			<forward name="success" path="/web/dashboard/display/AssignTickler.jsp" />
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/ExportResults" 
-			parameter="method" type="org.oscarehr.dashboard.admin.ExportResultsAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/ExportResults" parameter="method" type="org.oscarehr.dashboard.admin.ExportResultsAction" scope="request">
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/DisplayIndicator" 
-			parameter="method" type="org.oscarehr.dashboard.display.DisplayIndicatorAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/DisplayIndicator" parameter="method" type="org.oscarehr.dashboard.display.DisplayIndicatorAction" scope="request">
 			<forward name="success" path="/web/dashboard/display/IndicatorPanel.jsp" />
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-	
-		<action path="/web/dashboard/OutcomesDashboard" 
-			parameter="method" type="org.oscarehr.integration.dashboard.OutcomesDashboardAction" scope="request" >
-			
+
+		<action path="/web/dashboard/OutcomesDashboard" parameter="method" type="org.oscarehr.integration.dashboard.OutcomesDashboardAction" scope="request">
+
 		</action>
-		
-		<action name="FrmForm" path="/web/dashboard/display/BulkPatientAction"
-			parameter="method" type="org.oscarehr.dashboard.admin.BulkPatientDashboardAction" scope="request" >
+
+		<action name="FrmForm" path="/web/dashboard/display/BulkPatientAction" parameter="method" type="org.oscarehr.dashboard.admin.BulkPatientDashboardAction" scope="request">
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
 
 		<!-- Pharma Best Possible Medication Health form -->
-	 	<action path="/formBPMH" parameter="method" name="bpmh" type="oscar.form.pharmaForms.formBPMH.web.BpmhFormRetrieve"	
-	 		scope="request" validate="false" > 
-	 			<forward name="saved" path="/formBPMH.do?method=fetch" />
-	 			<forward name="success" path="/form/pharmaForms/formBPMH.jsp" />
+		<action path="/formBPMH" parameter="method" name="bpmh" type="oscar.form.pharmaForms.formBPMH.web.BpmhFormRetrieve" scope="request" validate="false">
+			<forward name="saved" path="/formBPMH.do?method=fetch" />
+			<forward name="success" path="/form/pharmaForms/formBPMH.jsp" />
 		</action>
-	
-	
-        <!-- Notification Mappings -->
-        <action path="/notification/create"
-                type="org.oscarehr.common.web.ProviderNotificationAction"
-                scope="request">
-        </action>
-        <!-- End of Notification Mappings -->
-        
-        <!-- EAAPS Start -->
-        <action path="/eaaps/displayEctEaaps" scope="request" type="org.oscarehr.research.eaaps.EctDisplayEaapsAction" />
-        
-        <action path="/eaaps/export"
-                type="org.oscarehr.research.eaaps.EaapsExportAction"
-                name="eaapsExportForm"
-                input="/eaaps/index.jsp">
-                <forward name="status" path="/eaaps/status.jsp" />
-        </action>
-        <!-- EAAPS End -->
 
-	<action path="/study/ManageStudy" scope="request" parameter="method" type="org.oscarehr.study.ManageStudyAction">
-		<forward name="AddedToStudy" path="/admin/addStudy.jsp"></forward>
-		<forward name="closeWindow" path="/study/closeWindow.html"></forward>
-		<forward name="create" path="/study/closeWindow.html" />
-		<forward name="update" path="/study/closeWindow.html" />
-	</action>
 
-		<action path="/quickBillingBC"
-    			name="quickBillingBC"
-    			type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCAction"
-    			scope="session" >
-    		<forward name="success" path="/billing/CA/BC/quickBillingBC.jsp" />
-    		<forward name="searchdx" path="billing/CA/BC/billingDigNewSearch.jsp" />
-    		<forward name="error" path="/billing/CA/BC/quickBillingBC.jsp" />
-    	</action>
-    	
-    	<action path="/saveQuickBillingBC"
-    			name="quickBillingBC"
-    			type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCSaveAction"
-    			scope="session" >
-    		<forward name="saved" path="/quickBillingBC.do" />
-    		<forward name="error" path="/billing/CA/BC/quickBillingBC.jsp?saved=false" />
-    	</action>
+		<!-- Notification Mappings -->
+		<action path="/notification/create" type="org.oscarehr.common.web.ProviderNotificationAction" scope="request">
+		</action>
+		<!-- End of Notification Mappings -->
 
-	<action input="/dms/addNewDocumentCategories.jsp" name="addDocumentType"
-			path="/dms/addDocumentType" type="oscar.dms.actions.AddDocumentTypeAction"
-			parameter="method" scope="request" validate="false">
+		<!-- EAAPS Start -->
+		<action path="/eaaps/displayEctEaaps" scope="request" type="org.oscarehr.research.eaaps.EctDisplayEaapsAction" />
+
+		<action path="/eaaps/export" type="org.oscarehr.research.eaaps.EaapsExportAction" name="eaapsExportForm" input="/eaaps/index.jsp">
+			<forward name="status" path="/eaaps/status.jsp" />
+		</action>
+		<!-- EAAPS End -->
+
+		<action path="/study/ManageStudy" scope="request" parameter="method" type="org.oscarehr.study.ManageStudyAction">
+			<forward name="AddedToStudy" path="/admin/addStudy.jsp"></forward>
+			<forward name="closeWindow" path="/study/closeWindow.html"></forward>
+			<forward name="create" path="/study/closeWindow.html" />
+			<forward name="update" path="/study/closeWindow.html" />
+		</action>
+
+		<action path="/quickBillingBC" name="quickBillingBC" type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCAction" scope="session">
+			<forward name="success" path="/billing/CA/BC/quickBillingBC.jsp" />
+			<forward name="searchdx" path="billing/CA/BC/billingDigNewSearch.jsp" />
+			<forward name="error" path="/billing/CA/BC/quickBillingBC.jsp" />
+		</action>
+
+		<action path="/saveQuickBillingBC" name="quickBillingBC" type="oscar.oscarBilling.ca.bc.quickbilling.QuickBillingBCSaveAction" scope="session">
+			<forward name="saved" path="/quickBillingBC.do" />
+			<forward name="error" path="/billing/CA/BC/quickBillingBC.jsp?saved=false" />
+		</action>
+
+		<action input="/dms/addNewDocumentCategories.jsp" name="addDocumentType" path="/dms/addDocumentType" type="oscar.dms.actions.AddDocumentTypeAction" parameter="method" scope="request" validate="false">
 			<forward name="failed" path="/dms/addNewDocumentCategories.jsp"></forward>
 			<forward name="success" path="/dms/closeWindow.html"></forward>
 		</action>
-		<action input="/dms/changeStatus.jsp" name="changeDocStatus"
-			path="/dms/changeDocStatus" type="oscar.dms.actions.ChangeDocStatusAction"
-			parameter="method" scope="request" validate="false">
+		<action input="/dms/changeStatus.jsp" name="changeDocStatus" path="/dms/changeDocStatus" type="oscar.dms.actions.ChangeDocStatusAction" parameter="method" scope="request" validate="false">
 			<!--<forward name="failed" path="/dms/addNewDocumentCategories.jsp"></forward> -->
 			<forward name="success" path="/dms/closeWindow.html"></forward>
 		</action>
@@ -763,7 +744,7 @@
 		</action>
 
 		<!-- caisi core action -->
-		
+
 		<action path="/SystemMessage" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" name="systemMessageForm" input="/caisicore/SystemMessageForm.jsp" validate="false">
 			<forward name="view" path="/caisicore/SystemMessage.jsp" />
 			<forward name="list" path="/caisicore/SystemMessageList.jsp" />
@@ -792,13 +773,13 @@
 			<forward name="caisiPMM" path="/PMmodule/ProviderInfo.do" />
 			<forward name="shelterSelection" path="/shelterSelection.do" redirect="true" />
 			<forward name="LoginTest" path="/login/LoginTest.jsp" redirect="true" />
-			
+
 			<forward name="forcepasswordreset" path="/forcepasswordreset.jsp" />
 			<forward name="programLocation" path="/location.jsp" redirect="true"/>
 			<forward name="cobalt" path="/web/" redirect="true" />
-			
+
 		</action>
-		
+
 		<action input="/login.jsp" name="loginForm" path="/ssoLogin" scope="request" type="oscar.login.SSOLoginAction" validate="true" parameter="ssoLogin">
 			<forward name="provider" path="/provider/providercontrol.jsp" redirect="true" />
 			<forward name="failure" path="/logout.jsp?login=failed" />
@@ -807,17 +788,17 @@
 			<forward name="caisiPMM" path="/PMmodule/ProviderInfo.do" />
 			<forward name="shelterSelection" path="/shelterSelection.do" redirect="true" />
 			<forward name="LoginTest" path="/login/LoginTest.jsp" redirect="true" />
-			
+
 			<forward name="programLocation" path="/location.jsp" redirect="true"/>
 			<forward name="cobalt" path="/web/" redirect="true" />
 		</action>
-		
+
 		<action input="/login.jsp" name="loginForm" path="/econsultSSOLogin" scope="request" type="oscar.login.SSOLoginAction" validate="true" parameter="econsultLogin">
 			<forward name="success" path="/oscarEncounter/econsult.do" />
 			<forward name="error" path="/logout.jsp" />
 			<forward name="ssoLoginError" path="/index.jsp" />
 		</action>
-		
+
 		<action input="/login/loginTest.jsp" path="/login/recordLogin" scope="request" type="oscar.login.LoginAgreementAction"></action>
 
 		<action path="/shelterSelection" scope="request" type="oscar.login.ShelterSelectionAction" validate="true" parameter="method">
@@ -825,11 +806,11 @@
 			<forward name="home" path="/Home.do" redirect="true" />
 			<forward name="login" path="/index.jsp" />
 		</action>
-		
+
 		<action input="/oscarMessenger/ViewMessage.jsp" path="/oscarMessenger/ImportDemographic" scope="request" type="oscar.oscarMessenger.pageUtil.ImportDemographicAction">
 			<forward name="success" path="/oscarMessenger/ViewMessage.do" />
 		</action>
-		
+
 		<action input="/oscarMessenger/SendMessage.jsp" name="msgSendMessageForm" path="/oscarMessenger/SendMessage" scope="request" type="oscar.oscarMessenger.pageUtil.MsgSendMessageAction">
 			<forward name="success" path="/oscarMessenger/SentMessage.jsp" />
 		</action>
@@ -869,17 +850,16 @@
 			<forward name="success" path="/oscarMessenger/DisplayMessages.jsp" />
 			<forward name="reply" path="/oscarMessenger/CreateMessage.jsp" />
 		</action>
-		
-		<action input="/oscarMessenger/config/MessengerAdmin.jsp" name="msgMessengerAdminForm" path="/oscarMessenger" scope="request" parameter="method" 
-			type="oscar.oscarMessenger.config.pageUtil.MsgMessengerAdminAction">
+
+		<action input="/oscarMessenger/config/MessengerAdmin.jsp" name="msgMessengerAdminForm" path="/oscarMessenger" scope="request" parameter="method" type="oscar.oscarMessenger.config.pageUtil.MsgMessengerAdminAction">
 			<forward name="success" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 			<forward name="failure" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 		</action>
-		
+
 		<action input="/oscarMessenger/config/MessengerCreateGroup.jsp" name="msgMessengerCreateGroupForm" path="/oscarMessenger/AddGroup" scope="request" type="oscar.oscarMessenger.config.pageUtil.MsgMessengerCreateGroupAction">
 			<forward name="success" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 		</action>
-		
+
 		<action input="/oscarMessenger/ViewMessage.jsp" name="msgViewAttachmentForm" path="/oscarMessenger/ViewAttach" scope="request" type="oscar.oscarMessenger.pageUtil.MsgViewAttachmentAction">
 			<forward name="success" path="/oscarMessenger/ViewAttachment.jsp" />
 		</action>
@@ -917,11 +897,11 @@
 			<forward name="domain-error" path="/casemgmt/domain-error.jsp" />
 		</action>
 
-		<action name="FrmForm" path="/dms/inboxManage" scope="request"  parameter="method" type="org.springframework.web.struts.DelegatingActionProxy">
-            <forward name="dms_index" path="/oscarMDS/Index.jsp" />
-            <forward name="dms_page" path="/oscarMDS/Page.jsp" />
-            <forward name="document_in_queues"  path="/oscarMDS/documentsInQueues.jsp" />
-        </action>
+		<action name="FrmForm" path="/dms/inboxManage" scope="request" parameter="method" type="org.springframework.web.struts.DelegatingActionProxy">
+			<forward name="dms_index" path="/oscarMDS/Index.jsp" />
+			<forward name="dms_page" path="/oscarMDS/Page.jsp" />
+			<forward name="document_in_queues" path="/oscarMDS/documentsInQueues.jsp" />
+		</action>
 
 		<action input="/oscarRx/ChooseDrug.jsp" path="/oscarRx/chooseDrug" scope="request" type="oscar.oscarRx.pageUtil.RxChooseDrugAction">
 			<forward name="success" path="/oscarRx/WriteScript.jsp" />
@@ -1033,18 +1013,18 @@
 		<action input="/oscarRx/ManagePharmacy.jsp" name="RxManagePharmacyForm" path="/oscarRx/managePharmacy" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">
 			<forward name="success" path="/oscarRx/SelectPharmacy.jsp" />
 		</action>
-		<action input="/oscarRx/SelectPharmacy2.jsp" path="/oscarRx/managePharmacy" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">			
+		<action input="/oscarRx/SelectPharmacy2.jsp" path="/oscarRx/managePharmacy" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">
 		</action>
-		
+
 		<action input="/oscarRx/ManagePharmacy2.jsp" name="RxManagePharmacyForm" path="/oscarRx/managePharmacy2" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">
 			<forward name="success" path="/oscarRx/SelectPharmacy2.jsp" />
-		</action>				
+		</action>
 		<action input="/oscarRx/SearchDrug.jsp" name="FrmForm" path="/oscarRx/SendToPhr" parameter="method" scope="request" type="org.springframework.web.struts.DelegatingActionProxy">
 			<forward name="finished" path="/phr/response.jsp"></forward>
 		</action>
 		<action input="/oscarRx/SelectReason.jsp" name="FrmForm" path="/oscarRx/RxReason" parameter="method" scope="request" type="oscar.oscarRx.pageUtil.RxReasonAction">
-		   <forward name="close" path="/oscarRx/close.html" />
-		   <forward name="success" path="/oscarRx/SelectReason.jsp" />
+			<forward name="close" path="/oscarRx/close.html" />
+			<forward name="success" path="/oscarRx/SelectReason.jsp" />
 		</action>
 		<action input="/oscarRx/MyDrugrefDisplay.jsp" name="FrmForm" path="/oscarRx/GetmyDrugrefInfo" parameter="method" scope="request" type="oscar.oscarRx.pageUtil.RxMyDrugrefInfoAction">
 			<forward name="success" path="/oscarRx/MyDrugrefDisplay.jsp"></forward>
@@ -1066,7 +1046,7 @@
 			<forward name="success" path="/oscarMDS/Close.jsp" />
 		</action>
 		<action path="/oscarMDS/RunMacro" parameter="method" scope="request" type="oscar.oscarMDS.pageUtil.ReportMacroAction">
-			
+
 		</action>
 		<action input="/Index.jsp" path="/oscarMDS/ReportReassign" scope="request" type="oscar.oscarMDS.pageUtil.ReportReassignAction">
 			<forward name="failure" path="/errorpage.jsp" />
@@ -1083,27 +1063,27 @@
 			<forward name="failure" path="/errorpage.jsp" />
 			<forward name="success" path="/lab/CA/BC/labDisplay.jsp" />
 		</action>
-                <action input="/labDisplay.jsp" path="/lab/CA/ALL/UnlinkDemographic" scope="request" type="oscar.oscarLab.ca.all.pageUtil.UnlinkDemographicAction">
+		<action input="/labDisplay.jsp" path="/lab/CA/ALL/UnlinkDemographic" scope="request" type="oscar.oscarLab.ca.all.pageUtil.UnlinkDemographicAction">
 			<forward name="success" path="/oscarMDS/Close.jsp" />
 		</action>
 		<action input="/labDisplayOLIS.jsp" path="/lab/CA/ALL/PrintOLIS" scope="request" type="oscar.oscarLab.ca.all.pageUtil.PrintOLISLabsAction">
-            <forward name="error" path="/lab/CA/ALL/labDisplay.jsp" />
-        </action>
-        <action input="/labDisplayOLIS.jsp" path="/lab/CA/ALL/PrintOLISLab" scope="request" type="oscar.oscarLab.ca.all.pageUtil.PrintOLISLabAction">
-            <forward name="error" path="/lab/CA/ALL/labDisplay.jsp" />
-        </action>
-        <action input="/olis/Search.jsp" path="/olis/Search" scope="request" type="org.oscarehr.olis.OLISSearchAction">
-        	<forward name="results" path="/olis/Results.do" />
-        </action>
-        <action input="/olis/Search.jsp" path="/olis/Results" scope="request" type="org.oscarehr.olis.OLISResultsAction">
-        	<forward name="results" path="/olis/Results.jsp" />
-        </action>
-        <action input="/olis/Results.jsp" path="/olis/AddToInbox" scope="request" parameter="method" type="org.oscarehr.olis.OLISAddToInboxAction">
-        	<forward name="ajax" path="/olis/ajaxResponse.jsp" />
-        </action>
-        <action input="/olis/Simulate.jsp" path="/olis/UploadSimulationData" scope="request" type="org.oscarehr.olis.OLISUploadSimulationDataAction">
-        	<forward name="success" path="/olis/Simulate.jsp" />
-        </action>
+			<forward name="error" path="/lab/CA/ALL/labDisplay.jsp" />
+		</action>
+		<action input="/labDisplayOLIS.jsp" path="/lab/CA/ALL/PrintOLISLab" scope="request" type="oscar.oscarLab.ca.all.pageUtil.PrintOLISLabAction">
+			<forward name="error" path="/lab/CA/ALL/labDisplay.jsp" />
+		</action>
+		<action input="/olis/Search.jsp" path="/olis/Search" scope="request" type="org.oscarehr.olis.OLISSearchAction">
+			<forward name="results" path="/olis/Results.do" />
+		</action>
+		<action input="/olis/Search.jsp" path="/olis/Results" scope="request" type="org.oscarehr.olis.OLISResultsAction">
+			<forward name="results" path="/olis/Results.jsp" />
+		</action>
+		<action input="/olis/Results.jsp" path="/olis/AddToInbox" scope="request" parameter="method" type="org.oscarehr.olis.OLISAddToInboxAction">
+			<forward name="ajax" path="/olis/ajaxResponse.jsp" />
+		</action>
+		<action input="/olis/Simulate.jsp" path="/olis/UploadSimulationData" scope="request" type="org.oscarehr.olis.OLISUploadSimulationDataAction">
+			<forward name="success" path="/olis/Simulate.jsp" />
+		</action>
 		<action input="/CMLDisplay.jsp" path="/lab/CA/ON/Forward" scope="request" type="oscar.oscarMDS.pageUtil.ReportReassignAction">
 			<forward name="failure" path="/errorpage.jsp" />
 			<forward name="success" path="/lab/CA/ON/CMLDisplay.jsp" />
@@ -1172,28 +1152,26 @@
 			<forward name="exit" path="/oscarEncounter/close.jsp" />
 		</action>
 
-          <!-- actions for HSFO2 begin -->
-	        <action name="inputForm" path="/admin/RecommitHSFO2" parameter="method" scope="request" type="oscar.form.study.hsfo2.pageUtil.RecommitHSFOAction" >
-       		     <forward name="schedulePage" path="/admin/recommitschedule.jsp" />
-       		 </action>
+		<!-- actions for HSFO2 begin -->
+		<action name="inputForm" path="/admin/RecommitHSFO2" parameter="method" scope="request" type="oscar.form.study.hsfo2.pageUtil.RecommitHSFOAction">
+			<forward name="schedulePage" path="/admin/recommitschedule.jsp" />
+		</action>
 
-       		 <action name="HSFOForm2" path="/form/HSFOForm2" scope="request" type="oscar.form.study.hsfo2.pageUtil.ManageHSFOAction" >
-       		     <forward name="registration" path="/form/hsfo2/HSFORegistrationForm.jsp" />
-       		     <forward name="flowsheet" path="/form/hsfo2/HSFOFlowsheet.jsp" />
-       		     <forward name="graphs" path="/form/hsfo2/displayGraphs.jsp" />
-       		 </action>
+		<action name="HSFOForm2" path="/form/HSFOForm2" scope="request" type="oscar.form.study.hsfo2.pageUtil.ManageHSFOAction">
+			<forward name="registration" path="/form/hsfo2/HSFORegistrationForm.jsp" />
+			<forward name="flowsheet" path="/form/hsfo2/HSFOFlowsheet.jsp" />
+			<forward name="graphs" path="/form/hsfo2/displayGraphs.jsp" />
+		</action>
 
-       		 <action name="FrmForm" path="/form/SaveHSFORegistrationForm2" scope="request"
-       		         type="oscar.form.study.hsfo2.pageUtil.SaveRegistrationAction"
-       		         parameter="dispatch">
-       		     <forward name="success" path="/form/HSFOForm2.do" />
-       		     <forward name="exit" path="/oscarEncounter/close.jsp" />
-       		 </action>
-       		 <action name="transferHSFOXml2" path="/form/HSFOXmlTransfer2" scope="request" type="oscar.form.study.hsfo2.pageUtil.TransferHSFOXmlAction" >
-       		     <forward name="HSFORE" path="/form/hsfo2/HSFOXmlResult.jsp" />
-       		 </action>
+		<action name="FrmForm" path="/form/SaveHSFORegistrationForm2" scope="request" type="oscar.form.study.hsfo2.pageUtil.SaveRegistrationAction" parameter="dispatch">
+			<forward name="success" path="/form/HSFOForm2.do" />
+			<forward name="exit" path="/oscarEncounter/close.jsp" />
+		</action>
+		<action name="transferHSFOXml2" path="/form/HSFOXmlTransfer2" scope="request" type="oscar.form.study.hsfo2.pageUtil.TransferHSFOXmlAction">
+			<forward name="HSFORE" path="/form/hsfo2/HSFOXmlResult.jsp" />
+		</action>
 
-        <!-- actions for HSFO2 end -->
+		<!-- actions for HSFO2 end -->
 
 		<action name="FrmForm" path="/form/HSFOXmlTransfer" scope="request" type="oscar.form.study.HSFO.pageUtil.TransferHSFOXmlAction">
 			<forward name="HSFORE" path="/form/hsfoxmlresult.jsp" />
@@ -1233,7 +1211,7 @@
 			<forward name="guidelineDetail" path="/oscarEncounter/decisionSupport/guidelineDetail.jsp" />
 		</action>
 		<action path="/oscarEncounter/displayMyOscar" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayMyOscarAction"></action>
-		
+
 		<action input="/Index.jsp" path="/oscarEncounter/SaveEncounter" scope="request" type="oscar.oscarEncounter.pageUtil.EctSaveEncounterAction">
 			<forward name="saveAndStay" path="/oscarEncounter/Index.jsp?saved=true" />
 			<forward name="failure" path="/oscarEncounter/error.jsp" />
@@ -1253,17 +1231,15 @@
 			<forward name="close" path="/oscarEncounter/close.jsp" />
 			<forward name="concurrencyError" path="/oscarEncounter/concurrencyError.jsp" />
 		</action>
-		
+
 		<!-- Import Clinical Data into the Consultation form -->
-		<action path="/oscarConsultationRequest/consultationClinicalData" scope="request" validate="false" parameter="method"
-			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.ConsultationClinicalDataAction" >
+		<action path="/oscarConsultationRequest/consultationClinicalData" scope="request" validate="false" parameter="method" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.ConsultationClinicalDataAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" />
 		</action>
-		
-		<action path="/econsult" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EConsultAction" 
-		validate="false" parameter="method">		
+
+		<action path="/econsult" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EConsultAction" validate="false" parameter="method">
 		</action>
-		
+
 		<action input=" " name="EctIncomingConsultationForm" path="/oscarEncounter/IncomingConsultation" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctIncomingConsultationAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ViewConsultationRequests.jsp" />
 		</action>
@@ -1281,7 +1257,7 @@
 			<forward name="failESend" path="/oscarEncounter/ViewRequest.do" />
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" />
 		</action>
-		
+
 		<action path="/oscarEncounter/myoscar/measurements_*" name="EctMyOscarFilterForm" scope="request" type="oscar.oscarEncounter.data.myoscar.EctMyOscarFilterAction">
 			<forward name="success" path="/oscarEncounter/myoscar/{1}.jsp" />
 		</action>
@@ -1289,10 +1265,8 @@
 		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" path="/oscarEncounter/eRefer" scope="request" validate="false" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EReferAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp"/>
 		</action>
-		
-		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" name="EctConsultationFormRequestForm" path="/oscarEncounter/RequestConsultation" scope="request"
-			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestAction"
-		>
+
+		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" name="EctConsultationFormRequestForm" path="/oscarEncounter/RequestConsultation" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConfirmConsultationRequest.jsp" />
 			<forward name="failESend" path="/oscarEncounter/ViewRequest.do" />
 			<forward name="print" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormPrint.jsp" />
@@ -1327,10 +1301,8 @@
 		<action input="/oscarConsultationRequest/config/ShowAllInstitutions.jsp" name="EctConShowAllInstitutionsForm" path="/oscarEncounter/ShowAllInstitutions" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConShowAllInstitutionsAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/config/DisplayInstitution.jsp" />
 		</action>
-		
-		<action input="/oscarEncounter/oscarConsultationRequest/config/AddSpecialist.jsp" name="EctConAddSpecialistForm" path="/oscarEncounter/AddSpecialist" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddSpecialistAction"
-			validate="true"
-		>
+
+		<action input="/oscarEncounter/oscarConsultationRequest/config/AddSpecialist.jsp" name="EctConAddSpecialistForm" path="/oscarEncounter/AddSpecialist" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConAddSpecialistAction" validate="true">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/config/AddSpecialist.jsp" />
 			<forward name="edited" path="/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp" />
 		</action>
@@ -1407,30 +1379,20 @@
 		<action path="/oscarEncounter/immunization/config/initConfig" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmInitConfigAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/AdministrateImmunizationSets.jsp" />
 		</action>
-		<action input="/immunization/config/AdministrateImmunizationSets.jsp" name="DeleteImmuSetForm" path="/oscarEncounter/immunization/config/deleteImmunizationSet" scope="request"
-			type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmInitConfigDeleteImmuSetAction"
-		>
+		<action input="/immunization/config/AdministrateImmunizationSets.jsp" name="DeleteImmuSetForm" path="/oscarEncounter/immunization/config/deleteImmunizationSet" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmInitConfigDeleteImmuSetAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/AdministrateImmunizationSets.jsp" />
 		</action>
-		<action input="/immunization/config/CreateImmunizationSetInit.jsp" name="EctImmCreateImmunizationSetInitForm" path="/oscarEncounter/immunization/config/CreateInitImmunization" scope="request"
-			type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmCreateImmunizationSetInitAction"
-		>
+		<action input="/immunization/config/CreateImmunizationSetInit.jsp" name="EctImmCreateImmunizationSetInitForm" path="/oscarEncounter/immunization/config/CreateInitImmunization" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmCreateImmunizationSetInitAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/CreateImmunizationSetConfig.jsp" />
 		</action>
-		<action input="/immunization/config/CreateImmunizationSetConfig.jsp" name="EctImmCreateImmunizationSetConfigForm" path="/oscarEncounter/immunization/config/CreateImmunizationSetConfig" scope="request"
-			type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmCreateImmunizationSetConfigAction"
-		>
+		<action input="/immunization/config/CreateImmunizationSetConfig.jsp" name="EctImmCreateImmunizationSetConfigForm" path="/oscarEncounter/immunization/config/CreateImmunizationSetConfig" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmCreateImmunizationSetConfigAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/AdministrateImmunizationSets.jsp" />
 			<forward name="goBack" path="/oscarEncounter/immunization/config/CreateImmunizationSetConfig.jsp" />
 		</action>
-		<action input="/immunization/config/DeleteImmunizationSets.jsp" name="EctImmDeleteImmunizationSetForm" path="/oscarEncounter/immunization/config/DeleteImmunizationSets" scope="request"
-			type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmDeleteImmunizationSetAction"
-		>
+		<action input="/immunization/config/DeleteImmunizationSets.jsp" name="EctImmDeleteImmunizationSetForm" path="/oscarEncounter/immunization/config/DeleteImmunizationSets" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmDeleteImmunizationSetAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/AdministrateImmunizationSets.jsp" />
 		</action>
-		<action input="/immunization/config/ImmunizationSetDisplay.jsp" name="EctImmImmunizationSetDisplayForm" path="/oscarEncounter/immunization/config/ImmunizationSetDisplay" scope="request"
-			type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmImmunizationSetDisplayAction"
-		>
+		<action input="/immunization/config/ImmunizationSetDisplay.jsp" name="EctImmImmunizationSetDisplayForm" path="/oscarEncounter/immunization/config/ImmunizationSetDisplay" scope="request" type="oscar.oscarEncounter.immunization.config.pageUtil.EctImmImmunizationSetDisplayAction">
 			<forward name="success" path="/oscarEncounter/immunization/config/ImmunizationSetDisplay.jsp" />
 		</action>
 		<action input="/oscarEncounter/oscarMeasurements/Measurements.jsp" name="EctMeasurementsForm" path="/oscarEncounter/GraphMeasurements" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.MeasurementGraphAction2">
@@ -1438,35 +1400,23 @@
 			<forward name="failure" path="/oscarEncounter/oscarMeasurements/Measurements.jsp" />
 		</action>
 
-		<action
-        	path="/oscarEncounter/FormUpdate"
-        	name="mainForm"
-        	scope="request"
-        	type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
-        	<forward name="success" path="/oscarEncounter/oscarMeasurements/close.jsp" />
-        	<forward name="reload" path="/oscarEncounter/oscarMeasurements/TemplateFlowSheet.jsp" />
-        	<forward name="failure" path="/oscarEncounter/oscarMeasurements/FlowUpdate.jsp" />
-        </action>
-        
-        <action
-        	path="/oscarEncounter/oscarMeasurements/TrackerUpdate"
-        	name="trackerForm"
-        	scope="request"
-        	type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
-        	<forward name="success" path="/oscarEncounter/oscarMeasurements/close.jsp" />
-        	<forward name="reload" path="/oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf?reload" />
-        	<forward name="failure" path="/oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf" />
-        </action>
+		<action path="/oscarEncounter/FormUpdate" name="mainForm" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
+			<forward name="success" path="/oscarEncounter/oscarMeasurements/close.jsp" />
+			<forward name="reload" path="/oscarEncounter/oscarMeasurements/TemplateFlowSheet.jsp" />
+			<forward name="failure" path="/oscarEncounter/oscarMeasurements/FlowUpdate.jsp" />
+		</action>
 
-        <action
-        	path="/oscarEncounter/oscarMeasurements/TrackerSlimUpdate"
-        	name="trackerForm"
-        	scope="request"
-        	type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
-        	<forward name="success" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf?reload" />
-        	<forward name="reload" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf?reload" />
-        	<forward name="failure" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf" />
-        </action>
+		<action path="/oscarEncounter/oscarMeasurements/TrackerUpdate" name="trackerForm" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
+			<forward name="success" path="/oscarEncounter/oscarMeasurements/close.jsp" />
+			<forward name="reload" path="/oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf?reload" />
+			<forward name="failure" path="/oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf" />
+		</action>
+
+		<action path="/oscarEncounter/oscarMeasurements/TrackerSlimUpdate" name="trackerForm" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.FormUpdateAction">
+			<forward name="success" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf?reload" />
+			<forward name="reload" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf?reload" />
+			<forward name="failure" path="/oscarEncounter/oscarMeasurements/HealthTrackerSlim.jspf" />
+		</action>
 
 		<action input="/oscarEncounter/oscarMeasurements/Measurements.jsp" name="EctMeasurementsForm" path="/oscarEncounter/Measurements" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctMeasurementsAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/ProcessMeasurementsSubmission.jsp" />
@@ -1479,9 +1429,7 @@
 		<action name="EctMeasurementsForm" path="/oscarEncounter/oscarMeasurements/SetupAddMeasurementType" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupAddMeasurementTypeAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/AddMeasurementType.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementType.jsp" name="EctAddMeasurementTypeForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementType" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementTypeAction" validate="true"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementType.jsp" name="EctAddMeasurementTypeForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementType" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementTypeAction" validate="true">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/AddMeasurementType.jsp" />
 			<forward name="failure" path="/oscarEncounter/oscarMeasurements/AddMeasurementType.jsp" />
 		</action>
@@ -1511,13 +1459,11 @@
 		<action name="EctDeleteDataForm" path="/oscarEncounter/oscarMeasurements/DeleteData2" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctDeleteDataAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/close.jsp" />
 		</action>
-		
+
 		<action path="/oscarEncounter/oscarMeasurements/SetupAddMeasuringInstruction" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupAddMeasuringInstructionAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction.jsp" name="EctAddMeasuringInstructionForm" path="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasuringInstructionAction" validate="true"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction.jsp" name="EctAddMeasuringInstructionForm" path="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasuringInstructionAction" validate="true">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction.jsp" />
 			<forward name="failure" path="/oscarEncounter/oscarMeasurements/AddMeasuringInstruction.jsp" />
 		</action>
@@ -1527,56 +1473,38 @@
 		<action path="/oscarEncounter/oscarMeasurements/SetupGroupList" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupGroupListAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/SelectMeasurementGroup.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/SelectMeasurementGroup.jsp" name="EctSelectMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SelectMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSelectMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/SelectMeasurementGroup.jsp" name="EctSelectMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SelectMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSelectMeasurementGroupAction">
 			<forward name="type" path="/oscarEncounter/oscarMeasurements/ProcessEditMeasurementGroupAction.jsp" />
 			<forward name="style" path="/oscarEncounter/oscarMeasurements/EditMeasurementGroupStyle.jsp" />
 			<forward name="delete" path="/oscarEncounter/oscarMeasurements/SetupGroupList.do" />
 			<forward name="addDSHTML" path="/oscarEncounter/oscarMeasurements/MeasurementGroupDSadd.jsp" />
 			<forward name="removeDSHTML" path="/oscarEncounter/oscarMeasurements/MeasurementGroupDSremove.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/ProcessEditMeasurementGroupAction.jsp" name="EctSetupEditMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SetupEditMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupEditMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/ProcessEditMeasurementGroupAction.jsp" name="EctSetupEditMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SetupEditMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupEditMeasurementGroupAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/EditMeasurementGroup.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/EditMeasurementGroup.jsp" name="EctEditMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/EditMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctEditMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/EditMeasurementGroup.jsp" name="EctEditMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/EditMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctEditMeasurementGroupAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/ProcessEditMeasurementGroupAction.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/DefineNewMeasurementGroup.jsp" name="EctDefineNewMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/DefineNewMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctDefineNewMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/DefineNewMeasurementGroup.jsp" name="EctDefineNewMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/DefineNewMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctDefineNewMeasurementGroupAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/ProcessAddMeasurementGroupAction.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/ProcessAddMeasurementGroupAction.jsp" name="EctSetupAddMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SetupAddMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupAddMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/ProcessAddMeasurementGroupAction.jsp" name="EctSetupAddMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/SetupAddMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupAddMeasurementGroupAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/AddMeasurementGroup.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/EditMeasurementGroupStyle.jsp" name="EctEditMeasurementStyleForm" path="/oscarEncounter/oscarMeasurements/EditMeasurementStyle" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctEditMeasurementStyleAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/EditMeasurementGroupStyle.jsp" name="EctEditMeasurementStyleForm" path="/oscarEncounter/oscarMeasurements/EditMeasurementStyle" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctEditMeasurementStyleAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/SetupGroupList.do" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementGroup.jsp" name="EctAddMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementGroup" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementGroupAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementGroup.jsp" name="EctAddMeasurementGroupForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementGroup" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementGroupAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/ProcessEditMeasurementGroupAction.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/DisplayMeasurementStyleSheet.jsp" name="EctDeleteMeasurementStyleSheetForm" path="/oscarEncounter/oscarMeasurements/DeleteMeasurementStyleSheet" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctDeleteMeasurementStyleSheetAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/DisplayMeasurementStyleSheet.jsp" name="EctDeleteMeasurementStyleSheetForm" path="/oscarEncounter/oscarMeasurements/DeleteMeasurementStyleSheet" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctDeleteMeasurementStyleSheetAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/SetupDisplayMeasurementStyleSheet.do" />
-		</action>		
+		</action>
 		<action path="/oscarEncounter/oscarMeasurements/SetupDisplayMeasurementStyleSheet" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctSetupDisplayMeasurementStyleSheetAction">
 			<forward name="continue" path="/oscarEncounter/oscarMeasurements/DisplayMeasurementStyleSheet.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet.jsp" name="EctAddMeasurementStyleSheetForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet" scope="request"
-			type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementStyleSheetAction"
-		>
+		<action input="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet.jsp" name="EctAddMeasurementStyleSheetForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementStyleSheetAction">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet.jsp" />
 		</action>
 		<action name="EctAddMeasurementMapForm" path="/oscarEncounter/oscarMeasurements/AddMeasurementMap" scope="request" type="oscar.oscarEncounter.oscarMeasurements.pageUtil.EctAddMeasurementMapAction">
@@ -1639,7 +1567,7 @@
 		<action input="/oscarReport/ReportDemographicReport.jsp" name="RptDemographicReportForm" path="/report/DemographicReport" scope="request" type="oscar.oscarReport.pageUtil.RptDemographicReportAction">
 			<forward name="success" path="/oscarReport/ReportDemographicReport.jsp" />
 			<forward name="failure" path="/oscar_sfhc/JAYREPORTS/DemographicReport.jsp" />
-			<forward name="addToStudy" path="/study/ManageStudy.do?method=AddToStudy" />			
+			<forward name="addToStudy" path="/study/ManageStudy.do?method=AddToStudy" />
 		</action>
 		<action input="/oscarReport/ReportDemographicReport.jsp" name="FrmForm" path="/report/CreateDemographicSet" scope="request" type="oscar.oscarReport.pageUtil.RptCreateDemographicSetAction">
 			<forward name="success" path="/oscarReport/ReportDemographicReport.jsp" />
@@ -1655,19 +1583,13 @@
 			<forward name="patientInAbnormalRange" path="/oscarReport/oscarMeasurements/InitializePatientsInAbnormalRangeCDMReport.jsp" />
 			<forward name="freqencyOfReleventTests" path="/oscarReport/oscarMeasurements/InitializeFrequencyOfRelevantTestsCDMReport.jsp" />
 		</action>
-		<action input="/oscarReport/oscarMeasurements/InitializePatientsMetGuidelineCDMReport.jsp" name="RptInitializePatientsMetGuidelineCDMReportForm" path="/oscarReport/oscarMeasurements/InitializePatientsMetGuidelineCDMReport" scope="request"
-			type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializePatientsMetGuidelineCDMReportAction"
-		>
+		<action input="/oscarReport/oscarMeasurements/InitializePatientsMetGuidelineCDMReport.jsp" name="RptInitializePatientsMetGuidelineCDMReportForm" path="/oscarReport/oscarMeasurements/InitializePatientsMetGuidelineCDMReport" scope="request" type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializePatientsMetGuidelineCDMReportAction">
 			<forward name="success" path="/oscarReport/oscarMeasurements/CDMReport.jsp" />
 		</action>
-		<action input="/oscarReport/oscarMeasurements/InitializePatientsInAbnormalRangeCDMReport.jsp" name="RptInitializePatientsInAbnormalRangeCDMReportForm" path="/oscarReport/oscarMeasurements/InitializePatientsInAbnormalRangeCDMReport" scope="request"
-			type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializePatientsInAbnormalRangeCDMReportAction"
-		>
+		<action input="/oscarReport/oscarMeasurements/InitializePatientsInAbnormalRangeCDMReport.jsp" name="RptInitializePatientsInAbnormalRangeCDMReportForm" path="/oscarReport/oscarMeasurements/InitializePatientsInAbnormalRangeCDMReport" scope="request" type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializePatientsInAbnormalRangeCDMReportAction">
 			<forward name="success" path="/oscarReport/oscarMeasurements/CDMReport.jsp" />
 		</action>
-		<action input="/oscarReport/oscarMeasurements/InitializeFrequencyOfRelevantTestsCDMReport.jsp" name="RptInitializeFrequencyOfRelevantTestsCDMReportForm" path="/oscarReport/oscarMeasurements/InitializeFrequencyOfRelevantTestsCDMReport" scope="request"
-			type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializeFrequencyOfRelevantTestsCDMReportAction"
-		>
+		<action input="/oscarReport/oscarMeasurements/InitializeFrequencyOfRelevantTestsCDMReport.jsp" name="RptInitializeFrequencyOfRelevantTestsCDMReportForm" path="/oscarReport/oscarMeasurements/InitializeFrequencyOfRelevantTestsCDMReport" scope="request" type="oscar.oscarReport.oscarMeasurements.pageUtil.RptInitializeFrequencyOfRelevantTestsCDMReportAction">
 			<forward name="success" path="/oscarReport/oscarMeasurements/CDMReport.jsp" />
 		</action>
 		<action name="RptRehabStudyForm" path="/oscarReport/RptRehabStudy" scope="request" type="oscar.oscarReport.pageUtil.RptRehabStudyAction">
@@ -1677,84 +1599,87 @@
 			<forward name="success" path="/oscarMaintenance/oscarMaintenanceDisplay.jsp" />
 			<forward name="input" path="/oscarMaintenance/oscarMaintenanceInput.jsp" />
 		</action>
-		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFaxForm.jsp" name="EctConsultationFaxForm" path="/oscarEncounter/oscarConsultationRequests/consultationFax" scope="request"
-			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFaxAction"
-		>
+		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFaxForm.jsp" name="EctConsultationFaxForm" path="/oscarEncounter/oscarConsultationRequests/consultationFax" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFaxAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFaxComfirmation.jsp" />
 		</action>
 		<action input="/provider/editSignature.jsp" name="ProEditSignatureForm" path="/EnterSignature" scope="request" type="oscar.oscarProvider.pageUtil.ProEditSignatureAction">
 			<forward name="success" path="/provider/providerSignature.jsp" />
 		</action>
-        <action input="/provider/providerPhone.jsp" name="editProviderFaxForm" path="/EditPhoneNum" scope="request" type="oscar.oscarProvider.pageUtil.ProEditPhoneNumAction">
-            <forward name="success" path="/provider/providerPhone.jsp" />
-            <forward name="eject" path="/index.jsp" />
-        </action>
-        <action input="/provider/providerAddress.jsp" name="editProviderAddressForm" path="/EditAddress" scope="request" type="oscar.oscarProvider.pageUtil.ProEditAddressAction">
-            <forward name="success" path="/provider/providerAddress.jsp" />
-            <forward name="eject" path="/index.jsp" />
-        </action>
-        <action input="/provider/providerPrinter.jsp" name="editProviderPrinterForm" path="/EditPrinter" scope="request" type="oscar.oscarProvider.pageUtil.ProEditPrinterAction">
-            <forward name="success" path="/provider/providerPrinter.jsp" />
-            <forward name="eject" path="/index.jsp" />
-        </action>
+		<action input="/provider/providerPhone.jsp" name="editProviderFaxForm" path="/EditPhoneNum" scope="request" type="oscar.oscarProvider.pageUtil.ProEditPhoneNumAction">
+			<forward name="success" path="/provider/providerPhone.jsp" />
+			<forward name="eject" path="/index.jsp" />
+		</action>
+		<action input="/provider/providerAddress.jsp" name="editProviderAddressForm" path="/EditAddress" scope="request" type="oscar.oscarProvider.pageUtil.ProEditAddressAction">
+			<forward name="success" path="/provider/providerAddress.jsp" />
+			<forward name="eject" path="/index.jsp" />
+		</action>
+		<action input="/provider/providerPrinter.jsp" name="editProviderPrinterForm" path="/EditPrinter" scope="request" type="oscar.oscarProvider.pageUtil.ProEditPrinterAction">
+			<forward name="success" path="/provider/providerPrinter.jsp" />
+			<forward name="eject" path="/index.jsp" />
+		</action>
 		<action input="/provider/providerFax.jsp" name="editProviderFaxForm" path="/EditFaxNum" scope="request" type="oscar.oscarProvider.pageUtil.ProEditFaxNumAction">
 			<forward name="success" path="/provider/providerFax.jsp" />
 			<forward name="error" path="/provider/providerFaxErr.jsp" />
 			<forward name="eject" path="/index.jsp" />
 		</action>
+		<!-- <action input="/admin/configureFax.jsp" path="/admin/ManageFax" scope="request" parameter="method" type="org.oscarehr.fax.admin.ConfigureFaxAction">
+			<forward name="completed" path="/admin/manageFax.jsp"/>
+		</action> -->
 		<action input="/admin/configureFax.jsp" path="/admin/ManageFax" scope="request" parameter="method" type="org.oscarehr.fax.admin.ConfigureFaxAction">
-			<forward name="completed" path="/admin/manageFax.jsp"/>			
+			<forward name="completed" path="/admin/manageFax.jsp"/>
+			<forward name="configure" path="/admin/configureFax.jsp"/>
+			<forward name="error" path="/admin/error.jsp"/>
 		</action>
 		<action input="/admin/manageFaxes.jsp" path="/admin/ManageFaxes" scope="request" parameter="method" validate="false" type="org.oscarehr.fax.admin.ManageFaxes">
-			<forward name="faxstatus" path="/admin/faxStatusResults.jspf" />			
+			<forward name="faxstatus" path="/admin/faxStatusResults.jspf" />
 		</action>
-		
+
 		<action input="/provider/providerColourPicker.jsp" name="setProviderColour" path="/setProviderColour" scope="request" type="oscar.oscarProvider.pageUtil.ProEditColourAction">
 			<forward name="success" path="/provider/providerColourPicker.jsp" />
 			<forward name="error" path="/provider/providerColourErr.jsp" />
 			<forward name="eject" path="/index.jsp" />
 		</action>
 		<action path="/setProviderStaleDate" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setNoteStaleDate.jsp" name="setProviderNoteStaleDateForm">
-			<forward name="success"							path="/provider/setNoteStaleDate.jsp" />
-			<forward name="gen"								path="/provider/setGenProperty.jsp" />
-			<forward name="genRxPageSize"					path="/provider/setGenRxPageSizeProperty.jsp" />
-			<forward name="genRxDefaultQuantity"			path="/provider/setGenRxDefaultQuantityProperty.jsp" />
-			<forward name="genRxProfileView"				path="/provider/setGenRxProfileViewProperty.jsp" />
-			<forward name="genRxUseRx3"						path="/provider/setToUseRx3.jsp" />
-			<forward name="genDefaultDocQueue"				path="/provider/setDocDefaultQueue.jsp" />
-		    <forward name="genShowPatientDOB"				path="/provider/setShowPatientDOB.jsp"/>
-            <forward name="genUseMyMeds"					path="/provider/setToUseMyMeds.jsp"/>
-            <forward name="genCppSingleLine"				path="/provider/setCppSingleLine.jsp"/>
-            <forward name="genAckCommentLab"				path="/provider/setLabAckComment.jsp"/>
-            <forward name="genLabRecallPrefs"			        path="/provider/setLabRecallPrefs.jsp"/>
-            <forward name="genIntegrator"					path="/admin/setIntegratorProperties.jsp" />
-            <forward name="genEncounterWindowSize"			path="/provider/setEncounterWindowSize.jsp"/>
-            <forward name="genQuickChartSize"				path="/provider/setQuickChartSize.jsp"/>
-            <forward name="genEDocBrowserInDocumentReport"	path="/provider/setEDocBrowserInDocumentReport.jsp"/>
-            <forward name="genEDocBrowserInMasterFile"		path="/provider/setEDocBrowserInMasterFile.jsp"/>
-            <forward name="genPatientNameLength" 			path="/provider/setPatientNameLength.jsp"/>
-            <forward name="genDisplayDocumentAs"			path="/provider/setDisplayDocumentAs.jsp"/>
-            <forward name="genCobalt"						path="/provider/setCobalt.jsp"/>
-            <forward name="genHideOldEchartLinkInAppt"		path="/provider/setHideOldEchartLinkInAppt.jsp"/>
-            <forward name="genBornPrefs"     path="/provider/setBornPrefs.jsp"/>
-             <forward name="genAppointmentCardPrefs"     path="/provider/setAppointmentCardPrefs.jsp"/>
-             <forward name="genDashboardPrefs"     path="/provider/setDashboardPrefs.jsp"/>
-              <forward name="genPreventionPrefs"     path="/provider/setPreventionPrefs.jsp"/>
-              <forward name="genClinicalConnectPrefs"     path="/provider/setClinicalConnectPrefs.jsp"/>
-	    <forward name="genLabMacroPrefs"     path="/provider/setLabMacroPrefs.jsp"/>
-        </action>
-        
+			<forward name="success" path="/provider/setNoteStaleDate.jsp" />
+			<forward name="gen" path="/provider/setGenProperty.jsp" />
+			<forward name="genRxPageSize" path="/provider/setGenRxPageSizeProperty.jsp" />
+			<forward name="genRxDefaultQuantity" path="/provider/setGenRxDefaultQuantityProperty.jsp" />
+			<forward name="genRxProfileView" path="/provider/setGenRxProfileViewProperty.jsp" />
+			<forward name="genRxUseRx3" path="/provider/setToUseRx3.jsp" />
+			<forward name="genDefaultDocQueue" path="/provider/setDocDefaultQueue.jsp" />
+			<forward name="genShowPatientDOB" path="/provider/setShowPatientDOB.jsp"/>
+			<forward name="genUseMyMeds" path="/provider/setToUseMyMeds.jsp"/>
+			<forward name="genCppSingleLine" path="/provider/setCppSingleLine.jsp"/>
+			<forward name="genAckCommentLab" path="/provider/setLabAckComment.jsp"/>
+			<forward name="genLabRecallPrefs" path="/provider/setLabRecallPrefs.jsp"/>
+			<forward name="genIntegrator" path="/admin/setIntegratorProperties.jsp" />
+			<forward name="genEncounterWindowSize" path="/provider/setEncounterWindowSize.jsp"/>
+			<forward name="genQuickChartSize" path="/provider/setQuickChartSize.jsp"/>
+			<forward name="genEDocBrowserInDocumentReport" path="/provider/setEDocBrowserInDocumentReport.jsp"/>
+			<forward name="genEDocBrowserInMasterFile" path="/provider/setEDocBrowserInMasterFile.jsp"/>
+			<forward name="genPatientNameLength" path="/provider/setPatientNameLength.jsp"/>
+			<forward name="genDisplayDocumentAs" path="/provider/setDisplayDocumentAs.jsp"/>
+			<forward name="genCobalt" path="/provider/setCobalt.jsp"/>
+			<forward name="genHideOldEchartLinkInAppt" path="/provider/setHideOldEchartLinkInAppt.jsp"/>
+			<forward name="genBornPrefs" path="/provider/setBornPrefs.jsp"/>
+			<forward name="genAppointmentCardPrefs" path="/provider/setAppointmentCardPrefs.jsp"/>
+			<forward name="genDashboardPrefs" path="/provider/setDashboardPrefs.jsp"/>
+			<forward name="genPreventionPrefs" path="/provider/setPreventionPrefs.jsp"/>
+			<forward name="genClinicalConnectPrefs" path="/provider/setClinicalConnectPrefs.jsp"/>
+			<forward name="genLabMacroPrefs" path="/provider/setLabMacroPrefs.jsp"/>
+		</action>
+
 		<action path="/setTicklerPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setTicklerPreferences.jsp" name="setTicklerPreferencesForm">
-				<forward name="success"	 path="/provider/setTicklerPreferences.jsp" />
-				<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
-				<forward name="error"    path="/provider/setTicklerPreferences.jsp?error" />
-		</action>   
+			<forward name="success" path="/provider/setTicklerPreferences.jsp" />
+			<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
+			<forward name="error" path="/provider/setTicklerPreferences.jsp?error" />
+		</action>
 
 		<action path="/setViewConsultsPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setViewConsultsPreferences.jsp" name="setViewConsultsPreferencesForm">
-				<forward name="success"	 path="/provider/setViewConsultsPreferences.jsp" />
-				<forward name="complete" path="/provider/setViewConsultsPreferences.jsp" />
-				<forward name="error"    path="/provider/setViewConsultsPreferences.jsp?error" />
-		</action>     
+			<forward name="success" path="/provider/setViewConsultsPreferences.jsp" />
+			<forward name="complete" path="/provider/setViewConsultsPreferences.jsp" />
+			<forward name="error" path="/provider/setViewConsultsPreferences.jsp?error" />
+		</action>
 
 		<action input="/provider/providerIndivoIdSetter.jsp" name="setMyOscarIdForm" path="/setMyOscarId" scope="request" type="oscar.oscarProvider.pageUtil.ProEditMyOscarIdAction">
 			<forward name="success" path="/provider/providerIndivoIdSetter.jsp" />
@@ -1766,7 +1691,7 @@
 		<action path="/provider/rxInteractionWarningLevel" type="org.oscarehr.provider.web.ProviderRxInteractionWarningLevelAction" parameter="method" scope="request">
 		</action>
 
-                <action path="/oscarResearch/oscarDxResearch/setupDxResearch" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxSetupResearchAction">
+		<action path="/oscarResearch/oscarDxResearch/setupDxResearch" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxSetupResearchAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/dxResearch.jsp" />
 		</action>
 		<action input="/oscarResearch/oscarDxResearch/dxResearch.jsp" name="dxResearchForm" path="/oscarResearch/oscarDxResearch/dxResearch" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchAction">
@@ -1780,27 +1705,21 @@
 		<action input="/oscarResearch/oscarDxResearch/dxResearch.jsp" path="/oscarResearch/oscarDxResearch/dxResearchUpdate" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchUpdateAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/setupDxResearch.do" />
 		</action>
-		<action input="/oscarResearch/oscarDxResearch/dxResearchSelectQuickList.jsp" name="dxResearchSelectQuickListForm" path="/oscarResearch/oscarDxResearch/dxResearchLoadQuickList" scope="request"
-			type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchLoadQuickListAction"
-		>
+		<action input="/oscarResearch/oscarDxResearch/dxResearchSelectQuickList.jsp" name="dxResearchSelectQuickListForm" path="/oscarResearch/oscarDxResearch/dxResearchLoadQuickList" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchLoadQuickListAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/dxResearchSelectQuickList.jsp" />
 		</action>
-		<action input="/oscarResearch/oscarDxResearch/dxResearchSelectQuickList.jsp" name="dxResearchLoadQuickListItemsForm" path="/oscarResearch/oscarDxResearch/dxResearchLoadQuickListItems" scope="request"
-			type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchLoadQuickListItemsAction"
-		>
+		<action input="/oscarResearch/oscarDxResearch/dxResearchSelectQuickList.jsp" name="dxResearchLoadQuickListItemsForm" path="/oscarResearch/oscarDxResearch/dxResearchLoadQuickListItems" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchLoadQuickListItemsAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/dxResearchEditQuickList.jsp" />
 
 		</action>
-		<action input="/oscarResearch/oscarDxResearch/dxResearchEditQuickList.jsp" name="dxResearchUpdateQuickListForm" path="/oscarResearch/oscarDxResearch/dxResearchUpdateQuickList" scope="request"
-			type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchUpdateQuickListAction"
-		>
+		<action input="/oscarResearch/oscarDxResearch/dxResearchEditQuickList.jsp" name="dxResearchUpdateQuickListForm" path="/oscarResearch/oscarDxResearch/dxResearchUpdateQuickList" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchUpdateQuickListAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/dxResearchLoadQuickListItems.do" />
 		</action>
-		
-		<action parameter="method" path="/dxCodeSearchJSON" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxCodeSearchJSONAction" >
-			 
+
+		<action parameter="method" path="/dxCodeSearchJSON" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxCodeSearchJSONAction">
+
 		</action>
-		
+
 		<action parameter="method" path="/oscarResearch/oscarDxResearch/dxResearchLoadAssociations" name="dxAssociationsForm" scope="request" type="oscar.oscarResearch.oscarDxResearch.pageUtil.dxResearchLoadAssociationsAction">
 			<forward name="success" path="/oscarResearch/oscarDxResearch/dxResearchSelectAssociations.jsp" redirect="true" />
 		</action>
@@ -1978,11 +1897,11 @@
 		</action>
 		<action name="eFormImageUpload" path="/eform/imageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" validate="true">
 			<forward name="success" path="/eform/partials/upload_image.jsp" />
-            <forward name="consultSignatureSuccess" path="/provider/providerConsultSignature.jsp" />
+			<forward name="consultSignatureSuccess" path="/provider/providerConsultSignature.jsp" />
 		</action>
-        <action path="/eform/providerImageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" parameter="method">
-            <forward name="success" path="/provider/providerConsultSignature.jsp" />
-        </action>		
+		<action path="/eform/providerImageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" parameter="method">
+			<forward name="success" path="/provider/providerConsultSignature.jsp" />
+		</action>
 		<action input="/eform/efmformmanager.jsp" name="deleteEform" path="/eform/delEForm" scope="request" type="oscar.eform.actions.DelEFormAction">
 			<forward name="success" path="/eform/efmformmanager.jsp" />
 		</action>
@@ -1993,7 +1912,7 @@
 		<action input="/eform/efmformrtl_config.jsp" path="/eform/IndivicaRichTextLetterSettings" scope="request" type="oscar.eform.actions.RTLSettingsAction">
 			<forward name="success" path="/eform/efmformrtl_config.jsp" />
 		</action>
-		
+
 		<action input="/eform/efmformadd_data.jsp" path="/eform/addEForm" scope="request" type="oscar.eform.actions.AddEFormAction">
 			<forward name="close" path="/eform/efmclosewindow.jsp" />
 			<forward name="fax" path="/eform/efmformfax_send.jsp" />
@@ -2256,7 +2175,7 @@
 		<action path="/PMmodule/ClientSearch2" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="clientSearchForm2" scope="request">
 			<forward name="form" path="page.pmm.client.searchform" />
 			<forward name="search" path="page.pmm.client.searchresults" />
-            <forward name="attachSearch" path="/casemgmt/attachClient.jsp" />
+			<forward name="attachSearch" path="/casemgmt/attachClient.jsp" />
 		</action>
 		<action path="/PMmodule/ClientManager" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="clientManagerForm" scope="session">
 			<forward name="edit" path="page.pmm.client" />
@@ -2352,10 +2271,9 @@
 			<forward name="report" path="/PMmodule/reports/ClientListsReport.jsp" />
 		</action>
 		<!--
-			<action path="/PMmodule/Reports/CustomReport" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="customReportForm" scope="request" validate="false"> <forward name="list" path="page.customreport.list" /> <forward
-			name="form" path="page.customreport.form" /> </action>
+			<action path="/PMmodule/Reports/CustomReport" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="customReportForm" scope="request" validate="false"> <forward name="list" path="page.customreport.list" /> <forward name="form" path="page.customreport.form" /> </action>
 		-->
-				
+
 		<action path="/SurveyManager" type="org.oscarehr.survey.web.SurveyManagerAction" parameter="method" name="surveyForm" scope="session">
 			<forward name="edit" path=".view.survey.form" />
 			<forward name="list" path=".view.survey.manager" redirect="true" />
@@ -2409,7 +2327,7 @@
 			<forward name="surveillance" path="/oscarSurveillance/CheckSurveillance.do" />
 		</action>
 		<action path="/OscarChartPrint" type="org.oscarehr.casemgmt.web.EChartPrintAction" parameter="method" scope="request">
-        </action>
+		</action>
 		<action path="/ClientImage" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" name="clientImageForm" input="/casemgmt/uploadimage.jsp">
 			<forward name="success" path="/casemgmt/uploadimage.jsp" />
 		</action>
@@ -2515,12 +2433,10 @@
 			<forward name="list" path="/eyeform/conreportlist.jsp" />
 		</action>
 
-		<action path="/eyeform/SendTickler" type="org.oscarehr.eyeform.EyeformSendTicklerAction"
-			scope="request" validate="false">
+		<action path="/eyeform/SendTickler" type="org.oscarehr.eyeform.EyeformSendTicklerAction" scope="request" validate="false">
 		</action>
 
-		<action path="/eyeform/Util" type="org.oscarehr.eyeform.EyeformUtilAction"
-			scope="request" parameter="method">
+		<action path="/eyeform/Util" type="org.oscarehr.eyeform.EyeformUtilAction" scope="request" parameter="method">
 		</action>
 
 
@@ -2557,7 +2473,7 @@
 		<action path="/demographic/Contact" type="org.oscarehr.common.web.ContactAction" parameter="method" scope="request" validate="false" name="contactForm">
 			<forward name="pForm" path="/demographic/addEditProfessionalContact.jsp" />
 			<forward name="cForm" path="/demographic/addEditContact.jsp" />
-            <forward name="view" path="/demographic/viewContact.jsp" />
+			<forward name="view" path="/demographic/viewContact.jsp" />
 			<forward name="manage" path="/demographic/ManageContacts.jsp" />
 			<forward name="windowClose" path="/demographic/close.jsp" />
 			<forward name="ajax" path="/demographic/demographiceditdemographic.jsp" />
@@ -2614,7 +2530,7 @@
 
 		<action path="/report/DxresearchReport" name="DxresearchReportForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="success" path="/oscarReport/oscarReportDxReg.jsp" />
-                        <forward name="editdesc" path="/oscarReport/editCodeDesc.jsp" />
+			<forward name="editdesc" path="/oscarReport/editCodeDesc.jsp" />
 		</action>
 
 
@@ -2630,21 +2546,21 @@
 		<action path="/dms/ManageDocument" name="FrmForm" type="org.oscarehr.document.web.ManageDocumentAction" parameter="method" scope="request">
 			<forward name="success" path="/dms/undocument.jsp" />
 			<forward name="displaySingleDoc" path="/dms/MultiPageDocDisplay.jsp" />
-                        <forward name="nextIncomingDoc" path="/dms/incomingDocs.jsp" />
+			<forward name="nextIncomingDoc" path="/dms/incomingDocs.jsp" />
 		</action>
-		
-                <action path="/DocumentDescriptionTemplate" name="FrmForm" type="org.oscarehr.provider.web.DocumentDescriptionTemplateAction" parameter="method" scope="request">
-		</action>
-                
-                <action path="/PrinterList" name="FrmForm" type="org.oscarehr.printer.PrinterListAction" parameter="method" scope="request">
-		</action>
-                
-		<action path="/dms/SplitDocument" name="FrmForm" type="org.oscarehr.document.web.SplitDocumentAction" parameter="method" scope="request">
-        	<forward name="success" path="/oscarMDS/Splitclose.jsp" />
-        </action>
 
-		<action input="/dms/documentUploader.jsp" name="documentUploadForm" path="/dms/documentUpload" type="oscar.dms.actions.DocumentUploadAction"  parameter="method" scope="request" validate="false">
-        </action>
+		<action path="/DocumentDescriptionTemplate" name="FrmForm" type="org.oscarehr.provider.web.DocumentDescriptionTemplateAction" parameter="method" scope="request">
+		</action>
+
+		<action path="/PrinterList" name="FrmForm" type="org.oscarehr.printer.PrinterListAction" parameter="method" scope="request">
+		</action>
+
+		<action path="/dms/SplitDocument" name="FrmForm" type="org.oscarehr.document.web.SplitDocumentAction" parameter="method" scope="request">
+			<forward name="success" path="/oscarMDS/Splitclose.jsp" />
+		</action>
+
+		<action input="/dms/documentUploader.jsp" name="documentUploadForm" path="/dms/documentUpload" type="oscar.dms.actions.DocumentUploadAction" parameter="method" scope="request" validate="false">
+		</action>
 
 		<action path="/PhrRetrieve" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="report" path="/PMmodule/vaccine/vaccine_provider_report.jsp" />
@@ -2683,9 +2599,9 @@
 			<forward name="success" path="/appointment/appointmentstatussetting.jsp" />
 			<forward name="edit" path="/appointment/appointmentstatusedit.jsp" />
 		</action>
-                <action path="/appointment/printAppointmentReceiptAction" type="oscar.oscarReport.pageUtil.PrintAppointmentReceiptAction" />
-                <action path="/oscarRx/updateDrugrefDB"  type="oscar.oscarRx.pageUtil.RxUpdateDrugref" scope="request" parameter="method">
-                </action>
+		<action path="/appointment/printAppointmentReceiptAction" type="oscar.oscarReport.pageUtil.PrintAppointmentReceiptAction" />
+		<action path="/oscarRx/updateDrugrefDB" type="oscar.oscarRx.pageUtil.RxUpdateDrugref" scope="request" parameter="method">
+		</action>
 		<action path="/oscarRx/copyFavorite" name="rxCopyForm" type="org.springframework.web.struts.DelegatingActionProxy" scope="request" parameter="dispatch">
 			<forward name="success" path="/oscarRx/CopyFavorites.jsp" />
 			<forward name="edit" path="/appointment/appointmentstatusedit.jsp" />
@@ -2715,39 +2631,39 @@
 		<action path="/admin/faxStatus" scope="request" parameter="method" validate="false" type="oscar.util.FaxStatusAction">
 			<forward name="success" path="/admin/faxStatus.jsp" />
 		</action>
-		
+
 		<action path="/admin/oscarStatus" scope="request" parameter="method" validate="false" type="oscar.util.OscarStatusAction">
 			<forward name="success" path="/admin/oscarStatus.jsp" />
 		</action>
 
 		<action path="/OcanIarSubmit" type="org.oscarehr.web.OcanIarSubmitAction" parameter="method" scope="request">
-        </action>
+		</action>
 
-        <action path="/OcanReporting" type="org.oscarehr.web.OcanReportingAction" parameter="method" scope="request">
-        </action>
+		<action path="/OcanReporting" type="org.oscarehr.web.OcanReportingAction" parameter="method" scope="request">
+		</action>
 
-        <action path="/PMmodule/OcanWorkload" type="org.oscarehr.PMmodule.web.OcanWorkloadAction" parameter="method" scope="request" >
-            <forward name="view" path="/PMmodule/OcanWorkload.jsp" />
-       </action>
-       
-       <action input="/billing/CA/ON/viewMOHFiles.jsp" path="/billing/CA/ON/moveMOHFiles" scope="request" type="org.oscarehr.billing.CA.ON.web.MoveMOHFilesAction" validate="false">
+		<action path="/PMmodule/OcanWorkload" type="org.oscarehr.PMmodule.web.OcanWorkloadAction" parameter="method" scope="request">
+			<forward name="view" path="/PMmodule/OcanWorkload.jsp" />
+		</action>
+
+		<action input="/billing/CA/ON/viewMOHFiles.jsp" path="/billing/CA/ON/moveMOHFiles" scope="request" type="org.oscarehr.billing.CA.ON.web.MoveMOHFilesAction" validate="false">
 			<forward name="success" path="/billing/CA/ON/viewMOHFiles.jsp"/>
 		</action>
-        
-        <action path="/billing/CA/ON/managePaymentType" scope="request" parameter="method" type="org.springframework.web.struts.DelegatingActionProxy" validate="false">
-            <forward name="success" path="/billing/CA/ON/manageBillingPaymentType.jsp"/>
-        </action>
+
+		<action path="/billing/CA/ON/managePaymentType" scope="request" parameter="method" type="org.springframework.web.struts.DelegatingActionProxy" validate="false">
+			<forward name="success" path="/billing/CA/ON/manageBillingPaymentType.jsp"/>
+		</action>
 
 
 
-        <action input="/billing/CA/ON/endYearStatement.jsp" name="PatientEndYearStatementForm" path="/billing/CA/ON/endYearStatement" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.PatientEndYearStatementAction" validate="false">
-            <forward name="success" path="/billing/CA/ON/endYearStatement.jsp"/>
-            <forward name="failure" path="/billing/CA/ON/endYearStatement.jsp"/>
-        </action>
+		<action input="/billing/CA/ON/endYearStatement.jsp" name="PatientEndYearStatementForm" path="/billing/CA/ON/endYearStatement" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.PatientEndYearStatementAction" validate="false">
+			<forward name="success" path="/billing/CA/ON/endYearStatement.jsp"/>
+			<forward name="failure" path="/billing/CA/ON/endYearStatement.jsp"/>
+		</action>
 
-        <action name="ValidateSwipeCard" path="/demographic/ValidateSwipeCard" scope="request" type="org.oscarehr.integration.mchcv.ValidateSwipeCardAction" validate="false">
-            <forward name="success" path="/demographic/demographicswipe.jsp"/>
-        </action>
+		<action name="ValidateSwipeCard" path="/demographic/ValidateSwipeCard" scope="request" type="org.oscarehr.integration.mchcv.ValidateSwipeCardAction" validate="false">
+			<forward name="success" path="/demographic/demographicswipe.jsp"/>
+		</action>
 
 		<action name="AppointmentTypeForm" path="/appointment/appointmentTypeAction" scope="request" type="oscar.appt.web.AppointmentTypeAction" validate="false">
 			<forward name="edit" path="/appointment/appointmentTypeAction.do?oper=edit"/>
@@ -2777,26 +2693,26 @@
 			<forward name="success" path="/hospitalReportManager/hrmPreferences.jsp" />
 		</action>
 		<action path="/hospitalReportManager/HRMDownloadFile" type="org.oscarehr.hospitalReportManager.HRMDownloadFileAction" />
-		
-		<action path="/hospitalReportManager/hrm" type="org.oscarehr.hospitalReportManager.v2018.HRMAction" parameter="method">		
+
+		<action path="/hospitalReportManager/hrm" type="org.oscarehr.hospitalReportManager.v2018.HRMAction" parameter="method">
 		</action>
 
 		<action path="/caseload/CaseloadContent" scope="request" type="org.oscarehr.caseload.CaseloadContentAction" parameter="method" />
 
-                <action input="/tickler/ticklerEdit.jsp" name="serviceform" path="/tickler/EditTickler" scope="request" type="oscar.oscarTickler.pageUtil.EditTicklerAction" parameter="method">
+		<action input="/tickler/ticklerEdit.jsp" name="serviceform" path="/tickler/EditTickler" scope="request" type="oscar.oscarTickler.pageUtil.EditTicklerAction" parameter="method">
 			<forward name="close" path="/closenreload.html" />
-                        <forward name="failure" path="/failure.jsp"/>
-                        <forward name="error" path="/errorpage.jsp" />
+			<forward name="failure" path="/failure.jsp"/>
+			<forward name="error" path="/errorpage.jsp" />
 		</action>
-                <action input="/tickler/ticklerTextSuggest.jsp" name="tsTicklerForm" path="/tickler/EditTicklerTextSuggest" scope="request" type="oscar.oscarTickler.pageUtil.EditTicklerAction" parameter="method">
+		<action input="/tickler/ticklerTextSuggest.jsp" name="tsTicklerForm" path="/tickler/EditTicklerTextSuggest" scope="request" type="oscar.oscarTickler.pageUtil.EditTicklerAction" parameter="method">
 			<forward name="close" path="/closenreload.html" />
-                        <forward name="error" path="/errorpage.jsp" />
+			<forward name="error" path="/errorpage.jsp" />
 		</action>
 
-        <action path="/CodeSearch" type="org.oscarehr.common.web.CodeSearchService">
-        </action>
+		<action path="/CodeSearch" type="org.oscarehr.common.web.CodeSearchService">
+		</action>
 
-        <action path="/oscarEncounter/displayEpisodes" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayEpisodeAction" />
+		<action path="/oscarEncounter/displayEpisodes" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayEpisodeAction" />
 
 		<action path="/Episode" type="org.oscarehr.common.web.EpisodeAction" name="episodeForm" parameter="method">
 			<forward name="list" path="/episode/episodeList.jsp" />
@@ -2806,7 +2722,7 @@
 
 		<action path="/indivica/HCSearch" type="org.oscarehr.common.web.HealthCardSearchAction" scope="request" validate="false" parameter="method" />
 
-        <action path="/oscarEncounter/displayPregnancies" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayPregnancyAction" />
+		<action path="/oscarEncounter/displayPregnancies" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayPregnancyAction" />
 
 		<action path="/Pregnancy" type="org.oscarehr.common.web.PregnancyAction" parameter="method">
 			<forward name="list" path="/pregnancy/list.jsp" />
@@ -2826,193 +2742,170 @@
 			<forward name="exit" path="/oscarEncounter/close.jsp" />
 		</action>
 
-		 <action path="/PageMonitoringService" scope="request" type="org.oscarehr.common.web.PageMonitoringAction" parameter="method" />
+		<action path="/PageMonitoringService" scope="request" type="org.oscarehr.common.web.PageMonitoringAction" parameter="method" />
 
-		<action path="/casemgmt/NotePermissions" type="org.oscarehr.casemgmt.web.NotePermissionsAction"
-			scope="request" validate="false" parameter="method" />
-                        
-                <action path="/BillingInvoice" scope="request" type="org.oscarehr.common.web.BillingInvoiceAction" parameter="method">
+		<action path="/casemgmt/NotePermissions" type="org.oscarehr.casemgmt.web.NotePermissionsAction" scope="request" validate="false" parameter="method" />
+
+		<action path="/BillingInvoice" scope="request" type="org.oscarehr.common.web.BillingInvoiceAction" parameter="method">
 			<forward name="success" path="/billing/CA/ON/billingONCorrection.jsp" />
-                       <forward name="listSuccess" path="/billing/CA/ON/billingONStatus.jsp" />
-		</action>        
-
-            <action path="/BillingONReview" scope="request" type="org.oscarehr.common.web.BillingONReviewAction" parameter="method" />
-                 
-                 <action path="/admin/GroupPreference" name="groupPreference" scope="request" type="org.oscarehr.common.web.GroupPreferenceAction" parameter="method">
-                    <forward name="saved" path="/admin/groupPreferences.jsp"/>
-                    <forward name="changedForm" path="/admin/groupPreferences.jsp"/>
-                 </action>
-		
-                <action input="/billing/CA/ON/billingONCorrection.jsp" name="billing3rdPartyPayment" path="/billing/CA/ON/BillingONCorrection" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.BillingCorrectionAction" parameter="method">
-                        <forward name="success" path="/billing/CA/ON/billingONCorrection.jsp" />                        
-                        <forward name="failure" path="/failure.jsp" />
-                        <forward name="submitClose" path="/close.html" />
-                        <forward name="closeReload" path="/billing/CA/ON/billingONCorrection.jsp?billing_no="/>
-                        <forward name="adminReload" path="/billing/CA/ON/billingONCorrection.jsp?billing_no=&amp;admin&amp;success"/>
-				</action>
-                
-                <action input="/billing/CA/ON/genRADesc.jsp" name="applyPractitionerPremium" path="/billing/CA/ON/ApplyPractitionerPremium" scope="request" type="org.oscarehr.common.web.ApplyPractitionerPremiumAction" parameter="method">
-                        <forward name="success" path="/billing/CA/ON/genRADesc.jsp" />                        
-                        <forward name="failure" path="/failure.jsp" />                       
+			<forward name="listSuccess" path="/billing/CA/ON/billingONStatus.jsp" />
 		</action>
-		
+
+		<action path="/BillingONReview" scope="request" type="org.oscarehr.common.web.BillingONReviewAction" parameter="method" />
+
+		<action path="/admin/GroupPreference" name="groupPreference" scope="request" type="org.oscarehr.common.web.GroupPreferenceAction" parameter="method">
+			<forward name="saved" path="/admin/groupPreferences.jsp"/>
+			<forward name="changedForm" path="/admin/groupPreferences.jsp"/>
+		</action>
+
+		<action input="/billing/CA/ON/billingONCorrection.jsp" name="billing3rdPartyPayment" path="/billing/CA/ON/BillingONCorrection" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.BillingCorrectionAction" parameter="method">
+			<forward name="success" path="/billing/CA/ON/billingONCorrection.jsp" />
+			<forward name="failure" path="/failure.jsp" />
+			<forward name="submitClose" path="/close.html" />
+			<forward name="closeReload" path="/billing/CA/ON/billingONCorrection.jsp?billing_no="/>
+			<forward name="adminReload" path="/billing/CA/ON/billingONCorrection.jsp?billing_no=&amp;admin&amp;success"/>
+		</action>
+
+		<action input="/billing/CA/ON/genRADesc.jsp" name="applyPractitionerPremium" path="/billing/CA/ON/ApplyPractitionerPremium" scope="request" type="org.oscarehr.common.web.ApplyPractitionerPremiumAction" parameter="method">
+			<forward name="success" path="/billing/CA/ON/genRADesc.jsp" />
+			<forward name="failure" path="/failure.jsp" />
+		</action>
+
 		<action path="/oscarEncounter/displayContacts" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayContactsAction" />
 		<action path="/oscarEncounter/displayPatientClinicStatus" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayPatientClinicStatusAction" />
-		
+
 		<action path="/renal/CkdDSA" type="org.oscarehr.renal.web.CkdDSAAction" parameter="method">
 			<forward name="detail" path="/renal/ckd_dsa_detail.jsp" />
 		</action>
-		
+
 		<action path="/renal/Renal" type="org.oscarehr.renal.web.RenalAction" parameter="method">
-			
+
 		</action>
 		<action path="/admin/GenerateTraceAction" type="org.oscarehr.admin.traceability.GenerateTraceAction">
-        </action>
+		</action>
 		<action path="/admin/GenerateTraceabilityReportAction" type="org.oscarehr.admin.traceability.GenerateTraceabilityReportAction">
-        </action>
-        
-                <!-- Sharing Center Actions/Servlets -->
-                <action path="/sharingcenter/affinitydomain/AffinityDomain"
-                        type="org.oscarehr.sharingcenter.actions.AffinityDomainServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/affinitydomain/AffinityDomainParser"
-                        type="org.oscarehr.sharingcenter.actions.AffinityDomainParseServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/affinitydomain/ClinicInfo"
-                        type="org.oscarehr.sharingcenter.actions.ClinicInfoServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/security/Infrastructure"
-                        type="org.oscarehr.sharingcenter.actions.SecurityInfrastructureServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/networks/ShareDomain"
-                        type="org.oscarehr.sharingcenter.actions.ShareDomainServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/documents/DocumentExport"
-                        type="org.oscarehr.sharingcenter.actions.DocumentExportServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/documents/SharedDocuments"
-                        type="org.oscarehr.sharingcenter.actions.SharedDocumentsServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/documents/DemographicExport"
-                        type="org.oscarehr.sharingcenter.actions.DemographicExportServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/affinitydomain/DomainMappings"
-                        type="org.oscarehr.sharingcenter.actions.MappingServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/affinitydomain/ConsentChecker"
-                        type="org.oscarehr.sharingcenter.actions.ConsentCheckerServlet"
-                        scope="request">
-                </action>
-                <action path="/sharingcenter/documents/DocumentPreview"
-                        type="org.oscarehr.sharingcenter.actions.DocumentPreviewServlet"
-                        scope="request">
-                </action>
+		</action>
+
+		<!-- Sharing Center Actions/Servlets -->
+		<action path="/sharingcenter/affinitydomain/AffinityDomain" type="org.oscarehr.sharingcenter.actions.AffinityDomainServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/affinitydomain/AffinityDomainParser" type="org.oscarehr.sharingcenter.actions.AffinityDomainParseServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/affinitydomain/ClinicInfo" type="org.oscarehr.sharingcenter.actions.ClinicInfoServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/security/Infrastructure" type="org.oscarehr.sharingcenter.actions.SecurityInfrastructureServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/networks/ShareDomain" type="org.oscarehr.sharingcenter.actions.ShareDomainServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/documents/DocumentExport" type="org.oscarehr.sharingcenter.actions.DocumentExportServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/documents/SharedDocuments" type="org.oscarehr.sharingcenter.actions.SharedDocumentsServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/documents/DemographicExport" type="org.oscarehr.sharingcenter.actions.DemographicExportServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/affinitydomain/DomainMappings" type="org.oscarehr.sharingcenter.actions.MappingServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/affinitydomain/ConsentChecker" type="org.oscarehr.sharingcenter.actions.ConsentCheckerServlet" scope="request">
+		</action>
+		<action path="/sharingcenter/documents/DocumentPreview" type="org.oscarehr.sharingcenter.actions.DocumentPreviewServlet" scope="request">
+		</action>
 
 		<action path="/mcedt/mcedt" type="org.oscarehr.integration.mcedt.ResourceAction" name="mcedtResourceForm" parameter="method">
 			<forward name="success" path="/mcedt/index.jsp" />
 		</action>
-		
+
 		<action path="/mcedt/uploads" type="org.oscarehr.integration.mcedt.UploadAction" name="mcedtUploadForm" parameter="method">
 			<forward name="success" path="/mcedt/uploads.jsp" />
 			<forward name="addNew" path="/mcedt/addUpload.jsp" redirect="true" />
 			<forward name="cancel" path="/mcedt/mcedt.do" redirect="true" />
 			<forward name="done" path="/mcedt/mcedt.do" redirect="true" />
 		</action>
-		
+
 		<!--  <action path="/mcedt/addUpload" input="/mcedt/addUpload.jsp" type="org.oscarehr.integration.mcedt.UploadAddAction" name="mcedtUploadAddForm">
 			<forward name="success" path="/mcedt/uploads.do" redirect="true" />
 		</action> -->
-		
+
 		<action path="/mcedt/update" type="org.oscarehr.integration.mcedt.UpdateAction" name="mcedtUpdateForm" parameter="method">
 			<forward name="cancel" path="/mcedt/mcedt.do" redirect="true" />
 			<forward name="add" path="/mcedt/update.do" redirect="true" />
 			<forward name="success" path="/mcedt/mcedt.do" redirect="true" />
 			<forward name="initial" path="/mcedt/update.jsp"/>
 		</action>
-		
+
 		<action path="/mcedt/info" type="org.oscarehr.integration.mcedt.InfoAction" name="mcedtInfoForm">
 			<forward name="info" path="/mcedt/info.jsp" />
 		</action>
-		
-		<action path="/mcedt/kaimcedt" type="org.oscarehr.integration.mcedt.mailbox.ResourceAction" name="mcedtResourceForm" parameter="method">			
+
+		<action path="/mcedt/kaimcedt" type="org.oscarehr.integration.mcedt.mailbox.ResourceAction" name="mcedtResourceForm" parameter="method">
 			<forward name="success" path="/mcedt/mailbox/index.jsp" />
 			<!-- <forward name="download" path="/mcedt/mailbox/download.jsp" /> -->
 			<forward name="successUserDownload" path="/mcedt/mailbox/index.jsp?tab=download" />
-			<forward name="failUserDownload" path="/mcedt/mailbox/index.jsp?tab=download" />	
-			<forward name="successUserSent" path="/mcedt/mailbox/index.jsp?tab=sent" />		
+			<forward name="failUserDownload" path="/mcedt/mailbox/index.jsp?tab=download" />
+			<forward name="successUserSent" path="/mcedt/mailbox/index.jsp?tab=sent" />
 		</action>
-		<action path="/mcedt/openAutoUpload" type="org.oscarehr.integration.mcedt.mailbox.ResourceAction" name="kaiedtHomeForm" parameter="method">			
+		<action path="/mcedt/openAutoUpload" type="org.oscarehr.integration.mcedt.mailbox.ResourceAction" name="kaiedtHomeForm" parameter="method">
 			<forward name="success" path="/mcedt/mailbox/autoUpload.jsp" />
 		</action>
-		<action path="/mcedt/autoUpload" input="/mcedt/mailbox/autoUpload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false" >			
+		<action path="/mcedt/autoUpload" input="/mcedt/mailbox/autoUpload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false">
 			<forward name="success" path="/mcedt/mailbox/autoUpload.jsp" />
 			<forward name="failure" path="/mcedt/mailbox/autoUpload.jsp?connection=failed" />
 			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 		</action>
-		
-		<action path="/mcedt/upload" input="/mcedt/mailbox/upload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false" >			
+
+		<action path="/mcedt/upload" input="/mcedt/mailbox/upload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false">
 			<forward name="success" path="/mcedt/mailbox/index.jsp?tab=upload" />
 			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 		</action>
-		
-		<action path="/mcedt/addUpload" input="/mcedt/mailbox/addUpload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false" >			
+
+		<action path="/mcedt/addUpload" input="/mcedt/mailbox/addUpload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false">
 			<forward name="success" path="/mcedt/mailbox/index.jsp?tab=upload" />
 			<forward name="failure" path="/mcedt/mailbox/addUpload.jsp" />
 			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 		</action>
-		
-		<action path="/mcedt/kaichpass" type="org.oscarehr.integration.mcedt.mailbox.UserAction" name="loginForm" parameter="method">			
+
+		<action path="/mcedt/kaichpass" type="org.oscarehr.integration.mcedt.mailbox.UserAction" name="loginForm" parameter="method">
 			<forward name="success" path="/mcedt/mailbox/changepass.jsp" />
 			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 		</action>
-		
-		<action path="/mcedt/kaiautodl" type="org.oscarehr.integration.mcedt.mailbox.DownloadAction" name="mcedtDownloadForm" parameter="method">			
+
+		<action path="/mcedt/kaiautodl" type="org.oscarehr.integration.mcedt.mailbox.DownloadAction" name="mcedtDownloadForm" parameter="method">
 			<forward name="success" path="/mcedt/mailbox/autoDownload.jsp" />
-			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />			
+			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 			<!-- <forward name="successUserDownload" path="/mcedt/mailbox/index.jsp?tab=download" />
 			<forward name="failUserDownload" path="/mcedt/mailbox/index.jsp?tab=download" /> -->
 		</action>
-		
-		<action path="/mcedt/download" type="org.oscarehr.integration.mcedt.mailbox.DownloadAction" name="mcedtDownloadForm" parameter="method">							
+
+		<action path="/mcedt/download" type="org.oscarehr.integration.mcedt.mailbox.DownloadAction" name="mcedtDownloadForm" parameter="method">
 			<forward name="success" path="/mcedt/mailbox/index.jsp?tab=download" />
 			<forward name="error" path="/mcedt/mailbox/index.jsp?tab=download" />
 		</action>
-		
+
 		<action path="/mcedt/resourceInfo" type="org.oscarehr.integration.mcedt.mailbox.InfoAction" name="mcedtResourceForm" parameter="method">
 			<!-- <forward name="info" path="/mcedt/info.jsp" /> -->
 			<forward name="success" path="/mcedt/mailbox/index.jsp?tab=sent" />
-		</action>				
-		
+		</action>
+
 		<action path="/mcedt/reSubmit" type="org.oscarehr.integration.mcedt.mailbox.ReSubmitAction" name="mcedtResourceForm" parameter="method">
 			<!-- <forward name="info" path="/mcedt/info.jsp" /> -->
 			<forward name="success" path="/mcedt/mailbox/index.jsp?tab=sent" />
 		</action>
-		
+
 		<action path="/mcedt/uploads" type="org.oscarehr.integration.mcedt.UploadAction" name="mcedtUploadForm" parameter="method">
 			<forward name="success" path="/mcedt/uploads.jsp" />
 			<forward name="addNew" path="/mcedt/addUpload.jsp" redirect="true" />
 			<forward name="cancel" path="/mcedt/mcedt.do" redirect="true" />
 			<forward name="done" path="/mcedt/mcedt.do" redirect="true" />
 		</action>
-		
+
 		<action path="/demographicSupport" type="org.oscarehr.common.web.DemographicAction" parameter="method">
 		</action>
-		
-		<action path="/oscarRx/Dispense" type="org.oscarehr.rx.dispensary.DispensaryAction" parameter="method" scope="request">	
-			<forward name="list" path="/oscarRx/dispensary/list.jsp" />	
+
+		<action path="/oscarRx/Dispense" type="org.oscarehr.rx.dispensary.DispensaryAction" parameter="method" scope="request">
+			<forward name="list" path="/oscarRx/dispensary/list.jsp" />
 		</action>
-     <action path="/consults/Consultations" type="org.oscarehr.consultations.ConsultationAction">
-      </action>
-		     
+		<action path="/consults/Consultations" type="org.oscarehr.consultations.ConsultationAction">
+		</action>
+
 		<action path="/DemographicExtService" type="org.oscarehr.common.web.DemographicExtServiceAction" parameter="method" scope="request">
 		</action>
 
@@ -3020,16 +2913,16 @@
 		</action>
 
 		<action path="/printReferralLabelAction" type="org.oscarehr.common.web.PrintReferralLabelAction" />
-		
+
 		<action path="/billing/CA/ON/billingON3rdPayments" scope="request" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method">
 			<forward name="success" path="/billing/CA/ON/billingON3rdPayments.jsp"/>
 			<forward name="failure" path="/billing/CA/ON/billingON3rdPayments.jsp"/>
 			<forward name="viewPayment" path="/billing/CA/ON/billingON3rdViewPayment.jsp"/>
-		</action>	
+		</action>
 		<action name="BillingDocumentErrorReportUploadForm" path="/billing/CA/ON/displayMOHXML" scope="request" type="org.oscarehr.billing.CA.ON.web.DisplayMOHXMLAction">
-            		<forward name="success" path="/billing/CA/ON/billingLreport.jsp" />
+			<forward name="success" path="/billing/CA/ON/billingLreport.jsp" />
 			<forward name="failure" path="/billing/CA/ON/billingLreport.jsp" />
-		</action> 			
+		</action>
 		<action input="/billing/CA/ON/viewMOHFiles.jsp" scope="request" path="/billing/CA/ON/moveMOHFiles" type="org.oscarehr.billing.CA.ON.web.ArchiveMOHFileAction">
 			<forward name="showInbox" path="/billing/CA/ON/viewMOHFiles.jsp" />
 		</action>
@@ -3041,30 +2934,30 @@
 		<action path="/admin/AuditLogPurge" type="org.oscarehr.admin.web.AuditLogPurgeAction" parameter="method">
 			<forward name="success" path="/admin/auditLogPurge.jsp" />
 		</action>
-		<action path="/lab/DownloadEmbeddedDocumentFromLab" type="oscar.oscarLab.ca.all.pageUtil.DownloadEmbeddedDocumentFromLabAction" >
+		<action path="/lab/DownloadEmbeddedDocumentFromLab" type="oscar.oscarLab.ca.all.pageUtil.DownloadEmbeddedDocumentFromLabAction">
 		</action>
-		
+
 		<action path="/dhir/submit" type="org.oscarehr.integration.dhir.SubmitImmunizationAction" parameter="method" scope="request">
 			<forward name="success" path="/oscarPrevention/dhirSubmission.jsp"/>
 			<forward name="testresult" path="/oscarPrevention/test_case.jsp"/>
 		</action>
-		
+
 		<action path="/dhir/summary" type="org.oscarehr.integration.dhir.DHIRSummaryViewAction" parameter="method" scope="request">
 			<forward name="success" path="/oscarPrevention/ViewDHIRData.jsp"/>
 		</action>
-		
+
 		<action path="/dhir/printSummary" scope="request" type="org.oscarehr.integration.dhir.DHIRPrintAction">
 			<forward name="error" path="/dhir/printError.jsp" />
 		</action>
-		
+
 		<action path="/clinicalConnectEHRViewer" type="org.oscarehr.integration.clinicalconnect.ClinicalConnectViewerAction" parameter="method">
 			<forward name="error" path="/cc/launcherError.jsp"/>
 		</action>
-		
+
 		<action path="/admin/Flowsheet" type="org.oscarehr.flowsheet.FlowsheetAction" parameter="method">
 		</action>
-		
-		
+
+
 	</action-mappings>
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" maxFileSize="100M" />
 	<message-resources parameter="oscarResources" null="false" />
@@ -3074,7 +2967,7 @@
 	<message-resources parameter="MessageResources_casemgmt" key="casemgmt" null="false" />
 	<message-resources parameter="MessageResources_mcedt" key="mcedt" null="false" />
 	<message-resources parameter="uiResources" key="ui" null="false" />
-	
+
 	<plug-in className="org.apache.struts.tiles.TilesPlugin">
 		<!-- Path to XML definition file -->
 		<set-property property="definitions-config" value="/WEB-INF/tiles-defs.xml" />

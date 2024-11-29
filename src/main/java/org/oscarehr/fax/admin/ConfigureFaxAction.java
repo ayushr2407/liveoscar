@@ -21,155 +21,252 @@
  * Hamilton
  * Ontario, Canada
  */
-package org.oscarehr.fax.admin;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+ package org.oscarehr.fax.admin;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+ import net.sf.json.JSONArray;
+ import java.io.IOException;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ 
+ import net.sf.json.JSONObject;
+ 
+ import org.apache.struts.action.ActionForm;
+ import org.apache.struts.action.ActionForward;
+ import org.apache.struts.action.ActionMapping;
+ import org.apache.struts.actions.DispatchAction;
+ import org.oscarehr.common.dao.FaxConfigDao;
+ import org.oscarehr.common.model.FaxConfig;
+ import org.oscarehr.util.SpringUtils;
+ import java.util.List;
 
-import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.FaxConfigDao;
-import org.oscarehr.common.model.FaxConfig;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
-
-public class ConfigureFaxAction extends DispatchAction {
-
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	private static final String PASSWORD_BLANKET = "**********";
-	
-	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		return configure(mapping, form, request, response);
-	}
-	
-	public ActionForward configure(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		JSONObject jsonObject;
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "r", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
+ public class ConfigureFaxAction extends DispatchAction {
+ 
+    public ActionForward configure(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        JSONObject jsonObject = new JSONObject();
+    
+        try {
+            String faxUser = request.getParameter("faxUser");
+            String faxPasswd = request.getParameter("faxPassword");
+            String faxNumber = request.getParameter("faxNumber");
+            String senderEmail = request.getParameter("senderEmail");
+            boolean isActive = "on".equals(request.getParameter("isActive"));
+    
+            FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+    
+            // If this configuration is set to active, deactivate all other configurations
+            if (isActive) {
+                List<FaxConfig> allConfigs = faxConfigDao.findAll(null, null);
+                for (FaxConfig config : allConfigs) {
+                    config.setActive(false);
+                    faxConfigDao.merge(config);
+                }
+            }
+    
+            // Create a new FaxConfig object
+            FaxConfig faxConfig = new FaxConfig();
+            faxConfig.setFaxUser(faxUser);
+            faxConfig.setFaxPasswd(faxPasswd);
+            faxConfig.setFaxNumber(faxNumber);
+            faxConfig.setSenderEmail(senderEmail);
+            faxConfig.setActive(isActive);
+    
+            // Set other fields to null
+            faxConfig.setUrl(null);
+            faxConfig.setSiteUser(null);
+            faxConfig.setPasswd(null);
+            faxConfig.setQueue(null);
+    
+            // Save the FaxConfig object to the database
+            faxConfigDao.persist(faxConfig);
+    
+            jsonObject.put("success", true);
+            jsonObject.put("message", "Configuration saved successfully. Active status: " + isActive);
+        } catch (Exception ex) {
+            jsonObject.put("success", false);
+            jsonObject.put("error", ex.getMessage());
+            ex.printStackTrace();
         }
-		
-		try {
-			FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-			List<FaxConfig> savedFaxConfigList = faxConfigDao.findAll(null, null);
-			List<FaxConfig> faxConfigList = new ArrayList<FaxConfig>();
-		
-			String faxUrl = request.getParameter("faxUrl");
-			String siteUser = request.getParameter("siteUser");
-			String sitePasswd = request.getParameter("sitePasswd");
-		
-			String[] faxConfigIds = request.getParameterValues("id");
-			String[] faxUsers = request.getParameterValues("faxUser");	
-			String[] faxPasswds = request.getParameterValues("faxPassword");
-			String[] inboxQueues = request.getParameterValues("inboxQueue");
-			String[] activeState = request.getParameterValues("activeState");
-			String[] faxNumbers = request.getParameterValues("faxNumber");
-			String[] senderEmails = request.getParameterValues("senderEmail");
-		
-			Integer id;
-			int savedidx;
-			FaxConfig faxConfig;
-			FaxConfig savedFaxConfig;
-			
-			if( faxConfigIds == null ) {
-				for(FaxConfig sfaxConfig : savedFaxConfigList ) {
-					faxConfigDao.remove(sfaxConfig.getId());
-				}
-			}
-			else {
-				for( int idx = 0; idx < faxConfigIds.length; ++idx ) {
-					if( StringUtils.trimToNull(faxConfigIds[idx]) == null ) {
-						continue;
-					}
-					id = Integer.parseInt(faxConfigIds[idx]);
-					faxConfig = new FaxConfig();
-					faxConfig.setId(id);
-			
-					savedidx = savedFaxConfigList.indexOf(faxConfig);
-					if( savedidx > -1 ) {
-						savedFaxConfig = savedFaxConfigList.get(savedidx);
-						savedFaxConfig.setUrl(faxUrl);
-						savedFaxConfig.setSiteUser(siteUser);
-						
-						if( ! PASSWORD_BLANKET.equals(sitePasswd) ) {
-							savedFaxConfig.setPasswd(sitePasswd);
-						}
-						
-						savedFaxConfig.setFaxUser(faxUsers[idx]);
-						
-						if( ! PASSWORD_BLANKET.equals(faxPasswds[idx]) ) {
-							savedFaxConfig.setFaxPasswd(faxPasswds[idx]);
-						}
-						
-						savedFaxConfig.setFaxNumber(faxNumbers[idx]);
-						savedFaxConfig.setSenderEmail(senderEmails[idx]);
-						savedFaxConfig.setQueue(Integer.parseInt(inboxQueues[idx]));
-						savedFaxConfig.setActive(Boolean.parseBoolean(activeState[idx]));
-						faxConfigList.add(savedFaxConfig);
-					}
-					else {
-						faxConfig.setId(null);
-						faxConfig.setSiteUser(siteUser);
-						
-						if( ! PASSWORD_BLANKET.equals(sitePasswd) ) {
-							faxConfig.setPasswd(sitePasswd);
-						}
-						
-						faxConfig.setUrl(faxUrl);
-						faxConfig.setFaxUser(faxUsers[idx]);
-						
-						if( ! PASSWORD_BLANKET.equals(faxPasswds[idx]) ) {
-							faxConfig.setFaxPasswd(faxPasswds[idx]);
-						}
-						
-						faxConfig.setFaxNumber(faxNumbers[idx]);
-						faxConfig.setSenderEmail(senderEmails[idx]);
-						faxConfig.setQueue(Integer.parseInt(inboxQueues[idx]));
-						faxConfig.setActive( Boolean.parseBoolean(activeState[idx]));
-						faxConfigList.add(faxConfig);
-					}
-				}
-			
-			
-				for( FaxConfig faxConfig1 : faxConfigList ) {				
-					faxConfigDao.saveEntity(faxConfig1);
-				}
-				
-				
-				for( FaxConfig faxConfig2 : savedFaxConfigList ) {
-					if( !faxConfigList.contains(faxConfig2) ) {
-						faxConfigDao.remove(faxConfig2.getId());
-					}
-				}
-			}
-		
-			jsonObject = JSONObject.fromObject("{success:true}");
-		}
-		catch( Exception ex ) {
-			jsonObject = JSONObject.fromObject("{success:false}");
-			MiscUtils.getLogger().error("COULD NOT SAVE FAX CONFIGURATION",ex);
-		}
-		
-		
-		try {		
-			MiscUtils.getLogger().info("JSON: " + jsonObject);
-	        jsonObject.write(response.getWriter());
+    
+        try {
+            response.setContentType("application/json");
+            response.getWriter().write(jsonObject.toString());
         } catch (IOException e) {
-	        MiscUtils.getLogger().error("JSON WRITER ERROR", e);
+            e.printStackTrace();
         }
-		return null;
-		
-	}
+    
+        return null;
+    }
 
+    public ActionForward getAllConfigurations(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+            List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+
+            JSONArray configArray = new JSONArray();
+            for (FaxConfig config : faxConfigs) {
+                JSONObject configJson = new JSONObject();
+                configJson.put("id", config.getId());
+                configJson.put("faxUser", config.getFaxUser());
+                configJson.put("faxNumber", config.getFaxNumber());
+                configJson.put("senderEmail", config.getSenderEmail());
+                configJson.put("active", config.isActive());
+                configArray.add(configJson);
+            }
+
+            jsonObject.put("success", true);
+            jsonObject.put("configurations", configArray);
+        } catch (Exception ex) {
+            jsonObject.put("success", false);
+            jsonObject.put("error", ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        try {
+            response.setContentType("application/json");
+            response.getWriter().write(jsonObject.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public ActionForward deleteConfiguration(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+                JSONObject jsonObject = new JSONObject();
+        
+                try {
+                    Integer id = Integer.parseInt(request.getParameter("id"));
+                    FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+                    faxConfigDao.remove(id);
+        
+                    jsonObject.put("success", true);
+                } catch (Exception ex) {
+                    jsonObject.put("success", false);
+                    jsonObject.put("error", ex.getMessage());
+                    ex.printStackTrace();
+                }
+        
+                try {
+                    response.setContentType("application/json");
+                    response.getWriter().write(jsonObject.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        
+                return null;
+            }
 }
+
+
+
+//  public class ConfigureFaxAction extends DispatchAction {
+ 
+// 	 public ActionForward configure(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+// 		 JSONObject jsonObject = new JSONObject();
+ 
+// 		 try {
+// 			 // Retrieve parameters from the request
+// 			 String faxUser = request.getParameter("faxUser");
+// 			 String faxPasswd = request.getParameter("faxPassword");
+// 			 String faxNumber = request.getParameter("faxNumber");
+// 			 String senderEmail = request.getParameter("senderEmail");
+ 
+// 			 // Create a new FaxConfig object
+// 			 FaxConfig faxConfig = new FaxConfig();
+// 			 faxConfig.setFaxUser(faxUser);
+// 			 faxConfig.setFaxPasswd(faxPasswd);
+// 			 faxConfig.setFaxNumber(faxNumber);
+// 			 faxConfig.setSenderEmail(senderEmail);
+// 			 faxConfig.setActive(true);
+ 
+// 			 // Set other fields to null
+// 			 faxConfig.setUrl(null);
+// 			 faxConfig.setSiteUser(null);
+// 			 faxConfig.setPasswd(null);
+// 			 faxConfig.setQueue(null);
+ 
+// 			 // Save the FaxConfig object to the database
+// 			 FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+// 			 faxConfigDao.persist(faxConfig);
+ 
+// 			 jsonObject.put("success", true);
+// 		 } catch (Exception ex) {
+// 			 jsonObject.put("success", false);
+// 			 jsonObject.put("error", ex.getMessage());
+// 			 ex.printStackTrace(); // Log the error
+// 		 }
+ 
+// 		 try {
+// 			 response.setContentType("application/json");
+// 			 response.getWriter().write(jsonObject.toString());
+// 		 } catch (IOException e) {
+// 			 e.printStackTrace(); // Handle the exception
+// 		 }
+ 
+// 		 return null; // Return null as we are handling the response ourselves
+// 	 }
+// 	 public ActionForward getAllConfigurations(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+//         JSONObject jsonObject = new JSONObject();
+
+//         try {
+//             FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+//             List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+
+//             JSONArray configArray = new JSONArray();
+//             for (FaxConfig config : faxConfigs) {
+//                 JSONObject configJson = new JSONObject();
+//                 configJson.put("id", config.getId());
+//                 configJson.put("faxUser", config.getFaxUser());
+//                 configJson.put("faxNumber", config.getFaxNumber());
+//                 configJson.put("senderEmail", config.getSenderEmail());
+//                 configArray.add(configJson);
+//             }
+
+//             jsonObject.put("success", true);
+//             jsonObject.put("configurations", configArray);
+//         } catch (Exception ex) {
+//             jsonObject.put("success", false);
+//             jsonObject.put("error", ex.getMessage());
+//             ex.printStackTrace();
+//         }
+
+//         try {
+//             response.setContentType("application/json");
+//             response.getWriter().write(jsonObject.toString());
+//         } catch (IOException e) {
+//             e.printStackTrace();
+//         }
+
+//         return null;
+//     }
+
+// 	public ActionForward deleteConfiguration(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+//         JSONObject jsonObject = new JSONObject();
+
+//         try {
+//             Integer id = Integer.parseInt(request.getParameter("id"));
+//             FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+//             faxConfigDao.remove(id);
+
+//             jsonObject.put("success", true);
+//         } catch (Exception ex) {
+//             jsonObject.put("success", false);
+//             jsonObject.put("error", ex.getMessage());
+//             ex.printStackTrace();
+//         }
+
+//         try {
+//             response.setContentType("application/json");
+//             response.getWriter().write(jsonObject.toString());
+//         } catch (IOException e) {
+//             e.printStackTrace();
+//         }
+
+//         return null;
+//     }
+//  }
+ 
+

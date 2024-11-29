@@ -1736,7 +1736,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 </td>
 
-<td  ALIGN="center"  width="14%">
+<td  ALIGN="center"  width="14%" id="bimble_extension">
 
 <%
 	if (isWeekView) {
@@ -1852,54 +1852,55 @@ class="noprint" title="Find a Provider" placeholder='<bean:message key="receptio
   <span><i class="icon-group" title="<bean:message key="global.group"/>"></i></span>
 
 <%
-	List<MyGroupAccessRestriction> restrictions = myGroupAccessRestrictionDao.findByProviderNo(curUser_no);
+    List<MyGroupAccessRestriction> restrictions = myGroupAccessRestrictionDao.findByProviderNo(curUser_no);
 %>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="false">
   <select id="mygroup_no" name="mygroup_no" onChange="changeGroup(this)">
-  <option value=".<bean:message key="global.default"/>">.<bean:message key="global.default"/></option>
+    <option value=".<bean:message key="global.default"/>">.<bean:message key="global.default"/></option>
 
+    <security:oscarSec roleName="<%=roleName$%>" objectName="_team_schedule_only" rights="r" reverse="false">
+    <%
+        String provider_no = curUser_no;
+        for(Provider p : providerDao.getActiveProviders()) {
+            boolean skip = checkRestriction(restrictions,p.getProviderNo());
+            if(!skip) {
+    %>
+    <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
+            <%=p.getFormattedName()%></option>
+    <%
+        } }
+    %>
+    </security:oscarSec>
 
-<security:oscarSec roleName="<%=roleName$%>" objectName="_team_schedule_only" rights="r" reverse="false">
-<%
-	String provider_no = curUser_no;
-	for(Provider p : providerDao.getActiveProviders()) {
-		boolean skip = checkRestriction(restrictions,p.getProviderNo());
-		if(!skip) {
-%>
-<option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-		<%=p.getFormattedName()%></option>
-<%
-	} }
-%>
+    <security:oscarSec roleName="<%=roleName$%>" objectName="_team_schedule_only" rights="r" reverse="true">
+    <%
+        request.getSession().setAttribute("archiveView","false");
+        for(MyGroup g : myGroupDao.searchmygroupno()) {
+            boolean skip = checkRestriction(restrictions,g.getId().getMyGroupNo());
+            if (!skip && (!bMultisites || siteGroups == null || siteGroups.size() == 0 || siteGroups.contains(g.getId().getMyGroupNo()))) {
+    %>
+    <option value="<%="_grp_"+g.getId().getMyGroupNo()%>"
+            <%=mygroupno.equals(g.getId().getMyGroupNo())?"selected":""%>><%=g.getId().getMyGroupNo()%></option>
+    <%
+        }
+        }
 
+        for(Provider p : providerDao.getActiveProviders()) {
+            boolean skip = checkRestriction(restrictions,p.getProviderNo());
+            if (!skip && (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo()))) {
+    %>
+    <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
+            <%=p.getFormattedName()%></option>
+    <%
+        }
+        }
+    %>
+    </security:oscarSec>
+  </select>
 </security:oscarSec>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_team_schedule_only" rights="r" reverse="true">
-<%
-	request.getSession().setAttribute("archiveView","false");
-	for(MyGroup g : myGroupDao.searchmygroupno()) {
-	
-		boolean skip = checkRestriction(restrictions,g.getId().getMyGroupNo());
-
-		if (!skip && (!bMultisites || siteGroups == null || siteGroups.size() == 0 || siteGroups.contains(g.getId().getMyGroupNo()))) {
-%>
-  <option value="<%="_grp_"+g.getId().getMyGroupNo()%>"
-		<%=mygroupno.equals(g.getId().getMyGroupNo())?"selected":""%>><%=g.getId().getMyGroupNo()%></option>
-<%
-	}
-	}
-
-	for(Provider p : providerDao.getActiveProviders()) {
-		boolean skip = checkRestriction(restrictions,p.getProviderNo());
-
-		if (!skip && (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo()))) {
-%>
-  <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-		<%=p.getFormattedName()%></option>
-<%
-	}
-	}
-%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="true">
+  <span id="currentUserName"><%=userfirstname%> <%=userlastname%></span>
 </security:oscarSec>
-</select>
 
 </logic:notEqual>
 
