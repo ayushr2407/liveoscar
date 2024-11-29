@@ -646,14 +646,32 @@ if (patient.getDOB() != null) {
             }
 
             // Extract Start Date
-            if (startDateMatcher.find()) {
-                startDate = startDateMatcher.group(1);
-            }
+             SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat outputDateFormat = new SimpleDateFormat("MMM dd, yyyy");
 
-            // Extract End Date
-            if (endDateMatcher.find()) {
-                endDate_p = endDateMatcher.group(1);
-            }
+    // Format Start Date
+    if (startDateMatcher.find()) {
+        String extractedStartDate = startDateMatcher.group(1);
+        try {
+            Date date = inputDateFormat.parse(extractedStartDate);
+            startDate = outputDateFormat.format(date);
+        } catch (Exception e) {
+            System.err.println("Failed to parse start date: " + e.getMessage());
+            startDate = extractedStartDate; // Fallback to original if parsing fails
+        }
+    }
+
+    // Format End Date
+    if (endDateMatcher.find()) {
+        String extractedEndDate = endDateMatcher.group(1);
+        try {
+            Date date = inputDateFormat.parse(extractedEndDate);
+            endDate_p = outputDateFormat.format(date);
+        } catch (Exception e) {
+            System.err.println("Failed to parse end date: " + e.getMessage());
+            endDate_p = extractedEndDate; // Fallback to original if parsing fails
+        }
+    }
 
             // Extract Duration (exclude if "0 Days")
             if (durationMatcher.find()) {

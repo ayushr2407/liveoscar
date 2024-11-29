@@ -698,13 +698,18 @@ try (BufferedWriter writer = new BufferedWriter(new FileWriter(counterFile))) {
 
         if ("oscarRxFax".equals(isFaxRequest)) {
             System.out.println("Condition met: Setting faxInfo for fax request.");
-            faxInfo = "Prescriber Certification: I certify that:\n"
-        + "- this prescription represents the original of the prescription drug order.\n"
-        + "- the pharmacy addressee noted above is the only intended recipient.\n"
-        + "- the original prescription will not be re-issued.\n\n"
-        + "Fax was sent to " + escapeHtml(pharmaName) + " on " + escapeHtml(currentDate) + " at " + escapeHtml(currentTime);
-
-        } else {
+            faxInfo = "<h3>Prescriber Certification</h3>\n"
+                + "<p>I hereby certify that:</p>\n"
+                + "<ul>\n"
+                + "    <li>This prescription represents the original prescription drug order.</li>\n"
+                + "    <li>The pharmacy address noted above is the sole intended recipient.</li>\n"
+                + "    <li>The original prescription will not be reissued.</li>\n"
+                + "</ul>\n"
+                + "<br/>\n"
+                + "<br/>\n"
+                + "Fax was sent to " + escapeHtml(pharmaName) + " on " + escapeHtml(currentDate) + " at " + escapeHtml(currentTime) + ".";
+        }
+        else {
             faxInfo = "";
             System.out.println("Condition NOT met: isFaxRequest = [" + isFaxRequest + "]");
         }
