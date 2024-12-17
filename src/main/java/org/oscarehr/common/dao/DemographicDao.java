@@ -80,14 +80,61 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.stereotype.Repository;
 
 import oscar.MyDateFormat;
 import oscar.OscarProperties;
 import oscar.util.SqlUtils;
+import org.hibernate.Transaction;
+
 
 /**
  */
+@Repository
 public class DemographicDao extends HibernateDaoSupport implements ApplicationEventPublisherAware {
+	private Connection getConnection() throws SQLException {
+        // Replace with your actual connection logic
+        return DbConnectionFilter.getThreadLocalDbConnection(); // Assuming this is your DB connection
+    }
+
+    public Demographic getDemographicByDemographicNo(int demographicNo) {
+        Demographic demographic = null;
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            connection = getConnection();
+            String sql = "SELECT patient_compliance, frequency FROM demographic WHERE demographic_no = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, demographicNo);  // Set the parameter in the query
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                demographic = new Demographic();
+                demographic.setPatientCompliance(rs.getString("patient_compliance"));
+                demographic.setFrequency(rs.getString("frequency"));
+            }
+        } catch (SQLException e) {
+            // Log the exception (using SLF4J or Log4J for better logging in production)
+            System.err.println("Error fetching demographic data: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Ensure resources are closed
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                // Log the exception
+                System.err.println("Error closing resources: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return demographic;
+    }
 
 	private static final int MAX_SELECT_SIZE = 500;
 	
@@ -1008,30 +1055,95 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return list;
 	}
 
+	// public void save(Demographic demographic) {
+	// 	if (demographic == null) {
+	// 		return;
+	// 	}
+
+	// 	System.out.println("Patient Compliance .java : " + demographic.getPatientCompliance());
+	// 	System.out.println("Frequency.java : " + demographic.getFrequency());
+
+	// 	boolean objExists = false;
+	// 	if (demographic.getDemographicNo() != null) {
+	// 		objExists = clientExistsThenEvict(demographic.getDemographicNo());
+	// 	}
+		
+	// 	System.out.println("Saving/updating demographic: " + demographic);
+	// 	this.getHibernateTemplate().saveOrUpdate(demographic);
+	// 	System.out.println("Save/update completed.");
+		
+	// 	if (OscarProperties.getInstance().isHL7A04GenerationEnabled() && !objExists) {
+	// 		(new HL7A04Generator()).generateHL7A04(demographic);
+	// 	}
+		
+	// 	//the new way
+	// 	if(objExists == false) {
+	// 		publisher.publishEvent(new DemographicCreateEvent(demographic,demographic.getDemographicNo()));
+	// 	} else {
+	// 		publisher.publishEvent(new DemographicUpdateEvent(demographic,demographic.getDemographicNo()));	
+	// 	}
+		
+	// }
+
 	public void save(Demographic demographic) {
 		if (demographic == null) {
 			return;
 		}
-
+	
+		System.out.println("Patient Compliance .java : " + demographic.getPatientCompliance());
+		System.out.println("Frequency.java : " + demographic.getFrequency());
+	
 		boolean objExists = false;
 		if (demographic.getDemographicNo() != null) {
 			objExists = clientExistsThenEvict(demographic.getDemographicNo());
 		}
-		
+	
+		System.out.println("Saving/updating demographic: " + demographic);
 		this.getHibernateTemplate().saveOrUpdate(demographic);
+	
+		Session session = null;
+Transaction transaction = null;
+try {
+    session = this.getHibernateTemplate().getSessionFactory().openSession(); // Open a new session
+    transaction = session.beginTransaction(); // Begin a transaction
 
+    String hql = "UPDATE Demographic " +
+                 "SET patient_compliance = :patientCompliance, " +
+                 "frequency = :frequency " +
+                 "WHERE demographic_no = :demographicNo";
+    Query query = session.createQuery(hql);
+    query.setParameter("patientCompliance", demographic.getPatientCompliance());
+    query.setParameter("frequency", demographic.getFrequency());
+    query.setParameter("demographicNo", demographic.getDemographicNo());
+    int rowsUpdated = query.executeUpdate();
+    transaction.commit(); // Commit the transaction
+    System.out.println("Custom query updated rows: " + rowsUpdated);
+} catch (Exception e) {
+    if (transaction != null) {
+        transaction.rollback(); // Rollback the transaction in case of an error
+    }
+    System.err.println("Error executing custom query: " + e.getMessage());
+    e.printStackTrace();
+} finally {
+    if (session != null) {
+        session.close(); // Ensure the session is closed
+    }
+}
+
+	
+		System.out.println("Save/update completed.");
+	
 		if (OscarProperties.getInstance().isHL7A04GenerationEnabled() && !objExists) {
 			(new HL7A04Generator()).generateHL7A04(demographic);
 		}
-		
-		//the new way
-		if(objExists == false) {
-			publisher.publishEvent(new DemographicCreateEvent(demographic,demographic.getDemographicNo()));
+	
+		if (!objExists) {
+			publisher.publishEvent(new DemographicCreateEvent(demographic, demographic.getDemographicNo()));
 		} else {
-			publisher.publishEvent(new DemographicUpdateEvent(demographic,demographic.getDemographicNo()));	
+			publisher.publishEvent(new DemographicUpdateEvent(demographic, demographic.getDemographicNo()));
 		}
-		
 	}
+	
 
 	public static List<Integer> getDemographicIdsAlteredSinceTime(Date value) {
 		Connection c = null;

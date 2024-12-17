@@ -136,6 +136,13 @@
         String start_time2 = request.getParameter("start_time");
         String end_time2 = request.getParameter("end_time");
         String duration2 = request.getParameter("duration");
+		String patientCompliance = request.getParameter("patientCompliance");
+        String frequency = request.getParameter("frequency");
+		// Log the values to the console for debugging
+System.out.println("Patient Compliance: " + patientCompliance);
+System.out.println("Frequency: " + frequency);
+
+
         boolean addFamily = false;
         if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Add Family Member")){
 			addFamily = true;
@@ -153,6 +160,19 @@
 	demographic.setMiddleNames(request.getParameter("middleNames").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
+
+
+	demographic.setPatientCompliance(patientCompliance);
+
+// Only set frequency if patientCompliance is "no"
+if ("no".equalsIgnoreCase(patientCompliance)) {
+    demographic.setFrequency(frequency);
+} else {
+    demographic.setFrequency(null); // Clear frequency for other compliance values
+}
+
+
+
 	if(request.getParameter("province") != null) {
 		demographic.setProvince(request.getParameter("province"));
 	} else {

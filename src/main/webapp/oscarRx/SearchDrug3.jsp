@@ -60,6 +60,10 @@
 <%@page import="org.oscarehr.casemgmt.model.Issue" %>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao, org.oscarehr.common.model.Demographic" %>
+<%-- <%@ page import="org.hibernate.SessionFactory, org.hibernate.Session, org.hibernate.Query" %>
+<%@ page import="org.hibernate.cfg.Configuration" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %> --%>
 
 <%
     String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
@@ -108,6 +112,160 @@
     String favid = request.getParameter("favid");
     int demoNo = bean.getDemographicNo();
 %>
+
+<%
+    String patientCompliance = null;
+    String frequency = null;
+
+    // Ensure demoNo is valid
+    if (demoNo > 0) {
+        try {
+            // Fetch demographic data using the simplified JDBC-based DAO method
+            DemographicDao demographicDao = new DemographicDao();
+            Demographic demographic = demographicDao.getDemographicByDemographicNo(demoNo);
+
+            if (demographic != null) {
+                patientCompliance = demographic.getPatientCompliance();
+                frequency = demographic.getFrequency();
+                
+                // Debug: Log fetched values
+                // System.out.println("Debug: Fetched patientCompliance = " + patientCompliance);
+                // System.out.println("Debug: Fetched frequency = " + frequency);
+            } else {
+                // Log if no demographic data was found
+                System.out.println("Debug: No demographic found for demographicNo = " + demoNo);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching demographic data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+%>
+
+<%-- <script type="text/javascript">
+    // Pass the fetched values from JSP to JavaScript and escape them correctly
+    var patientCompliance = <%= patientCompliance != null ? "\"" + patientCompliance.replace("\"", "\\\"") + "\"" : "\"\"" %>;
+    var frequency = <%= frequency != null ? "\"" + frequency.replace("\"", "\\\"") + "\"" : "\"\"" %>;
+
+    // Log the values for debugging
+    console.log("Patient Compliance:", patientCompliance);
+    console.log("Frequency:", frequency);
+
+    // Function to handle compliance change and toggle frequency visibility
+    function handleComplianceChange(randomId) {
+        var complianceField = document.getElementById('compliance_' + randomId);
+        var frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
+
+        if (!complianceField || !frequencyDiv) {
+            console.warn('Missing elements for randomId:', randomId);
+            return;
+        }
+
+        if (complianceField.value === 'no') {
+            // Show the frequency options
+            frequencyDiv.style.display = 'block';
+        } else {
+            // Hide the frequency options
+            frequencyDiv.style.display = 'none';
+        }
+    }
+
+    // Function to populate the compliance and frequency fields
+    function populateComplianceAndFrequency(randomId, patientCompliance, frequency) {
+        console.log("Populating compliance and frequency for randomId:", randomId);
+
+        // Compliance Field
+        const complianceField = document.getElementById('compliance_' + randomId);
+        const frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
+
+        if (!complianceField || !frequencyDiv) {
+            console.error("Missing fields for compliance and frequency:", randomId);
+            return;
+        }
+
+        // Set the compliance value
+        if (patientCompliance) {
+            complianceField.value = patientCompliance; // Set selected value for compliance
+            console.log(`Set compliance field (${randomId}) to:`, patientCompliance);
+
+            // Handle visibility of frequency options based on compliance
+            if (patientCompliance === 'no') {
+                frequencyDiv.style.display = 'block'; // Show frequency options
+                console.log("Showing frequency options.");
+            } else {
+                frequencyDiv.style.display = 'none'; // Hide frequency options
+                console.log("Hiding frequency options.");
+            }
+        }
+
+        // Set the frequency value if it's provided and visible
+        if (frequency && frequencyDiv.style.display === 'block') {
+            const frequencyRadioButton = document.querySelector(`input[name="frequency_${randomId}"][value="${frequency}"]`);
+            if (frequencyRadioButton) {
+                frequencyRadioButton.checked = true; // Check the appropriate radio button
+                console.log(`Set frequency radio button (${randomId}) to:`, frequency);
+            }
+        }
+    }
+
+    // Function to initialize the compliance and frequency values based on the backend data
+    function initializeComplianceAndFrequencyFields() {
+     console.log("Initializing Compliance and Frequency Fields...");
+
+     document.querySelectorAll('select[id^="compliance_"]').forEach(function (complianceField) {
+         var randomId = complianceField.id.split('_')[1];
+         console.log("Initializing compliance field with randomId:", randomId);
+
+         // Check if the compliance field is available
+         const complianceFieldElement = document.getElementById('compliance_' + randomId);
+         if (!complianceFieldElement) {
+             console.log("Compliance field not found for randomId:", randomId);
+             return;
+         }
+
+         // Set the initial value of compliance dropdown
+         complianceField.value = patientCompliance;
+
+         // Log the compliance value set
+         console.log(`Set compliance value for ${randomId} to:`, patientCompliance);
+
+         // Show/hide frequency options based on compliance
+         handleComplianceChange(randomId);
+
+         // Set the frequency radio buttons based on frequency value
+         if (frequency) {
+             var frequencyRadioButton = document.querySelector(`input[name="frequency_${randomId}"][value="${frequency}"]`);
+             if (frequencyRadioButton) {
+                 frequencyRadioButton.checked = true;
+                 console.log(`Set frequency radio button for ${randomId} to:`, frequency);
+             }
+         }
+     });
+ }
+
+    // Function to watch for dynamically added fields (compliance and frequency) and populate them when added
+const complianceFrequencyObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) { // Ensure we're working with element nodes
+                const complianceField = node.querySelector('[id^="compliance_"]');
+                if (complianceField) {
+                    const randomId = complianceField.id.split('_')[1];
+                    console.log("Compliance field added dynamically with randomId:", randomId);
+                    populateComplianceAndFrequency(randomId, patientCompliance, frequency);
+                }
+            }
+        });
+    });
+});
+
+// Start observing the document for dynamically added nodes
+complianceFrequencyObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', initializeComplianceAndFrequencyFields);
+</script> --%>
+
 <security:oscarSec roleName="<%=roleName2$%>"
                    objectName='<%="_rx$"+demoNo%>' rights="o"
                    reverse="<%=false%>">
@@ -369,32 +527,9 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
                 $('duration_' + randNumber).onblur();
                 $('durationUnit_' + randNumber).onblur();
             }
-            function handleComplianceChange(randomId) {
-    var complianceField = document.getElementById('compliance_' + randomId);
-    var frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
+           // Function to handle compliance change and toggle frequency visibility
 
-    if (!complianceField || !frequencyDiv) {
-        console.warn('Missing elements for randomId:', randomId);
-        return;
-    }
 
-    if (complianceField.value === 'no') {
-        // Show the frequency options
-        frequencyDiv.style.display = 'block';
-        Effect.BlindDown(frequencyDiv); // For animation (Prototype.js)
-    } else {
-        // Hide the frequency options
-        frequencyDiv.style.display = 'none';
-        Effect.BlindUp(frequencyDiv); // For animation (Prototype.js)
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('select[id^="compliance_"]').forEach(function (complianceField) {
-        var randomId = complianceField.id.split('_')[1];
-        handleComplianceChange(randomId);
-    });
-});
 
 
             function handleEnter(inField, ev) {
@@ -2859,6 +2994,15 @@ THEME 2*/
 
 
 <script type="text/javascript">
+
+    // Pass the fetched values from JSP to JavaScript and escape them correctly
+    var patientCompliance = <%= patientCompliance != null ? "\"" + patientCompliance.replace("\"", "\\\"") + "\"" : "\"\"" %>;
+    var frequency = <%= frequency != null ? "\"" + frequency.replace("\"", "\\\"") + "\"" : "\"\"" %>;
+
+    // Log the values for debugging
+    console.log("Patient Compliance:", patientCompliance);
+    console.log("Frequency:", frequency);
+    
     // Function to calculate the end date based on start date and duration
     function calculateEndDate(randomId) {
         console.log("Triggered calculateEndDate for:", randomId);
@@ -2933,10 +3077,113 @@ THEME 2*/
         });
     }
 
-    // Run on page load
-    document.addEventListener('DOMContentLoaded', initializePrescriptionFields);
+    // Function to handle compliance change and toggle frequency visibility
+    function handleComplianceChange(randomId) {
+        var complianceField = document.getElementById('compliance_' + randomId);
+        var frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
 
-    // MutationObserver to dynamically initialize fields added later
+        if (!complianceField || !frequencyDiv) {
+            console.warn('Missing elements for randomId:', randomId);
+            return;
+        }
+
+        if (complianceField.value === 'no') {
+            // Show the frequency options
+            frequencyDiv.style.display = 'block';
+        } else {
+            // Hide the frequency options
+            frequencyDiv.style.display = 'none';
+        }
+    }
+
+    // Function to populate the compliance and frequency fields
+    function populateComplianceAndFrequency(randomId, patientCompliance, frequency) {
+        console.log("Populating compliance and frequency for randomId:", randomId);
+
+        const complianceField = document.getElementById('compliance_' + randomId);
+        const frequencyDiv = document.getElementById('frequencyOptions_' + randomId);
+
+        if (!complianceField || !frequencyDiv) {
+            console.error("Missing fields for compliance and frequency:", randomId);
+            return;
+        }
+
+        // Set the compliance value
+        if (patientCompliance) {
+            complianceField.value = patientCompliance;
+            console.log(`Set compliance field (${randomId}) to:`, patientCompliance);
+
+            handleComplianceChange(randomId); // Toggle frequency visibility
+        }
+
+        // Set the frequency value if it's provided and visible
+        if (frequency && frequencyDiv.style.display === 'block')
+{
+        const attrr_value ='input[name="frequency_' + randomId + '"][value="' + frequency + '"]';
+            const frequencyRadioButton = document.querySelector(attrr_value);
+console.log({'random id': randomId ,'frequency': frequency,frequencyRadioButton,abc:`input[name="frequency_${randomId}"][value="monthly"]`,attrr_value});
+            if (frequencyRadioButton) {
+                frequencyRadioButton.checked = true;
+                console.log(`Set frequency radio button (${randomId}) to:`, frequency);
+            } else {
+            console.error("No matching frequency radio button for value:", frequency);
+        }
+    } else {
+        console.log("Frequency options are hidden or frequency div doesn't exist.");
+    }
+}
+
+    // Function to initialize the compliance and frequency values based on the backend data
+    function initializeComplianceAndFrequencyFields() {
+        console.log("Initializing Compliance and Frequency Fields...");
+
+        document.querySelectorAll('select[id^="compliance_"]').forEach(function (complianceField) {
+            var randomId = complianceField.id.split('_')[1];
+
+            console.log("Initializing compliance field with randomId:", randomId);
+
+            complianceField.value = patientCompliance;  // Set the compliance value
+
+            console.log(`Set compliance value for ${randomId} to:`, patientCompliance);
+
+            handleComplianceChange(randomId); // Toggle frequency visibility
+
+            if (frequency) {
+                var frequencyRadioButton = document.querySelector(`input[name="frequency_${randomId}"][value="${frequency}"]`);
+                if (frequencyRadioButton) {
+                    frequencyRadioButton.checked = true;
+                    console.log(`Set frequency radio button for ${randomId} to:`, frequency);
+                }
+            }
+        });
+    }
+
+    // Function to watch for dynamically added fields (compliance and frequency) and populate them when added
+    const complianceFrequencyObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                    const complianceField = node.querySelector('[id^="compliance_"]');
+                    if (complianceField) {
+                        const randomId = complianceField.id.split('_')[1];
+                        console.log("Compliance field added dynamically with randomId:", randomId);
+                        populateComplianceAndFrequency(randomId, patientCompliance, frequency);
+                    }
+                }
+            });
+        });
+    });
+
+    // Start observing the document for dynamically added nodes
+    complianceFrequencyObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        initializePrescriptionFields();
+        initializeComplianceAndFrequencyFields(); // Populate compliance and frequency fields
+    });
+
+    // MutationObserver to dynamically initialize fields added later for start date and duration
     const prescriptionObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
@@ -2954,6 +3201,7 @@ THEME 2*/
     // Start observing the document for dynamically added nodes
     prescriptionObserver.observe(document.body, { childList: true, subtree: true });
 </script>
+
 
     </body>
 </html:html>

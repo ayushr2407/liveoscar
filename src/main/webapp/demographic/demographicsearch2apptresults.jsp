@@ -206,6 +206,13 @@ function searchAll() {
 
 
 </script>
+<style>
+/* Apply margin to the parent container */
+.custom-margin-container {
+    margin-left: 20px;
+}
+</style>
+
 </head>
 <body bgcolor="white" onLoad="setfocus();" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 <div id="demographicSearch" class="searchBox">
@@ -676,11 +683,29 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
  <%
         } else {
 %>
-	<div><br><bean:message key="demographic.search.noResultsWereFound" /></div>
-  <div class="createNew">
-		<a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=Encode.forUriComponent(request.getParameter("search_mode"))%>&keyword=<%=Encode.forUriComponent(request.getParameter("keyword"))%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&reasonCode=<%=Encode.forUriComponent(request.getParameter("reasonCode"))%>&reason=<%=Encode.forUriComponent(request.getParameter("reason"))%>&location=<%=Encode.forUriComponent(request.getParameter("location"))%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=Encode.forUriComponent(request.getParameter("status"))%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=Encode.forUriComponent(request.getParameter("creator"))%>&remarks=<%=request.getParameter("remarks")%>">
-		<bean:message key="demographic.search.btnCreateNew" /></a>
-    </div>    
+	<%-- <div><br><bean:message key="demographic.search.noResultsWereFound" /></div>
+ 
+<div class="createNew">
+    <a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=Encode.forUriComponent(request.getParameter("search_mode"))%>&keyword=<%=Encode.forUriComponent(request.getParameter("keyword"))%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&reasonCode=<%=Encode.forUriComponent(request.getParameter("reasonCode"))%>&reason=<%=Encode.forUriComponent(request.getParameter("reason"))%>&location=<%=Encode.forUriComponent(request.getParameter("location"))%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=Encode.forUriComponent(request.getParameter("status"))%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=Encode.forUriComponent(request.getParameter("creator"))%>&remarks=<%=request.getParameter("remarks")%>"
+       title="<bean:message key='demographic.search.btnCreateNewTitle' />" 
+       class="btn btn-primary" role="button">
+        <bean:message key="demographic.search.btnCreateNew" />
+    </a>
+</div> --%>
+
+<div class="custom-margin-container">
+    <div><br><bean:message key="demographic.search.noResultsWereFound" /></div>
+
+    <div class="createNew">
+        <a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=Encode.forUriComponent(request.getParameter("search_mode"))%>&keyword=<%=Encode.forUriComponent(request.getParameter("keyword"))%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&reasonCode=<%=Encode.forUriComponent(request.getParameter("reasonCode"))%>&reason=<%=Encode.forUriComponent(request.getParameter("reason"))%>&location=<%=Encode.forUriComponent(request.getParameter("location"))%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=Encode.forUriComponent(request.getParameter("status"))%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=Encode.forUriComponent(request.getParameter("creator"))%>&remarks=<%=request.getParameter("remarks")%>"
+           title="<bean:message key='demographic.search.btnCreateNewTitle' />" 
+           class="btn btn-primary" role="button">
+            <bean:message key="demographic.search.btnCreateNew" />
+        </a>
+    </div>
+</div>
+
+
 <%
         }
 %>	

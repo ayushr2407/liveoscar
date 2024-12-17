@@ -3126,7 +3126,7 @@
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:Hashtable forView = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:Hashtable rep = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:Hashtable repNum = new Hashtable();</ViolationValue>
-        <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:String commonRow(String heading,Hashtable demoHash,org.oscarehr.common.model.Demographic demoObj){</ViolationValue>
+        <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:String commonRow(String heading,Hashtable demoHash, demoObj){</ViolationValue>
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:Vector&lt;EctMeasurementTypesBean&gt; vec = hd.getMeasurementTypeVector();</ViolationValue>
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:arrRepNum[x] = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/report/ClinicalReports.jsp:for (Hashtable h : list) {</ViolationValue>

@@ -33,6 +33,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.persistence.Column;
+
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
@@ -41,11 +44,15 @@ import org.oscarehr.PMmodule.utility.DateTimeFormatUtils;
 import org.oscarehr.PMmodule.utility.Utility;
 import org.oscarehr.util.MiscUtils;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+
 /**
  * This is the object class that relates to the demographic table. Any customizations belong here.
  */
-//@Entity   
-//@Table(name = "demographic") 
+@Entity   
+@Table(name = "demographic") 
 public class Demographic extends AbstractModel<Integer> implements Serializable {
 
 	private static final String DEFAULT_MONTH = "01";
@@ -192,6 +199,14 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	private int activeCount = 0;
 	private int hsAlertCount = 0;
 	private String displayName=null;
+
+
+	@Column(name = "patient_compliance")
+    private String patientCompliance;
+
+@Column(name = "frequency")
+private String frequency;
+
 
 	private Provider provider;
 
@@ -1434,6 +1449,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		}else {
 			return "";
 		}
+	}
+
+	public String getPatientCompliance() {
+		return patientCompliance;
+	}
+	
+	public void setPatientCompliance(String patientCompliance) {
+		this.patientCompliance = patientCompliance;
+	}
+	
+	public String getFrequency() {
+		return frequency;
+	}
+	
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
 	}
 
 	public String getResidentialAddress() {

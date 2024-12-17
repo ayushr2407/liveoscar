@@ -1139,6 +1139,60 @@ legend {
 					onBlur="upCaseCtrl(this)">
             </div>
         </div>
+
+<!-- New Field: Patient Compliance -->
+<div class="control-group span5">
+    <label class="control-label" for="patientCompliance">Patient Compliance</label>
+    <div class="controls">
+        <select id="patientCompliance" name="patientCompliance" class="span3" onchange="toggleFrequencyOptions()">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="unknown">Unknown</option>
+        </select>
+    </div>
+</div>
+
+<!-- New Field: Frequency (Conditional Display) -->
+<div class="control-group span5" id="frequencyGroup" style="display: none;">
+    <label class="control-label" for="frequency">Frequency</label>
+    <div class="controls">
+        <label class="radio inline">
+            <input type="radio" id="daily" name="frequency" value="daily"> Daily
+        </label>
+        <label class="radio inline">
+            <input type="radio" id="weekly" name="frequency" value="weekly"> Weekly
+        </label>
+        <label class="radio inline">
+            <input type="radio" id="bi-weekly" name="frequency" value="bi-weekly"> Bi-Weekly
+        </label>
+        <label class="radio inline">
+            <input type="radio" id="monthly" name="frequency" value="monthly"> Monthly
+        </label>
+    </div>
+</div>
+
+
+
+<%-- <form name="addDemographicForm" method="post" action="saveDemographic.do">
+    <label for="patientCompliance">Patient Compliance:</label>
+      <select id="patientCompliance" name="patientCompliance">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+        <option value="unknown">Unknown</option>
+    </select>
+
+    <div id="frequencyOptions" style="display: none;">
+        <label for="frequency">Frequency:</label>
+        <input type="radio" name="client.frequency" value="daily" id="frequencyDaily"> Daily
+        <input type="radio" name="client.frequency" value="weekly" id="frequencyWeekly"> Weekly
+        <input type="radio" name="client.frequency" value="bi-weekly" id="frequencyBiWeekly"> Bi-Weekly
+        <input type="radio" name="client.frequency" value="monthly" id="frequencyMonthly"> Monthly
+    </div>
+    <button type="submit">Save</button>
+</form> --%>
+
+
+
         <%-- <div class="control-group span5">
             <label class="control-label" for="inputMN"><bean:message
 					key="demographic.demographiceditdemographic.formMiddleNames" /></label>
@@ -2692,6 +2746,23 @@ $(document).ready(function(){
 }
 %>
 </script>
+<script>
+    function toggleFrequencyOptions() {
+        var complianceValue = document.getElementById('patientCompliance').value;
+        var frequencyGroup = document.getElementById('frequencyGroup');
+        if (complianceValue === 'no') {
+            frequencyGroup.style.display = 'block';
+        } else {
+            frequencyGroup.style.display = 'none';
+            // Reset the radio buttons
+            var radios = document.getElementsByName('frequency');
+            for (var i = 0; i < radios.length; i++) {
+                radios[i].checked = false;
+            }
+        }
+    }
+</script>
+
 <!--<iframe src="<%=request.getContextPath() %>/eform/efmshowform_data.jsp?fid=<%=fid%>" width="100%" height="100%"></iframe>-->
 <%//}%>
 </body>

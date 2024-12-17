@@ -599,26 +599,18 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
             }
         }
         
-        
+        // Define folder path to organize files by month
+String folderPath = getServletContext().getRealPath("/") + "prescriptionnumber/";
+String fileName = "prescription_" + pracNo + ".txt"; // File name includes pracNo and date
+String filePath = folderPath + fileName;
 
-
-        String dateFormat = "yyMM";
-String todayStr = new SimpleDateFormat(dateFormat).format(new Date());
-
-// Get the pracNo from the request (assuming it's passed via request parameters)
+int continuousCount = 1; // Default value, to start from 1
+String prescriptionNumber = ""; // Declare the prescription number variable
 
 // Validate that pracNo is not null or empty
 if (pracNo == null || pracNo.isEmpty()) {
     pracNo = "00000"; // Default value if pracNo is not provided
 }
-
-// Define folder path to organize files by month
-String folderPath = getServletContext().getRealPath("/") + "prescriptionnumber/";
-String fileName = "prescription_" + pracNo + ".txt"; // File name includes pracNo and date
-String filePath = folderPath + fileName;
-
-int continuousCount = 1; // Start the count at 1
-String prescriptionNumber = ""; // Declare the prescription number variable outside the synchronized block
 
 // Ensure the folder exists, create it if not
 File folder = new File(folderPath);
@@ -626,30 +618,64 @@ if (!folder.exists()) {
     folder.mkdirs();  // Creates the directory if it doesn't exist
 }
 
-// Read the last value from the file and increment
-File counterFile = new File(filePath);
-synchronized (this) {
-    try (BufferedReader reader = counterFile.exists() ? new BufferedReader(new FileReader(counterFile)) : null) {
-        if (reader != null) {
-            String lastCountStr = reader.readLine();
-            if (lastCountStr != null && !lastCountStr.isEmpty()) {
-                continuousCount = Integer.parseInt(lastCountStr) + 1; // Increment by 1
+// Get the current date in the desired format
+String dateFormat = "yyMM";
+String todayStr = new SimpleDateFormat(dateFormat).format(new Date());
+
+// Check if this is a fax request
+String isFaxRequest = req.getParameter("__method").trim();
+
+// If it's a fax request, we will write back to the file after incrementing
+if ("oscarRxFax".equals(isFaxRequest)) {
+    // Fax request: Start with reading and writing to the file
+    File counterFile = new File(filePath);
+    synchronized (this) {
+        try (BufferedReader reader = counterFile.exists() ? new BufferedReader(new FileReader(counterFile)) : null) {
+            if (reader != null) {
+                String lastCountStr = reader.readLine();
+                if (lastCountStr != null && !lastCountStr.isEmpty()) {
+                    continuousCount = Integer.parseInt(lastCountStr) + 1; // Increment by 1
+                }
             }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
         }
-    } catch (IOException | NumberFormatException e) {
+
+        // Generate the prescription number using pracNo instead of clinicName
+        prescriptionNumber = pracNo + todayStr + String.format("%03d", continuousCount);
+    }
+
+    // Write the updated prescription number back to the file
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(counterFile))) {
+        writer.write(String.valueOf(continuousCount));  // Write the updated count back to the file
+    } catch (IOException e) {
         e.printStackTrace();
     }
 
-    // Generate the prescription number using pracNo instead of clinicName
-    prescriptionNumber = pracNo + todayStr + String.format("%03d", continuousCount);
+} else {
+    // Not a fax request: Just read from the file and increment for normal PDF generation
+    File counterFile = new File(filePath);
+    if (!counterFile.exists()) {
+        // If the file does not exist, it means this is the first time, so start from 1
+        prescriptionNumber = pracNo + todayStr + String.format("%03d", continuousCount);
+    } else {
+        synchronized (this) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(counterFile))) {
+                String lastCountStr = reader.readLine();
+                if (lastCountStr != null && !lastCountStr.isEmpty()) {
+                    continuousCount = Integer.parseInt(lastCountStr) + 1; // Increment by 1
+                    prescriptionNumber = pracNo + todayStr + String.format("%03d", continuousCount);
+                }
+            } catch (IOException | NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
-// Write the updated prescription number back to the file
-try (BufferedWriter writer = new BufferedWriter(new FileWriter(counterFile))) {
-    writer.write(String.valueOf(continuousCount));  // Write the updated count back to the file
-} catch (IOException e) {
-    e.printStackTrace();
-}
+// At this point, `prescriptionNumber` is either incremented (for faxing) or just read from the file
+// This number should now be passed to the template for the PDF generation
+
        
 
         String deliveryOption = req.getParameter("deliveryOption");
@@ -690,7 +716,7 @@ try (BufferedWriter writer = new BufferedWriter(new FileWriter(counterFile))) {
             logoBase64 = "data:image/png;base64," + encodeImageToBase64(logoFile);
         }
 
-        String isFaxRequest = req.getParameter("__method").trim();
+        isFaxRequest = req.getParameter("__method").trim();
         System.out.println("isFaxRequest: [" + isFaxRequest + "]");
         
         String faxInfo = ""; // Ensure faxInfo starts empty

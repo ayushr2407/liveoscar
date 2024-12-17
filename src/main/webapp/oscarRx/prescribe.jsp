@@ -311,11 +311,6 @@ if(listRxDrugs!=null){
    <label for="endDate_<%=rand%>">End Date:</label>
    <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
           value="<%= (endDate != null) ? endDate : "" %>" />
-
-    <%-- <label for="endDate_<%=rand%>">End Date:</label>
-    <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>" 
-           value="<%= (endDate_p != null) ? endDate_p : "" %>" /> --%>
-
 </div>
 
 
@@ -336,29 +331,29 @@ if(listRxDrugs!=null){
     <option value="unknown" <% if (patientCompliance != null && patientCompliance.equals("unknown")) { %> selected <% } %>>Unknown</option>
 </select>
 
+<!-- Frequency Options: Initially hidden, shown when compliance is 'no' -->
+<div id="frequencyOptions_<%=rand%>" style="<%= (patientCompliance != null && patientCompliance.equals("no")) ? "" : "display: none;" %> margin-top: 10px;">
+    <label><input type="radio" name="frequency_<%=rand%>" value="daily" <% if ("daily".equals(frequency)) { %> checked <% } %>> Daily</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="weekly" <% if ("weekly".equals(frequency)) { %> checked <% } %>> Weekly</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="bi-Weekly" <% if ("bi-Weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="monthly" <% if ("monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
+</div>
+
+<%-- <label for="compliance_<%=rand%>">Patient Compliance:</label>
+<select id="compliance_<%=rand%>" name="compliance_<%=rand%>" onchange="handleComplianceChange('<%=rand%>')">
+    <option value="">Select</option>
+    <option value="yes" <% if (patientCompliance != null && patientCompliance.equals("yes")) { %> selected <% } %>>Yes</option>
+    <option value="no" <% if (patientCompliance != null && patientCompliance.equals("no")) { %> selected <% } %>>No</option>
+    <option value="unknown" <% if (patientCompliance != null && patientCompliance.equals("unknown")) { %> selected <% } %>>Unknown</option>
+</select>
+
 <div id="frequencyOptions_<%=rand%>" style="display: none; margin-top: 10px;">
     <label><input type="radio" name="frequency_<%=rand%>" value="Daily" <% if ("Daily".equals(frequency)) { %> checked <% } %>> Daily</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="Weekly" <% if ("Weekly".equals(frequency)) { %> checked <% } %>> Weekly</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="Bi-Weekly" <% if ("Bi-Weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="Monthly" <% if ("Monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
-</div>
+</div> --%>
 
-
-
-
-  <%-- <label for="compliance" style="margin-right: 10px; margin-left: 20px;">Patient Compliance:</label>
-  <select class="compliance" name="compliance" style="margin-right: 10px;">
-    <option value="">Select</option>
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-    <option value="Unknown">Unknown</option>
-  </select>
-  <div class="frequencyOptions" style="display:none; margin-right: 20px;">
-    <label><input type="radio" name="frequency" value="Daily" /> Daily</label>
-    <label><input type="radio" name="frequency" value="Weekly" /> Weekly</label>
-        <label><input type="radio" name="frequency" value="Weekly" /> Bi-Weekly</label>
-    <label><input type="radio" name="frequency" value="Monthly" /> Monthly</label>
-  </div> --%>
 </div>
 
 		<%-- <div id="medTerm_<%=rand%>">
@@ -441,20 +436,7 @@ if(listRxDrugs!=null){
             <input  type="radio" value="unset" name="pastMed_<%=rand%>" id="pastMedE_<%=rand%>" <%if(pastMed == null) {%> checked="checked" <%}%>  />
          </span>
 	</div> --%>
-    <%-- <div>
-
-	<label for="patientCompliantSelection"><bean:message key="WriteScript.msgPatientCompliance"/>:</label>
-	<span id="patientCompliantSelection">
-         <label for="patientComplianceY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label>
-            <input type="radio" value="yes" name="patientCompliance_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
-
-          <label for="patientComplianceN_<%=rand%>"><bean:message key="WriteScript.msgNo"/></label>
-            <input type="radio" value="no" name="patientCompliance_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
-
-		<label for="patientComplianceE_<%=rand%>"><bean:message key="WriteScript.msgUnset"/></label>
-            <input type="radio" value="unset" name="patientCompliance_<%=rand%>" id="patientComplianceE_<%=rand%>" <%if(patientCompliance==null) {%> checked="checked" <%}%> />
-    </span>
-	</div> --%>
+    
     <%-- <div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
             <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />
