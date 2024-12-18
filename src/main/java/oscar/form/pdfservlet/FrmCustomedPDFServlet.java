@@ -709,7 +709,9 @@ if ("oscarRxFax".equals(isFaxRequest)) {
             }
         }
 
-        String logoPath = ctx.getRealPath("/images/rx_logo.png");  // Gets absolute path of the logo from the webapps directory (complete enviornment)
+        // String logoPath = ctx.getRealPath("/images/rx_logo.png");
+        // Gets absolute path of the logo from the webapps directory (complete enviornment)
+        String logoPath = "/var/lib/tomcat9/webapps/clinic_data/logo/logo2.png";
         File logoFile = new File(logoPath);
         String logoBase64 = "";
         if (logoFile.exists()) {

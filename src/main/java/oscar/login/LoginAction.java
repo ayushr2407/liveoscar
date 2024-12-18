@@ -21,7 +21,6 @@
  * Hamilton
  * Ontario, Canada
  */
-//1234
 
 package oscar.login;
 

@@ -343,10 +343,10 @@ if (patient.getDOB() != null) {
                             <table id="pwTable" style="width: 400px; height: 650px; border:bold;" cellspacing=0 cellpadding=5 >
                                     <tr>
                                             <td valign=top style="width:40%; border-right: 1px solid #cfcfcf;" ><input type="image"
-                                                    src="img/oscarrx.gif" border="0" alt="[Submit]"
+                                                    src="/clinic_data/logo/logo2.png" border="0" alt="[Submit]"
                                                     name="submit" title="Print in a half letter size paper"
                                                      width="100" onclick="<%=rePrint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint');" : "javascript:return onPrint2('print');" %>" style="display: block; margin-bottom: 5px;" />
-                                                 
+                                                 <%-- img/oscarrx.gif --%>
         <!-- Date, Doctor Name, and License Number -->
         <p>Date: <b><%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy", locale) %></b><br /></p> 
         <%-- <%= StringEscapeUtils.escapeHtml(doctorName) %><br> --%>

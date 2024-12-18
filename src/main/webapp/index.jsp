@@ -83,7 +83,8 @@ else if (request.getParameter("errorMessage") != null) {
 <html:html locale="true">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="images/Oscar.ico" />
+    <%-- <link rel="shortcut icon" href="images/Oscar.ico" /> --%>
+    <link rel="icon" type="image/png" href="/clinic_data/logo/logo2.png" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <html:base/>
@@ -248,7 +249,8 @@ else if (request.getParameter("errorMessage") != null) {
     <div class="background">
         <div class="login-container">
             <div class="left-container">
-                  <img class="logo" src="images/OSCAR-LOGO.gif" alt="OAT Clinic Logo">
+            <img class="logo" src="/clinic_data/logo/login-logo.png" alt="Clinic Logo">
+                  <%-- <img class="logo" src="images/OSCAR-LOGO.gif" alt="OAT Clinic Logo"> --%>
                 <h2>Login to continue</h2>
                 <div><%=ssoLoginMessage%></div>
                 <html:form action="login" style="width: 100%;" onsubmit="return validateForm(event);">

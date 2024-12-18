@@ -527,7 +527,8 @@ boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demo
 <%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <head>
-<link rel="shortcut icon" href="<%=request.getContextPath()%>/images/Oscar.ico"> 
+<%-- <link rel="shortcut icon" href="<%=request.getContextPath()%>/images/Oscar.ico">  --%>
+    <link rel="icon" type="image/png" href="/clinic_data/logo/logo2.png" />
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
 
@@ -1212,14 +1213,24 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <table WIDTH="100%" id="firstTable" class="noprint topbar">
 <tr>
-<td rowspan=2 id="logo" >&nbsp;
+<%-- <td rowspan=2 id="logo" >&nbsp;
 <%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false"))) { %>
 	<a href="<%=request.getContextPath()%>/web/" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_logo_small.png" width="30" height="30" border="0"></a>
 <% } else { %>
     <a href="#" ONCLICK ="pop1('<%=resourcebaseurl%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>" onmouseover="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>';return true" title="<bean:message key="oscarEncounter.Index.clinicalResources"/>">
 	<img src="<%=request.getContextPath()%>/images/oscar_logo_small.png" width="30" height="30"  border="0"></a>
 <% } %>&nbsp;
+</td> --%>
+
+<td rowspan=2 id="logo" >&nbsp;
+<%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false"))) { %>
+	<a href="<%=request.getContextPath()%>/web/" title="OSCAR EMR"><img src="/clinic_data/logo/logo2.png" width="30" height="30" border="0"></a>
+<% } else { %>
+    <a href="#" ONCLICK ="pop1('<%=resourcebaseurl%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>" onmouseover="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>';return true" title="<bean:message key="oscarEncounter.Index.clinicalResources"/>">
+	<img src="/clinic_data/logo/logo2.png" width="30" height="30"  border="0"></a>
+<% } %>&nbsp;
 </td>
+
 <td id="firstMenu">
 <ul id="navlist">&nbsp;
 <logic:notEqual name="infirmaryView_isOscar" value="false">
