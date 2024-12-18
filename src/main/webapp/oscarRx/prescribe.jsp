@@ -335,7 +335,7 @@ if(listRxDrugs!=null){
 <div id="frequencyOptions_<%=rand%>" style="<%= (patientCompliance != null && patientCompliance.equals("no")) ? "" : "display: none;" %> margin-top: 10px;">
     <label><input type="radio" name="frequency_<%=rand%>" value="daily" <% if ("daily".equals(frequency)) { %> checked <% } %>> Daily</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="weekly" <% if ("weekly".equals(frequency)) { %> checked <% } %>> Weekly</label>
-    <label><input type="radio" name="frequency_<%=rand%>" value="bi-Weekly" <% if ("bi-Weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
+    <label><input type="radio" name="frequency_<%=rand%>" value="bi-weekly" <% if ("bi-weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="monthly" <% if ("monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
 </div>
 
