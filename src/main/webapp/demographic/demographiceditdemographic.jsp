@@ -965,6 +965,43 @@ function addToPatientSet(demoNo, patientSet) {
 
 var demographicNo='<%=demographic_no%>';
 
+<%
+    String patientCompliance = null;
+    String frequency = null;
+
+    // Get the demographic number (already available as demographic_no in JSP)
+int demoNo = Integer.parseInt(demographic_no);
+
+    // Ensure demoNo is valid
+    if (demoNo > 0) {
+        try {
+            // Fetch demographic data using the DAO
+DemographicDao newDemographicDao = new DemographicDao();
+Demographic demographic = newDemographicDao.getDemographicByDemographicNo(demoNo);
+
+            if (demographic != null) {
+                patientCompliance = demographic.getPatientCompliance();
+                frequency = demographic.getFrequency();
+
+                // Debug: Log fetched values
+                // System.out.println("Debug: Fetched patientCompliance = " + patientCompliance);
+                // System.out.println("Debug: Fetched frequency = " + frequency);
+            } else {
+                // Log if no demographic data was found
+                System.out.println("Debug: No demographic found for demographicNo = " + demoNo);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching demographic data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Handle defaults if no data is found
+    // if (patientCompliance == null) patientCompliance = "unknown";
+    // if (frequency == null) frequency = "daily";
+%>
+
+
 
 function checkRosterStatus2(){
 	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
@@ -2995,6 +3032,40 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
 
+		<div class="control-group span5">
+    <label class="control-label" for="patient_compliance">Patient Compliance</label>
+    <div class="controls">
+        <select name="patient_compliance" id="patient_compliance">
+            <option value="yes" <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("yes")) ? "selected" : "" %>>Yes</option>
+            <option value="no" <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("no")) ? "selected" : "" %>>No</option>
+            <option value="unknown" <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("unknown")) ? "selected" : "" %>>Unknown</option>
+        </select>
+    </div>
+</div>
+
+<div class="control-group span5" id="frequency-group" style="display: <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("no")) ? "block" : "none" %>;">
+    <label class="control-label" for="frequency">Frequency</label>
+    <div class="controls">
+        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+            <label>
+                <input type="radio" name="frequency" value="daily" <%= (frequency != null && frequency.equalsIgnoreCase("daily")) ? "checked" : "" %>> Daily
+            </label>
+            <label>
+                <input type="radio" name="frequency" value="weekly" <%= (frequency != null && frequency.equalsIgnoreCase("weekly")) ? "checked" : "" %>> Weekly
+            </label>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <label>
+                <input type="radio" name="frequency" value="bi-weekly" <%= (frequency != null && frequency.equalsIgnoreCase("bi-weekly")) ? "checked" : "" %>> Bi-Weekly
+            </label>
+            <label>
+                <input type="radio" name="frequency" value="monthly" <%= (frequency != null && frequency.equalsIgnoreCase("monthly")) ? "checked" : "" %>> Monthly
+            </label>
+        </div>
+    </div>
+</div>
+
+
 		<br>
         </div><!-- end demographicSectionContent -->
     </div><!-- end demographicSection -->
@@ -4547,6 +4618,68 @@ jQuery(document).ready(function(){
 
 
 </script>
+
+<script>
+    function toggleFrequency() {
+        // Get the compliance field and frequency group
+        const complianceField = document.getElementById("patient_compliance");
+        const frequencyGroup = document.getElementById("frequency-group");
+        const frequencyInputs = document.querySelectorAll("input[name='frequency']");
+
+        if (!complianceField || !frequencyGroup) {
+            console.error("Missing elements: Ensure #patient_compliance and #frequency-group exist.");
+            return;
+        }
+
+        const compliance = complianceField.value;
+        console.log("Compliance value:", compliance); // Debugging log
+
+        // Show or hide frequency group based on compliance value
+        if (compliance === "no") {
+            frequencyGroup.style.display = "block";
+            console.log("Frequency group shown."); // Debugging log
+        } else {
+            frequencyGroup.style.display = "none";
+            console.log("Frequency group hidden. Clearing frequency selection."); // Debugging log
+
+            // Clear selected frequency value when hidden
+            frequencyInputs.forEach(input => {
+                input.checked = false;
+            });
+        }
+    }
+
+    // Ensure the function runs once the page is fully loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initial toggleFrequency call to set visibility correctly
+        toggleFrequency();
+
+        // Attach event listener to the compliance dropdown
+        const complianceField = document.getElementById("patient_compliance");
+        if (complianceField) {
+            complianceField.addEventListener("change", toggleFrequency);
+            console.log("Event listener attached to compliance dropdown."); // Debugging log
+        } else {
+            console.error("Compliance dropdown not found."); // Debugging log
+        }
+
+        // Add MutationObserver for dynamic visibility of compliance field
+        const observer = new MutationObserver(function (mutationsList, observer) {
+            const complianceField = document.getElementById("patient_compliance");
+            if (complianceField && complianceField.offsetParent !== null) {
+                console.log("Compliance field detected. Attaching event listener.");
+                complianceField.addEventListener("change", toggleFrequency);
+                toggleFrequency();
+                observer.disconnect(); // Stop observing after processing
+            }
+        });
+
+        // Observe the document body for changes
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+</script>
+
+
 
 </body>
 </html:html>

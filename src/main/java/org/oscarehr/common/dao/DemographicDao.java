@@ -1090,8 +1090,8 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			return;
 		}
 	
-		System.out.println("Patient Compliance .java : " + demographic.getPatientCompliance());
-		System.out.println("Frequency.java : " + demographic.getFrequency());
+		// System.out.println("Patient Compliance .java : " + demographic.getPatientCompliance());
+		// System.out.println("Frequency.java : " + demographic.getFrequency());
 	
 		boolean objExists = false;
 		if (demographic.getDemographicNo() != null) {

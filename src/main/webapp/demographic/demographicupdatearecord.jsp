@@ -169,6 +169,8 @@
 	demographic.setSin(request.getParameter("sin"));
 	demographic.setTitle(request.getParameter("title"));
 	demographic.setOfficialLanguage(request.getParameter("official_lang"));
+	demographic.setPatientCompliance(request.getParameter("patient_compliance"));
+    demographic.setFrequency(request.getParameter("frequency"));
 	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
 	demographic.setRosterTerminationReason(request.getParameter("roster_termination_reason"));
 	demographic.setLastUpdateUser((String)session.getAttribute("user"));
