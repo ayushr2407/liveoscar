@@ -673,10 +673,7 @@ if ("oscarRxFax".equals(isFaxRequest)) {
     }
 }
 
-// At this point, `prescriptionNumber` is either incremented (for faxing) or just read from the file
-// This number should now be passed to the template for the PDF generation
-
-       
+// At this point, `prescriptionNumber` is either incremented (for faxing purpose) or just read from the file       
 
         String deliveryOption = req.getParameter("deliveryOption");
         if (deliveryOption == null) {
