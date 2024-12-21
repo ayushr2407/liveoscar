@@ -85,12 +85,30 @@
 <%@page import="oscar.oscarDemographic.data.ProvinceNames"%>
 <%@page import="oscar.oscarDemographic.pageUtil.Util"%>
 <%@page import="oscar.oscarWaitingList.WaitingList"%>
+<%@ page import="org.oscarehr.common.dao.PharmacyInfoDao, org.oscarehr.common.model.PharmacyInfo, org.springframework.web.context.support.WebApplicationContextUtils" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+<%
+    // Get Spring ApplicationContext
+    org.springframework.context.ApplicationContext context = 
+        org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(application);
+
+    // Fetch the PharmacyInfoDao bean
+    PharmacyInfoDao pharmacyInfoDao = (PharmacyInfoDao) context.getBean("pharmacyInfoDao");
+
+    // Retrieve the list of pharmacies
+    List<PharmacyInfo> pharmacyList = null;
+    try {
+        pharmacyList = pharmacyInfoDao.getAllPharmacies();
+    } catch (Exception e) {
+        e.printStackTrace(); // Log the exception
+    }
+%>
 
 
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
@@ -911,6 +929,33 @@ legend {
 }
 
 </style>
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    /**
+     * Synchronize the value of one input field with another
+     * @param {string} sourceId - The ID of the source field
+     * @param {string} targetId - The ID of the target field
+     */
+    function syncFields(sourceId, targetId) {
+        // Get the source and target fields
+        const sourceField = document.getElementById(sourceId);
+        const targetField = document.getElementById(targetId);
+
+        // Synchronize the value
+        if (sourceField && targetField) {
+            targetField.value = sourceField.value;
+        }
+    }
+</script>
+
+
 </head>
 <!-- Databases have alias for today. It is not necessary give the current date -->
 
@@ -1086,6 +1131,7 @@ legend {
                 <input type="date" id="inputDOB"
                     class="input input-medium" required="required" data-validation-required-message="<bean:message key="global.missing" />"
                     name="inputDOB"
+                    max="<%=new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())%>"
                     value="<%=Encode.forHtmlAttribute(dob)%>"
 					onchange="parsedob_date();">
                 <input type="hidden" id="year_of_birth" name="year_of_birth">
@@ -1118,6 +1164,24 @@ legend {
             </select>
             </div>
         </div>
+
+<div class="control-group span5" style="white-space:nowrap">
+    <label class="control-label" for="hinTop"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
+    <div class="controls">
+        <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
+            name="hinTop" id="hinTop"
+            class="input-medium"
+            oninput="syncFields('hinTop', 'hin')">
+        <bean:message key="demographic.demographiceditdemographic.formVer" />
+        <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
+            name="verTop" id="verTop"
+            style="width: 40px;"
+            onBlur="upCaseCtrl(this)"
+            oninput="syncFields('verTop', 'ver')">
+    </div>
+</div>
+
+        
               <div class="control-group span5">
             <label class="control-label" for="official_lang"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/></label>
             <div class="controls">
@@ -2096,6 +2160,22 @@ console.log(year+"-"+month+"-"+day);
 						</security:oscarSec>
             </div>
         </div>
+
+        <div class="control-group span5">
+    <label class="control-label" for="preferredPharmacy">Preferred Pharmacy:</label>
+    <div class="controls">
+        <select id="preferredPharmacy" name="preferredPharmacy" class="form-control">
+            <option value="">Select Pharmacy</option>
+            <% for (PharmacyInfo pharmacy : pharmacyList) { %>
+                <option value="<%= pharmacy.getId() %>|<%= pharmacy.getStatus() %>">
+                    <%= pharmacy.getName() %> - <%= pharmacy.getCity() %>
+                </option>
+            <% } %>
+        </select>
+    </div>
+</div>
+
+
         <div class="control-group span5">
             <label class="control-label" for="patient_status_date"><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" /></label>
             <div class="controls">
@@ -2765,5 +2845,26 @@ $(document).ready(function(){
 
 <!--<iframe src="<%=request.getContextPath() %>/eform/efmshowform_data.jsp?fid=<%=fid%>" width="100%" height="100%"></iframe>-->
 <%//}%>
+
+<script>
+    $(document).ready(function() {
+        $('#preferredPharmacy').select2({
+            placeholder: "Search for a pharmacy",
+            allowClear: true,
+            width: '100%' // Ensures the dropdown matches the width of the parent container
+        });
+
+        $(document).on('select2:open', () => {
+            setTimeout(() => {
+                let select2SearchField = document.querySelector('.select2-container--open .select2-search__field');
+                if (select2SearchField) {
+                    select2SearchField.focus();
+                }
+            }, 100); // Add a small delay (100ms)
+        });
+    });
+</script>
+
+
 </body>
 </html:html>

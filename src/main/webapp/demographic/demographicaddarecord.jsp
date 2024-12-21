@@ -73,6 +73,9 @@
 <%@page import="org.oscarehr.common.model.ConsentType" %>
 <%@page import="oscar.OscarProperties" %>
 
+<%@ page import="org.oscarehr.common.dao.DemographicPharmacyDao" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
@@ -141,7 +144,6 @@
 		// Log the values to the console for debugging
 System.out.println("Patient Compliance: " + patientCompliance);
 System.out.println("Frequency: " + frequency);
-
 
         boolean addFamily = false;
         if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Add Family Member")){
@@ -328,6 +330,46 @@ if ("no".equalsIgnoreCase(patientCompliance)) {
             gieat.admitServicePrograms(demographic.getDemographicNo(),loggedInInfo.getLoggedInProviderNo(),s,"",null);
           }
         
+
+// insertion in demographicPharmacy table 
+
+ String preferredPharmacy = request.getParameter("preferredPharmacy");
+
+    if (preferredPharmacy != null && !preferredPharmacy.isEmpty()) {
+        // Split the submitted value to extract pharmacyID and status
+        String[] pharmacyData = preferredPharmacy.split("\\|");
+        String pharmacyID = pharmacyData[0]; // First part is the pharmacy ID
+        String pharmacyStatus = pharmacyData[1]; // Second part is the pharmacy status
+
+        // Log the extracted values for debugging
+        System.out.println("Preferred Pharmacy: " + preferredPharmacy);
+        System.out.println("Pharmacy ID: " + pharmacyID);
+        System.out.println("Pharmacy Status: " + pharmacyStatus);
+        System.out.println("Demographic No: " + demographic.getDemographicNo());
+
+        // Step 1: Get the Spring Application Context
+        org.springframework.context.ApplicationContext context =
+            org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(application);
+
+        // Step 2: Retrieve the DemographicPharmacyDao Bean
+        DemographicPharmacyDao demographicPharmacyDao = (DemographicPharmacyDao) context.getBean("demographicPharmacyDao");
+
+        // Step 3: Use the DAO Method to Save the Pharmacy
+        try {
+            demographicPharmacyDao.addPharmacyToDemographic(
+                Integer.parseInt(pharmacyID), // Pharmacy ID
+                Integer.parseInt(demographic.getDemographicNo().toString()), // Demographic No
+                1 // Preferred Order
+            );
+            System.out.println("Preferred pharmacy saved successfully for Demographic No: " + demographic.getDemographicNo());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while saving preferred pharmacy.");
+        }
+    } else {
+        System.out.println("No preferred pharmacy selected.");
+    }
+
 
         //add democust record for alert
         String[] param2 =new String[6];
