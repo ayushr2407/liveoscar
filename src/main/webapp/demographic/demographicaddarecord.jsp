@@ -342,7 +342,7 @@ if ("no".equalsIgnoreCase(patientCompliance)) {
         String pharmacyStatus = pharmacyData[1]; // Second part is the pharmacy status
 
         // Log the extracted values for debugging
-        System.out.println("Preferred Pharmacy: " + preferredPharmacy);
+      //  System.out.println("Preferred Pharmacy: " + preferredPharmacy);
         System.out.println("Pharmacy ID: " + pharmacyID);
         System.out.println("Pharmacy Status: " + pharmacyStatus);
         System.out.println("Demographic No: " + demographic.getDemographicNo());

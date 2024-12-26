@@ -284,7 +284,8 @@ else if (request.getParameter("errorMessage") != null) {
     <div class="support-link">
         Having trouble logging in? 
         <a href="mailto:support@medidoze.com" class="support-link-text">
-            Contact Support
+        support@bimble.pro
+            <%-- Contact Support --%>
         </a>
     </div>
 </div>

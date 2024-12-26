@@ -988,7 +988,7 @@ Demographic demographic = newDemographicDao.getDemographicByDemographicNo(demoNo
                 // System.out.println("Debug: Fetched frequency = " + frequency);
             } else {
                 // Log if no demographic data was found
-                System.out.println("Debug: No demographic found for demographicNo = " + demoNo);
+                // System.out.println("Debug: No demographic found for demographicNo = " + demoNo);
             }
         } catch (Exception e) {
             System.err.println("Error fetching demographic data: " + e.getMessage());
@@ -1002,6 +1002,40 @@ Demographic demographic = newDemographicDao.getDemographicByDemographicNo(demoNo
 %>
 
 
+<%
+    // Get Spring ApplicationContext
+    org.springframework.context.ApplicationContext context = 
+        org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(application);
+
+    // Fetch the PharmacyInfoDao bean
+    PharmacyInfoDao pharmacyInfoDao = (PharmacyInfoDao) context.getBean("pharmacyInfoDao");
+
+    // Fetch the DemographicPharmacyDao bean (Fix for Issue 1)
+    DemographicPharmacyDao demographicPharmacyDao = (DemographicPharmacyDao) context.getBean("demographicPharmacyDao");
+
+    // Fetch all pharmacies for the demographic
+    List<DemographicPharmacy> pharmacies = demographicPharmacyDao.findByDemographicId(demoNo);
+    
+    // Filter to get the preferred pharmacy
+    DemographicPharmacy preferredPharmacy = null;
+    for (DemographicPharmacy pharmacy : pharmacies) {
+        if (pharmacy.getPreferredOrder() == 1) {
+            preferredPharmacy = pharmacy;
+            break;
+        }
+    }
+
+    // Use preferredPharmacy for your logic (Fix for Issue 2)
+    String preferredPharmacyId = (preferredPharmacy != null) ? String.valueOf(preferredPharmacy.getPharmacyId()) : null;
+
+    // Retrieve the list of pharmacies
+    List<PharmacyInfo> pharmacyList = null;
+    try {
+        pharmacyList = pharmacyInfoDao.getAllPharmacies();
+    } catch (Exception e) {
+        e.printStackTrace(); // Log the exception
+    }
+%>
 
 function checkRosterStatus2(){
 	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
@@ -1236,6 +1270,11 @@ background-color: grey;
     font-weight:bold;
 }
 </style>
+
+ <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 <body onLoad="setfocus(); checkONReferralNo(); formatPhoneNum(); checkRosterStatus2(); parseeff_date(); parsehc_renew_date(); parseroster_date(); parseend_date();  parseroster_termination_date(); parsepatientstatus_date(); parsedate_joined(); loaddob();"
 	 id="demographiceditdemographic">
@@ -1872,7 +1911,7 @@ if( demographic!=null) {
 				<td class="xlightPurple"><!---new-->
 				<div style="display: inline;" id="viewDemographics2">
 				<div class="xdemographicWrapper container-fluid well span11" >
-				<div class="leftSection span5">
+				<div class="leftSection">
 				<div class="demographicSection" id="demographic" >
 				<h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgDemographic"/>
                 <i class="icon-edit" style="float: right;" title="<bean:message key="demographic.demographiceditdemographic.msgEdit"/>" onclick="showHideDetail();closeAccordion(); getElementById('demographicSectionContent').style.height='auto';"></i></h4>
@@ -2267,7 +2306,7 @@ if( demographic!=null) {
 <%-- END TOGGLE ALL PRIVACY CONSENTS --%>
 
 					</div>
-					<div class="rightSection span5">
+					<div class="rightSection">
 					<div class="demographicSection" id="contactInformation">
 					<h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgContactInfo"/><i class="icon-edit" style="float: right;" title="<bean:message key="demographic.demographiceditdemographic.msgEdit"/>" onclick="showHideDetail();closeAccordion(); getElementById('contactSectionContent').style.height='auto';"></i></h4>
 					<table style="background-color: #FFFFFF">
@@ -2895,7 +2934,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
     <div  id="demographicSection" class="span11">
 		 <h3><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></h3>
         <div id="demographicSectionContent">
-		<div class="control-group span5">
+		<div class="control-group">
             <label class="control-label" for="selectTitle"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/></label>
             <div class="controls">
               					<%
@@ -2938,7 +2977,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 								</select>
             </div>
         </div>
-        <div class="control-group span5"  title='<%=demographic.getDemographicNo()%>'>
+        <div class="control-group"  title='<%=demographic.getDemographicNo()%>'>
             <label class="control-label" for="inputLN"><bean:message
                 key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
             <div class="controls">
@@ -2948,7 +2987,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					onBlur="upCaseCtrl(this)">
             </div>
         </div>
-		<div class="control-group span5">
+		<div class="control-group">
             <label class="control-label" for="inputMN"><bean:message
 					key="demographic.demographiceditdemographic.formMiddleNames" /></label>
             <div class="controls">
@@ -2958,7 +2997,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					onBlur="upCaseCtrl(this)">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="inputFN"><bean:message key="demographic.demographiceditdemographic.formFirstName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text" id="inputFN" placeholder="<bean:message key="demographic.demographiceditdemographic.formFirstName" />"
@@ -2967,23 +3006,30 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					onBlur="upCaseCtrl(this)">
             </div>
         </div>
-        <div class="control-group span5">
-            <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
-            <div class="controls" style="white-space: nowrap;">
-                <input id="inputDOB"
-                    class="input input-medium" type="date"
-                    name="inputDOB" <%=getDisabled("year_of_birth")%>
-					onchange="parsedob_date();">
-                <input type="hidden" id="year_of_birth" name="year_of_birth"
-				    value="<%=birthYear%>">
-                <input type="hidden" name="month_of_birth" id="month_of_birth"
-                    value="<%=birthMonth%>">
-				<input type="hidden" name="date_of_birth" id="date_of_birth"
-				    value="<%=birthDate%>">
-				(<%=age%> <bean:message key="global.years" />)
-            </div>
-        </div>
-        <div class="control-group span5">
+      <div class="control-group">
+    <label class="control-label" for="inputDOB">
+        <bean:message key="demographic.demographiceditdemographic.formDOB" />
+        <bean:message key="demographic.demographiceditdemographic.formDOBDetais" />
+        <span style="color:red">*</span>
+    </label>
+    <div class="controls" style="white-space: nowrap;">
+        <input 
+            id="inputDOB"
+            class="input input-medium" 
+            type="date"
+            name="inputDOB" 
+            <%=getDisabled("year_of_birth")%>
+            onchange="parsedob_date();" 
+        />
+        <input type="hidden" id="year_of_birth" name="year_of_birth" value="<%=birthYear%>">
+        <input type="hidden" name="month_of_birth" id="month_of_birth" value="<%=birthMonth%>">
+        <input type="hidden" name="date_of_birth" id="date_of_birth" value="<%=birthDate%>">
+        <!-- Add this span to display the calculated age -->
+        (<span id="ageDisplay"><%=age%></span> <bean:message key="global.years" />)
+    </div>
+</div>
+
+        <div class="control-group">
             <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
             <div class="controls">
                 <!-- //Value are Codes F M T O U Texts are Female Male Transgender Other Undefined -->
@@ -3007,7 +3053,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="inputAlias"><bean:message
 					key="demographic.demographiceditdemographic.alias" /></label>
             <div class="controls">
@@ -3020,7 +3066,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
         </div>
         
         
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="language"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/></label>
             <div class="controls">
               <% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
@@ -3032,7 +3078,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
 
-		<div class="control-group span5">
+		<div class="control-group">
     <label class="control-label" for="patient_compliance">Patient Compliance</label>
     <div class="controls">
         <select name="patient_compliance" id="patient_compliance">
@@ -3043,7 +3089,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
     </div>
 </div>
 
-<div class="control-group span5" id="frequency-group" style="display: <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("no")) ? "block" : "none" %>;">
+<div class="control-group" id="frequency-group" style="display: <%= (patientCompliance != null && patientCompliance.equalsIgnoreCase("no")) ? "block" : "none" %>;">
     <label class="control-label" for="frequency">Frequency</label>
     <div class="controls">
         <div style="display: flex; gap: 10px; margin-bottom: 5px;">
@@ -3065,6 +3111,21 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
     </div>
 </div>
 
+<div class="control-group">
+    <label class="control-label" for="preferredPharmacy">Preferred Pharmacy:</label>
+    <div class="controls">
+        <select id="preferredPharmacy" name="preferredPharmacy" class="form-control">
+            <option value="">Select Pharmacy</option>
+            <% for (PharmacyInfo pharmacy : pharmacyList) { %>
+                <option value="<%= pharmacy.getId() %>|<%= pharmacy.getStatus() %>" 
+                    <%= (preferredPharmacyId != null && preferredPharmacyId.equals(String.valueOf(pharmacy.getId()))) ? "selected" : "" %>>
+                    <%= pharmacy.getName() %> - <%= pharmacy.getCity() %> (<%= pharmacy.getPhone1() %>)
+                </option>
+            <% } %>
+        </select>
+    </div>
+</div>
+
 
 		<br>
         </div><!-- end demographicSectionContent -->
@@ -3074,19 +3135,19 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 		<h3><bean:message key="demographic.demographiceditdemographic.msgContactInfo" /></h3>
         <div id="contactSectionContent">
 <!-- "postalfield" -->
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="addr"><bean:message key="demographic.demographiceditdemographic.formAddr" /></label>
             <div class="controls">
               <input type="text" id="addr" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />" name="address" <%=getDisabled("address")%> value="<%=StringUtils.trimToEmpty(demographic.getAddress())%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="city"><bean:message key="demographic.demographiceditdemographic.formCity" /></label>
             <div class="controls">
               <input type="text" id="city" placeholder="<bean:message key="demographic.demographiceditdemographic.formCity" />" name="city" size="30" <%=getDisabled("city")%> value="<%=StringEscapeUtils.escapeHtml(StringUtils.trimToEmpty(demographic.getCity()))%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="province"><% if(oscarProps.getProperty("demographicLabelProvince") == null) { %>
 								<bean:message
 									key="demographic.demographiceditdemographic.formProcvince" /> <% } else {
@@ -3188,7 +3249,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 								<% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="postal"><% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
 								<bean:message
 									key="demographic.demographiceditdemographic.formPostal" /> <% } else {
@@ -3201,7 +3262,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
 <!-- end postal -->
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="inputEmail"><bean:message key="demographic.demographiceditdemographic.formEmail" /></label>
             <div class="controls">
               <input type="text" id="inputEmail" placeholder="<bean:message key="demographic.demographiceditdemographic.formEmail" />"
@@ -3209,7 +3270,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					value="<%=demographic.getEmail()!=null? demographic.getEmail() : ""%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="consentEmail"><bean:message key="demographic.demographiceditdemographic.consentToUseEmailForCare" /></label>
             <div class="controls" style="white-space: nowrap;">
               <bean:message key="WriteScript.msgYes"/>
@@ -3221,7 +3282,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
 <!-- residential -->
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="residence"><bean:message key="demographic.demographiceditdemographic.formResidentialAddr" /></label>
             <div class="controls">
               <input type="text" id="residence" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialAddr" />"
@@ -3229,7 +3290,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					value="<%=StringUtils.trimToEmpty(demographic.getResidentialAddress())%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="rCity"><bean:message key="demographic.demographiceditdemographic.formResidentialCity" /></label>
             <div class="controls">
               <input type="text" id="rCity" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialCity" />"
@@ -3237,7 +3298,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					value="<%=StringEscapeUtils.escapeHtml(StringUtils.trimToEmpty(demographic.getResidentialCity()))%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="residentialProvince"><bean:message key="demographic.demographiceditdemographic.formResidentialProvince" /></label>
             <div class="controls">
               <% String residentialProvince = demographic.getResidentialProvince(); %>
@@ -3335,7 +3396,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					<% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="rPostal"><bean:message key="demographic.demographiceditdemographic.formResidentialPostal" /></label>
             <div class="controls">
               <input type="text" id="rPostal" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />"
@@ -3345,7 +3406,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
 <!-- end residential -->
-        <div class="control-group span5" id="phone_div">
+        <div class="control-group" id="phone_div">
             <label class="control-label" for="phone_check"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox" id="phone_check"></label>
             <div class="controls"  style="white-space:nowrap" >
               <input type="text" id="phone" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
@@ -3360,7 +3421,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%>" />
             </div>
         </div>
-        <div class="control-group span5" id="phone2_div">
+        <div class="control-group" id="phone2_div">
             <label class="control-label" for="phone2_check"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox" id="phone2_check"></label>
             <div class="controls" style="white-space:nowrap" >
                 <input type="text" id="phone2" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />"
@@ -3376,7 +3437,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 					value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%>" />
             </div>
         </div>
-        <div class="control-group span5" id="cell_div">
+        <div class="control-group" id="cell_div">
             <label class="control-label" for="cell_check"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox" id="cell_check"></label>
             <div class="controls">
               <input type="text" id="cell" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneC" />"
@@ -3391,10 +3452,10 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 		<br>
     </div><!-- end contactSectionContent -->
     </div><!-- end contactSection -->
-    <div id="insurance" class="span11 accordion-group">
+    <div id="insurance" class="span11">
 		 <h3><bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></h3>
     <div id="insuranceSectionContent">
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="hcType"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
             <div class="controls">
               <% String hctype = demographic.getHcType()==null?"":demographic.getHcType(); %>
@@ -3482,7 +3543,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 								</select>
             </div>
         </div>
-        <div class="control-group span5" style="white-space:nowrap">
+        <div class="control-group" style="white-space:nowrap">
             <label class="control-label" for="hinBox"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
@@ -3498,7 +3559,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 									<% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="effDate"><bean:message key="demographic.demographiceditdemographic.formEFFDate" /></label>
             <div class="controls">
 <script>
@@ -3509,22 +3570,48 @@ function loaddob(){
 
 }
 
-function parsedob_date(){
-    var input=document.getElementById('inputDOB').value;
-    year="";
-    month="";
-    day="";
-    if (input != ""){
+function parsedob_date() {
+    var input = document.getElementById('inputDOB').value;
+    var year = "";
+    var month = "";
+    var day = "";
+    
+    if (input != "") {
+        // Parse the input date (YYYY-MM-DD format)
         const myArr = input.split("-");
         year = myArr[0];
         month = myArr[1];
         day = myArr[2];
+
+        // Update hidden fields
+        document.getElementById('year_of_birth').value = year;
+        document.getElementById('month_of_birth').value = month;
+        document.getElementById('date_of_birth').value = day;
+
+        // Calculate age
+        const dob = new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
+        const today = new Date();
+
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        const dayDiff = today.getDate() - dob.getDate();
+
+        // Adjust age if the current date is before the birthday
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+
+        // Update the age display
+        document.getElementById('ageDisplay').innerText = age;
+    } else {
+        // Clear the hidden fields and age display if no input is provided
+        document.getElementById('year_of_birth').value = "";
+        document.getElementById('month_of_birth').value = "";
+        document.getElementById('date_of_birth').value = "";
+        document.getElementById('ageDisplay').innerText = "";
     }
-    console.log("DOB="+year+"-"+month+"-"+day);
-    document.getElementById('year_of_birth').value = year;
-    document.getElementById('month_of_birth').value = month;
-    document.getElementById('date_of_birth').value = day;
 }
+
 
 function parseeff_date(){
     var input=document.getElementById('eff_date').value;
@@ -3659,7 +3746,7 @@ function parsedate_joined(){
             </div>
         </div>
 
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="hc_renew_date"><bean:message key="demographic.demographiceditdemographic.formHCRenewDate" /></label>
             <div class="controls">
                 <input type="date" id="hc_renew_date" name="hc_renew_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getHcRenewDate())%>" onchange="parsehc_renew_date();" <%=getDisabled("hc_renew_date_year")%>>
@@ -3668,7 +3755,7 @@ function parsedate_joined(){
                 <input type="hidden" name="hc_renew_date_day" id="hc_renew_date_day">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="date_joined"><bean:message key="demographic.demographiceditdemographic.formDateJoined1" /></label>
             <div class="controls">
                 <input type="date" id="date_joined" name="date_joined" value="<%=MyDateFormat.getMyStandardDate(demographic.getDateJoined())%>" onchange="parsedate_joined();" <%=getDisabled("date_joined_year")%>>
@@ -3678,7 +3765,7 @@ function parsedate_joined(){
             </div>
         </div>
 
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
             <div class="controls">
               <input type="date" id="roster_date" name="roster_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getRosterDate())%>"  onchange="parseroster_date();" <%=getDisabled("roster_date_year")%>>
@@ -3687,7 +3774,7 @@ function parsedate_joined(){
 <input  type="hidden" name="roster_date_day" id="roster_date_day">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="end_date" ><bean:message key="demographic.demographiceditdemographic.formEndDate" /></label>
             <div class="controls">
               <input type="date" id="end_date" name="end_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getEndDate())%>"  onchange="parseend_date();" <%=getDisabled("end_date_year")%>>
@@ -3701,7 +3788,7 @@ function parsedate_joined(){
 <%-- TOGGLE OFF PATIENT ROSTERING - NOT USED IN ALL PROVINCES. --%>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_ROSTERING" value="true">
 
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="roster_status"><bean:message key="demographic.demographiceditdemographic.formRosterStatus" /></label>
             <div class="controls">
                 <%String rosterStatus = demographic.getRosterStatus();
@@ -3742,7 +3829,7 @@ function parsedate_joined(){
             </div>
         </div>
 
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="enrolled_to"><bean:message key="demographic.demographiceditdemographic.RosterEnrolledTo" /></label>
             <div class="controls">
                 <select name="roster_enrolled_to" <%=getDisabled("roster_enrolled_to")%>
@@ -3758,7 +3845,7 @@ function parsedate_joined(){
 				</select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="roster_termination_date"><bean:message key="demographic.demographiceditdemographic.RosterTerminationDate" /></label>
             <div class="controls">
               <input type="date" id="roster_termination_date" name="roster_termination_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getRosterTerminationDate())%>" onchange="parseroster_termination_date();" <%=getDisabled("roster_termination_date_year")%>>
@@ -3767,7 +3854,7 @@ function parsedate_joined(){
 <input  type="hidden" name="roster_termination_date_day" id="roster_termination_date_day">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="roster_termination_reason"><bean:message key="demographic.demographiceditdemographic.RosterTerminationReason" /></label>
             <div class="controls">
                 <select  name="roster_termination_reason" id="roster_termination_reason">
@@ -3781,7 +3868,7 @@ function parsedate_joined(){
 
 </oscar:oscarPropertiesCheck>
 <%-- END TOGGLE OFF PATIENT ROSTERING --%>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="pstatus"><bean:message key="demographic.demographiceditdemographic.formPatientStatus" /></label>
             <div class="controls">
 								<%
@@ -3818,7 +3905,7 @@ function parsedate_joined(){
 						</security:oscarSec>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="patientstatus_date"><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" /></label>
             <div class="controls">
                 <input type="date" id="patientstatus_date" name="patientstatus_date" onchange="parsepatientstatus_date();" value="<%=MyDateFormat.getMyStandardDate(demographic.getPatientStatusDate())%>">
@@ -3840,7 +3927,7 @@ function parsedate_joined(){
             </legend>
 		</fieldset>
         <div id="teamSectionContent" class="accordion-body collapse" >
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="mrp"><% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
 								<bean:message key="demographic.demographiceditdemographic.formMRP" />
 								<% } %></label>
@@ -3857,7 +3944,7 @@ function parsedate_joined(){
 			    </select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="rn"><bean:message key="demographic.demographiceditdemographic.formNurse" /></label>
             <div class="controls">
               <select name="nurse" id="rn" <%=getDisabled("nurse")%>>
@@ -3872,7 +3959,7 @@ function parsedate_joined(){
 			    </select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="mw"><bean:message key="demographic.demographiceditdemographic.formMidwife" /></label>
             <div class="controls">
               <select name="midwife" id="mw" <%=getDisabled("midwife")%>>
@@ -3887,7 +3974,7 @@ function parsedate_joined(){
 			    </select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="resident"><bean:message key="demographic.demographiceditdemographic.formResident" /></label>
             <div class="controls">
               <select name="resident" id="resident" <%=getDisabled("resident")%>>
@@ -3902,7 +3989,7 @@ function parsedate_joined(){
 			    </select>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="r_doc"><bean:message key="demographic.demographiceditdemographic.formRefDoc" /></label>
             <div class="controls">
               <% if(!oscarProps.getProperty("isMRefDocSelectList", "").equals("false") ) {
@@ -3952,7 +4039,7 @@ function parsedate_joined(){
                 <input type="text" name="r_doctor" id="r_doctor" <%=getDisabled("r_doctor")%> value="<%=rd%>"> <% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="r_doctor_ohip"><bean:message key="demographic.demographiceditdemographic.formRefDocNo" /></label>
             <div class="controls">
               <input type="text" name="r_doctor_ohip" id="r_doctor_ohip" <%=getDisabled("r_doctor_ohip")%>
@@ -3968,7 +4055,6 @@ function parsedate_joined(){
 <%-- END TOGGLE OFF PATIENT CLINIC STATUS --%>
 <%-- WAITING LIST MODULE --%>
         <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_WAITING_LIST" value="true">
-        <div id="wl" class="span11 accordion-group">
          <div id="wl" class="span11 accordion-group">
 		<fieldset class="accordion-heading" title="<bean:message key="global.btnToggle"/>">
 			<legend class="accordion-toggle" data-toggle="collapse" data-parent="#editWrapper" data-target="#wlSectionContent">
@@ -3979,7 +4065,7 @@ function parsedate_joined(){
         <div id="wlSectionContent" class="accordion-body collapse" >
 
         <div id="wlSectionContent" class="accordion-body collapse" >
-            <div class="control-group span5">
+            <div class="control-group">
                 <label class="control-label" for="list_id"><bean:message key="demographic.demographiceditdemographic.msgWaitList"/></label>
                 <div class="controls">
                     <%
@@ -4024,14 +4110,14 @@ function parsedate_joined(){
                     </select>
                 </div>
             </div>
-            <div class="control-group span5">
+            <div class="control-group">
                 <label class="control-label" for="wlnote"><bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/></label>
                 <div class="controls">
                     <input type="text" id="wlnote" placeholder="<bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/>"
                         name="waiting_list_note" value="<%=wlnote%>" <%=wLReadonly%>>
                 </div>
             </div>
-            <div class="control-group span5">
+            <div class="control-group">
                 <label class="control-label" for="waiting_list_referral_date"><bean:message key="demographic.demographiceditdemographic.msgDateOfReq"/></label>
                 <div class="controls">
                     <input type="date" title="<bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/>"
@@ -4041,7 +4127,8 @@ function parsedate_joined(){
                 </div>
             </div>
     </div><!--end wlContentSection -->
-    </div><!--end wl -->
+    </div>
+	</div><!--end wl -->
         </oscar:oscarPropertiesCheck>
 <%-- END WAITING LIST MODULE --%>
     <div id="additional" class="span11 accordion-group"><!--additional -->
@@ -4052,7 +4139,7 @@ function parsedate_joined(){
             </legend>
 		</fieldset>
         <div id="additionalSectionContent" class="accordion-body collapse" >
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="cyto"><bean:message key="demographic.demographiceditdemographic.cytolNum" /></label>
             <div class="controls">
               <input type="text" id="cyto" placeholder="<bean:message key="demographic.demographiceditdemographic.cytolNum" />"
@@ -4063,7 +4150,7 @@ function parsedate_joined(){
             </div>
         </div>
  <%if(!"true".equals(OscarProperties.getInstance().getProperty("phu.hide","false"))) { %>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="PHU"><bean:message key="demographic.demographiceditdemographic.formPHU" /></label>
             <div class="controls">
                 <select id="PHU" name="PHU" >
@@ -4088,13 +4175,13 @@ function parsedate_joined(){
     <% } else { %>
         <input type="hidden" name="PHU" value=""/></td>
     <% } %>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="chart_no"><bean:message key="demographic.demographiceditdemographic.formChartNo" /></label>
             <div class="controls">
                 <input type="text" id="chart_no" name="chart_no" placeholder="<bean:message key="demographic.demographiceditdemographic.formChartNo" />" value="<%=StringUtils.trimToEmpty(demographic.getChartNo())%>" <%=getDisabled("chart_no")%>>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="paper_chart_archived"><bean:message key="web.record.details.archivedPaperChart" /></label>
             <div class="controls">
                 	<%
@@ -4124,7 +4211,7 @@ function parsedate_joined(){
 						</c:if>
 					</c:forEach>
 
-        <div class="control-group span5"  title="${ consentType.description }">
+        <div class="control-group"  title="${ consentType.description }">
             <label class="control-label" for="consent_${ count.index }"><c:out value="${ consentType.name }" /></label>
 
 							<c:if test="${ not empty patientConsent and not empty patientConsent.optout }" >
@@ -4175,7 +4262,7 @@ function parsedate_joined(){
         </div>
 
 				</c:forEach>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="meditech_id">Meditech ID</label>
             <div class="controls">
                 <input type="text" id="meditech_id" placeholder="Meditech ID"
@@ -4186,7 +4273,7 @@ function parsedate_joined(){
 					demographic_no, "meditech_id")%>">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group">
             <label class="control-label" for="rxInteractionWarningLevel"><bean:message key="demographic.demographiceditdemographic.rxInteractionWarningLevel" /></label>
             <div class="controls">
                 <input type="hidden" name="rxInteractionWarningLevelOrig"
@@ -4203,7 +4290,7 @@ function parsedate_joined(){
 
 <%-- TOGGLED OFF PROGRAM ADMISSIONS --%>
         <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PROGRAM_ADMISSIONS" value="true">
-                <div class="control-group span5">
+                <div class="control-group">
                     <label class="control-label" for="rsid"><bean:message key="demographic.demographiceditdemographic.programAdmissions" /></label>
                     <div class="controls">
                         <select id="rsid" name="rps">
@@ -4225,7 +4312,7 @@ function parsedate_joined(){
                         </select>
                     </div>
                 </div>
-                <div class="control-group span5">
+                <div class="control-group">
                     <label class="control-label" for="sp"><bean:message key="demographic.demographiceditdemographic.servicePrograms" /></label>
                     <div class="controls">
 			                    <%
@@ -4253,7 +4340,7 @@ function parsedate_joined(){
 <%-- END TOGGLE OFF PROGRAM ADMISSIONS --%>
 
         <oscar:oscarPropertiesCheck property="INTEGRATOR_LOCAL_STORE" value="yes">
-                <div class="control-group span5">
+                <div class="control-group">
                     <label class="control-label" for="primaryEMR"><bean:message key="demographic.demographiceditdemographic.primaryEMR" /></label>
                     <div class="controls">
                         <input type="hidden" name="rxInteractionWarningLevelOrig"
@@ -4627,20 +4714,20 @@ jQuery(document).ready(function(){
         const frequencyInputs = document.querySelectorAll("input[name='frequency']");
 
         if (!complianceField || !frequencyGroup) {
-            console.error("Missing elements: Ensure #patient_compliance and #frequency-group exist.");
+            // console.error("Missing elements: Ensure #patient_compliance and #frequency-group exist.");
             return;
         }
 
         const compliance = complianceField.value;
-        console.log("Compliance value:", compliance); // Debugging log
+        // console.log("Compliance value:", compliance); // Debugging log
 
         // Show or hide frequency group based on compliance value
         if (compliance === "no") {
             frequencyGroup.style.display = "block";
-            console.log("Frequency group shown."); // Debugging log
+            // console.log("Frequency group shown."); // Debugging log
         } else {
             frequencyGroup.style.display = "none";
-            console.log("Frequency group hidden. Clearing frequency selection."); // Debugging log
+            // console.log("Frequency group hidden. Clearing frequency selection."); // Debugging log
 
             // Clear selected frequency value when hidden
             frequencyInputs.forEach(input => {
@@ -4658,16 +4745,16 @@ jQuery(document).ready(function(){
         const complianceField = document.getElementById("patient_compliance");
         if (complianceField) {
             complianceField.addEventListener("change", toggleFrequency);
-            console.log("Event listener attached to compliance dropdown."); // Debugging log
+            // console.log("Event listener attached to compliance dropdown."); // Debugging log
         } else {
-            console.error("Compliance dropdown not found."); // Debugging log
+            // console.error("Compliance dropdown not found."); // Debugging log
         }
 
         // Add MutationObserver for dynamic visibility of compliance field
         const observer = new MutationObserver(function (mutationsList, observer) {
             const complianceField = document.getElementById("patient_compliance");
             if (complianceField && complianceField.offsetParent !== null) {
-                console.log("Compliance field detected. Attaching event listener.");
+                // console.log("Compliance field detected. Attaching event listener.");
                 complianceField.addEventListener("change", toggleFrequency);
                 toggleFrequency();
                 observer.disconnect(); // Stop observing after processing
@@ -4679,6 +4766,24 @@ jQuery(document).ready(function(){
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('#preferredPharmacy').select2({
+            placeholder: "Search for a pharmacy",
+            allowClear: true,
+            width: '100%' // Ensures the dropdown matches the width of the parent container
+        });
+
+        $(document).on('select2:open', () => {
+            setTimeout(() => {
+                let select2SearchField = document.querySelector('.select2-container--open .select2-search__field');
+                if (select2SearchField) {
+                    select2SearchField.focus();
+                }
+            }, 100); // Add a small delay (100ms)
+        });
+    });
+</script>
 
 
 </body>

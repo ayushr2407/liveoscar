@@ -75,6 +75,11 @@
 <%@page import="org.oscarehr.common.model.ConsentType" %>
 <%@page import="oscar.OscarProperties" %>
 
+<%@ page import="org.oscarehr.common.dao.DemographicPharmacyDao" %>
+<%@ page import="org.oscarehr.common.model.DemographicPharmacy" %>
+<%@ page import="org.springframework.context.ApplicationContext" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -116,6 +121,8 @@
 	
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
 	Demographic oldDemographic = demographic; 
+	String demoNo = request.getParameter("demographic_no");
+	int demographicNo = Integer.parseInt(demoNo);
 
 	boolean updateFamily = false;
 	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
@@ -175,6 +182,50 @@
 	demographic.setRosterTerminationReason(request.getParameter("roster_termination_reason"));
 	demographic.setLastUpdateUser((String)session.getAttribute("user"));
 	demographic.setLastUpdateDate(new java.util.Date());
+
+	 // Add this block to handle preferred pharmacy update
+    String preferredPharmacy = request.getParameter("preferredPharmacy");
+System.out.println("Submitted Preferred Pharmacy: " + preferredPharmacy);
+
+    if (preferredPharmacy != null && !preferredPharmacy.isEmpty()) {
+        // Split the selected value to get pharmacyId and pharmacyStatus
+        String[] pharmacyData = preferredPharmacy.split("\\|");
+        String pharmacyID = pharmacyData[0]; // First part is the pharmacy ID
+        String pharmacyStatus = pharmacyData.length > 1 ? pharmacyData[1] : "Unknown"; // Get status if available
+
+        // Log the extracted values for debugging
+        System.out.println("Preferred Pharmacy Submitted: " + preferredPharmacy);
+        System.out.println("Extracted Pharmacy ID: " + pharmacyID);
+        System.out.println("Extracted Pharmacy Status: " + pharmacyStatus);
+
+        // Get Spring ApplicationContext
+        ApplicationContext context = 
+            WebApplicationContextUtils.getWebApplicationContext(application);
+
+        // Fetch the DemographicPharmacyDao bean
+        DemographicPharmacyDao demographicPharmacyDao = (DemographicPharmacyDao) context.getBean("demographicPharmacyDao");
+
+        // Update the preferred pharmacy for the demographic
+        try {
+            // Reuse the already declared demographicNo variable
+            System.out.println("Demographic No: " + demographicNo);
+
+            // Use the existing `addPharmacyToDemographic` method to save the preferred pharmacy
+            demographicPharmacyDao.addPharmacyToDemographic(
+                Integer.parseInt(pharmacyID),  // Pharmacy ID
+                demographicNo,                 // Demographic Number
+                1                              // Preferred Order (always 1)
+            );
+
+            // Log the success of the operation
+            System.out.println("Preferred pharmacy saved successfully for Demographic No: " + demographicNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while saving preferred pharmacy.");
+        }
+    } else {
+        System.out.println("No preferred pharmacy selected.");
+    }
 	
 	String yearTmp=StringUtils.trimToNull(request.getParameter("date_joined_year"));
 	String monthTmp=StringUtils.trimToNull(request.getParameter("date_joined_month"));
@@ -254,8 +305,6 @@
 	
 	//DemographicExt
 	String proNo = (String) session.getValue("user");
-	String demoNo = request.getParameter("demographic_no");
-	int demographicNo = Integer.parseInt(demoNo);
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
 
 	extensions.add(new DemographicExt(request.getParameter("demo_cell_id"), proNo, demographicNo, "demo_cell", request.getParameter("demo_cell")));
@@ -318,7 +367,11 @@
             if (!(hinDemo.getDemographicNo().toString().equals(request.getParameter("demographic_no")))) {
                 if (hinDemo.getVer() != null && !hinDemo.getVer().equals("66")){
 
+
+   
 %>
+
+
 				***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedHIN" /></font>
 				***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a> 
 <% 

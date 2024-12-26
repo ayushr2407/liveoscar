@@ -221,7 +221,9 @@ if(listRxDrugs!=null){
 
     <label style="float:left;width:80px;" title="<%=ATC%>" >Name:</label>
     <input type="hidden" name="atcCode" value="<%=ATCcode%>" />
-    <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="40" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>&nbsp;<bean:message key="WriteScript.msgDrugForm"/>:
+
+    <%-- with key "drug form" --%>
+    <%-- <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="40" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>&nbsp;<bean:message key="WriteScript.msgDrugForm"/>:
                 <%if(rx.getDrugFormList()!=null && rx.getDrugFormList().indexOf(",")!=-1){ %>
                 <select name="drugForm_<%=rand%>">
                 	<%
@@ -233,7 +235,24 @@ if(listRxDrugs!=null){
                 </select>
 				<%} else { %>
 					<%=drugForm%>
-				<% } %>
+				<% } %> --%>
+
+               <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="40" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>
+
+<%if(rx.getDrugFormList()!=null && rx.getDrugFormList().indexOf(",")!=-1){ %>
+    <select name="drugForm_<%=rand%>">
+        <%
+            String[] forms = rx.getDrugFormList().split(",");
+            for(String form : forms) {
+        %>
+            <option value="<%=form%>" <%=form.equals(drugForm) ? "selected" : "" %>><%=form%></option>
+        <% } %>
+    </select>
+<% } else { %>
+    <%=drugForm%>
+<% } %>
+
+
     <span id="inactive_<%=rand%>" style="color:red;"></span>
 
 	<!-- Allergy Alert Table-->
@@ -282,37 +301,22 @@ if(listRxDrugs!=null){
 		</div>
         <br>
 
-<%-- <div class="drug-section">
-   <label for="startDate_<%=rand%>">Start Date:</label>
-   <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>"
-          value="<%= (startDate != null) ? startDate : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
-          onblur="calculateEndDate('<%=rand%>'); updateStartDate('<%=rand%>');" />
-
-   <label for="duration_<%=rand%>">Duration:</label>
-   <input type="text" id="duration_<%=rand%>" name="duration_<%=rand%>"
-          value="<%= (duration != null) ? duration : "1" %>"
-          onblur="calculateEndDate('<%=rand%>'); updateDuration('<%=rand%>');" />
-
-   <label for="endDate_<%=rand%>">End Date:</label>
-   <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
-          value="<%= (endDate != null) ? endDate : "" %>"
-          onblur="updateEndDate('<%=rand%>');" />
-</div> --%>
-
 <div class="drug-section">
+
    <label for="startDate_<%=rand%>">Start Date:</label>
-   <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>"
-          value="<%= (startDate != null) ? startDate : new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" />
+       <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>"
+       value="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" 
+       min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" />
 
    <label for="duration_<%=rand%>">Duration:</label>
    <input type="text" id="duration_<%=rand%>" name="duration_<%=rand%>"
-          value="<%= (duration != null) ? duration : "1" %>" />
+          value="<%= (duration != null) ? duration : "" %>" />
 
    <label for="endDate_<%=rand%>">End Date:</label>
-   <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
-          value="<%= (endDate != null) ? endDate : "" %>" />
-</div>
+          <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>"
+       value="<%= (endDate != null) ? endDate : "" %>" readonly />
 
+</div>
 
     <br />
      <!-- Additional Settings -->
@@ -338,21 +342,6 @@ if(listRxDrugs!=null){
     <label><input type="radio" name="frequency_<%=rand%>" value="bi-weekly" <% if ("bi-weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
     <label><input type="radio" name="frequency_<%=rand%>" value="monthly" <% if ("monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
 </div>
-
-<%-- <label for="compliance_<%=rand%>">Patient Compliance:</label>
-<select id="compliance_<%=rand%>" name="compliance_<%=rand%>" onchange="handleComplianceChange('<%=rand%>')">
-    <option value="">Select</option>
-    <option value="yes" <% if (patientCompliance != null && patientCompliance.equals("yes")) { %> selected <% } %>>Yes</option>
-    <option value="no" <% if (patientCompliance != null && patientCompliance.equals("no")) { %> selected <% } %>>No</option>
-    <option value="unknown" <% if (patientCompliance != null && patientCompliance.equals("unknown")) { %> selected <% } %>>Unknown</option>
-</select>
-
-<div id="frequencyOptions_<%=rand%>" style="display: none; margin-top: 10px;">
-    <label><input type="radio" name="frequency_<%=rand%>" value="Daily" <% if ("Daily".equals(frequency)) { %> checked <% } %>> Daily</label>
-    <label><input type="radio" name="frequency_<%=rand%>" value="Weekly" <% if ("Weekly".equals(frequency)) { %> checked <% } %>> Weekly</label>
-    <label><input type="radio" name="frequency_<%=rand%>" value="Bi-Weekly" <% if ("Bi-Weekly".equals(frequency)) { %> checked <% } %>> Bi-Weekly</label>
-    <label><input type="radio" name="frequency_<%=rand%>" value="Monthly" <% if ("Monthly".equals(frequency)) { %> checked <% } %>> Monthly</label>
-</div> --%>
 
 </div>
 
