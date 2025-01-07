@@ -47,8 +47,13 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.common.model.PharmacyInfo;
+import org.oscarehr.managers.PharmacyManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -60,7 +65,61 @@ import java.util.Map;
  *
  * @author  Jay Gallagher & Jackson Bi
  */
+// @Component("rxManagePharmacyAction") // Specify the name of the Spring-managed bean
 public final class RxManagePharmacyAction extends DispatchAction {
+
+	// Add this as a field in RxManagePharmacyAction
+@Autowired
+private PharmacyManager pharmacyManager;
+
+
+// public ActionForward fetchSortedPharmacies(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+// 	System.out.println("fetchSortedPharmacies method triggered.");
+// 	System.out.println("PharmacyManager instance: " + pharmacyManager); // Log the PharmacyManager instance
+
+// 	try {
+// 		String latParam = request.getParameter("lat");
+// 		String lngParam = request.getParameter("lng");
+
+// 		System.out.println("Latitude parameter: " + latParam);
+// 		System.out.println("Longitude parameter: " + lngParam);
+
+// 		if (latParam == null || lngParam == null) {
+// 			response.setContentType("application/json");
+// 			response.getWriter().write("{\"success\":false,\"message\":\"Latitude and Longitude are required.\"}");
+// 			return null;
+// 		}
+
+// 		double lat = Double.parseDouble(latParam);
+// 		double lng = Double.parseDouble(lngParam);
+
+// 		System.out.println("Parsed Latitude: " + lat);
+// 		System.out.println("Parsed Longitude: " + lng);
+
+// 		// Confirm that PharmacyManager is non-null before using it
+// 		if (pharmacyManager == null) {
+// 			System.err.println("PharmacyManager is null! Dependency injection failed.");
+// 			throw new NullPointerException("PharmacyManager is null.");
+// 		}
+
+// 		List<PharmacyInfo> sortedPharmacies = pharmacyManager.getPharmaciesSortedByDistance(null, lat, lng);
+
+// 		System.out.println("Pharmacies found: " + sortedPharmacies.size());
+// 		response.setContentType("application/json");
+// 		new ObjectMapper().writeValue(response.getWriter(), sortedPharmacies);
+// 	} catch (Exception e) {
+// 		e.printStackTrace();
+// 		try {
+// 			response.setContentType("application/json");
+// 			response.getWriter().write("{\"success\":false,\"message\":\"An error occurred: " + e.getMessage() + "\"}");
+// 		} catch (IOException ioException) {
+// 			ioException.printStackTrace();
+// 		}
+// 	}
+// 	return null;
+// }
+
+
 
     public ActionForward unspecified(ActionMapping mapping,
 				 ActionForm form,
@@ -133,20 +192,41 @@ public final class RxManagePharmacyAction extends DispatchAction {
     	return null;
     }
     
-    public ActionForward getPharmacyFromDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // public ActionForward getPharmacyFromDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
     	
-    	String demographicNo = request.getParameter("demographicNo");
+    // 	String demographicNo = request.getParameter("demographicNo");
     	
-    	RxPharmacyData pharmacyData = new RxPharmacyData();
-        List<PharmacyInfo> pharmacyList;
-        pharmacyList = pharmacyData.getPharmacyFromDemographic(demographicNo);
+    // 	RxPharmacyData pharmacyData = new RxPharmacyData();
+    //     List<PharmacyInfo> pharmacyList;
+    //     pharmacyList = pharmacyData.getPharmacyFromDemographic(demographicNo);
         
-        response.setContentType("text/x-json");
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getWriter(), pharmacyList);
+    //     response.setContentType("text/x-json");
+    //     ObjectMapper mapper = new ObjectMapper();
+    //     mapper.writeValue(response.getWriter(), pharmacyList);
         
-    	return null;
-    }
+    // 	return null;
+    // }
+
+
+	public ActionForward getPharmacyFromDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// Step 1: Get demographic number from request
+		String demographicNo = request.getParameter("demographicNo");
+	
+		// Step 2: Fetch pharmacy data for the demographic
+		RxPharmacyData pharmacyData = new RxPharmacyData();
+		List<PharmacyInfo> pharmacyList = pharmacyData.getPharmacyFromDemographic(demographicNo);
+	
+		// Step 3: Convert the pharmacy list to JSON
+		response.setContentType("text/x-json");
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonResponse = mapper.writeValueAsString(pharmacyList); // Convert list to JSON string
+			
+		// Step 5: Write the JSON response to the client
+		response.getWriter().write(jsonResponse);
+	
+		return null;
+	}
+	
     
 	public ActionForward setPreferred(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		RxPharmacyData pharmacy = new RxPharmacyData();
@@ -315,8 +395,5 @@ public final class RxManagePharmacyAction extends DispatchAction {
        }
         return null;
     }
-   /** Creates a new instance of RxManagePharmacyAction */
-   public RxManagePharmacyAction() {
-   }
 
 }

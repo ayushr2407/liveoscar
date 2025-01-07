@@ -30,6 +30,7 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
@@ -46,13 +47,22 @@ public class DemographicPharmacyDao extends AbstractDao<DemographicPharmacy> {
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, demographicNo);
 		query.executeUpdate();
+
+		 // Step 2: Fetch the pharmacy record from PharmacyInfo
+    PharmacyInfo pharmacyInfo = entityManager.find(PharmacyInfo.class, pharmacyId);
+    if (pharmacyInfo == null) {
+        throw new IllegalArgumentException("Pharmacy with ID " + pharmacyId + " does not exist.");
+    }
+
+    // Convert the pharmacy's status (Character) to a String
+    String pharmacyStatus = String.valueOf(pharmacyInfo.getStatus());
 	
 		// Step 2: Create new link
 		DemographicPharmacy demographicPharmacy = new DemographicPharmacy();
 		demographicPharmacy.setAddDate(new Date());
 		demographicPharmacy.setDemographicNo(demographicNo);
 		demographicPharmacy.setPharmacyId(pharmacyId);
-		demographicPharmacy.setStatus(DemographicPharmacy.ACTIVE);
+		demographicPharmacy.setStatus(pharmacyStatus); // Use the status from PharmacyInfo
 		demographicPharmacy.setPreferredOrder(1); // Always set to 1 since it's the only preferred pharmacy
 	
 		persist(demographicPharmacy);
@@ -167,15 +177,29 @@ public class DemographicPharmacyDao extends AbstractDao<DemographicPharmacy> {
 		}
 	}
 
+
+
+	// original code which only displayes preferred pharmacy if it's status is 1 otherwise preferred phharmacy wouldn't be visible
+
+	// public List<DemographicPharmacy> findByDemographicId(Integer demographicNo) {
+	// 	String sql = "select x from DemographicPharmacy x where x.status=? and x.demographicNo=? order by x.preferredOrder";
+	// 	Query query = entityManager.createQuery(sql);
+	// 	query.setParameter(1, DemographicPharmacy.ACTIVE);
+	// 	query.setParameter(2, demographicNo);
+	// 	@SuppressWarnings("unchecked")
+	// 	List<DemographicPharmacy> results = query.getResultList();
+	// 	return results;
+	// }
+
 	public List<DemographicPharmacy> findByDemographicId(Integer demographicNo) {
-		String sql = "select x from DemographicPharmacy x where x.status=? and x.demographicNo=? order by x.preferredOrder";
+		String sql = "select x from DemographicPharmacy x where x.demographicNo=? order by x.preferredOrder";
 		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, DemographicPharmacy.ACTIVE);
-		query.setParameter(2, demographicNo);
+		query.setParameter(1, demographicNo);
 		@SuppressWarnings("unchecked")
 		List<DemographicPharmacy> results = query.getResultList();
 		return results;
 	}
+	
 
 	@SuppressWarnings("unchecked")
     public List<DemographicPharmacy> findAllByDemographicId(Integer demographicNo) {

@@ -1016,6 +1016,14 @@
 		<action input="/oscarRx/SelectPharmacy2.jsp" path="/oscarRx/managePharmacy" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">
 		</action>
 
+		<!-- <action path="/fetchSortedPharmacies"
+        type="org.springframework.web.struts.DelegatingActionProxy"
+        name="rxManagePharmacyAction"
+        scope="request"
+        parameter="method" /> -->
+
+
+
 		<action input="/oscarRx/ManagePharmacy2.jsp" name="RxManagePharmacyForm" path="/oscarRx/managePharmacy2" scope="request" parameter="method" type="oscar.oscarRx.pageUtil.RxManagePharmacyAction">
 			<forward name="success" path="/oscarRx/SelectPharmacy2.jsp" />
 		</action>

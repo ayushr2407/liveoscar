@@ -582,7 +582,7 @@ if (patient.getDOB() != null) {
 <%= Encode.forHtml(patientGender) %> / <%if(showPatientDOB){%>&nbsp;&nbsp;<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%> / <%= age %> years old<br>
                                                             <%= Encode.forHtml(patientAddress) %><br>
                                                             <%= Encode.forHtml(patientCityPostal) %><br>
-                                                            Cell. <%= Encode.forHtml(patientPhone) %><br>
+                                                            Phone (H): <%= Encode.forHtml(patientPhone) %><br>
                                                             
                                                                 <% if(props.getProperty("showRxChartNo", "").equalsIgnoreCase("true")) { %>
                                                             <bean:message key="oscar.oscarRx.chartNo" /><%= Encode.forHtml(ptChartNo)%><% } %>
@@ -733,77 +733,73 @@ if (patient.getDOB() != null) {
             strRx += fullOutLine + ";;";
             strRxNoNewLines.append(fullOutLine.replaceAll(";", " ") + "\n");
 %>
-            <div class="prescription-details">
-                <p><strong><%= medicationName %></strong></p>
-                <% if (!instructions.isEmpty()) { %>
-                    <p><%= instructions %></p>
-                <% } %>
-                <% if (!specialInstructions.isEmpty()) { %>
-                    <p><%= specialInstructions %></p>
-                <% } %>
-                <table style="width: 100%;">
-                    <tr>
-                        <% if (!quantity.isEmpty()) { %>
-                            <!-- Quantity -->
-                            <td style="width: 50%; text-align: left;">
-                                Quantity: <%= quantity %>
-                            </td>
-                        <% } %>
-                        <% if (!repeats.isEmpty()) { %>
-                            <!-- Repeats -->
-                            <td style="width: 50%; text-align: left;">
-                                Repeats: <%= repeats %>
-                            </td>
-                        <% } %>
-                    </tr>
-                    <% if (!startDate.isEmpty() || !duration.isEmpty()) { %>
-                        <tr>
-                            <% if (!startDate.isEmpty()) { %>
-                                <!-- Start Date -->
-                                <td style="width: 50%; text-align: left;">
-                                    Start Date: <%= startDate %>
-                                </td>
-                            <% } %>
-                            <% if (!duration.isEmpty()) { %>
-                                <!-- Duration -->
-                                <td style="width: 50%; text-align: left;">
-                                    Duration: <%= duration %>
-                                </td>
-                            <% } %>
-                        </tr>
-                    <% } %>
-                    <% if (!endDate_p.isEmpty() || !longTerm.isEmpty()) { %>
-                        <tr>
-                            <% if (!endDate_p.isEmpty()) { %>
-                                <!-- End Date -->
-                                <td style="width: 50%; text-align: left;">
-                                    End Date: <%= endDate_p %>
-                                </td>
-                            <% } %>
-                            <% if (!longTerm.isEmpty()) { %>
-                                <!-- Long Term -->
-                                <td style="width: 50%; text-align: left;">
-                                    Long Term: <%= longTerm %>
-                                </td>
-                            <% } %>
-                        </tr>
-                    <% } %>
-                    <% if (!patientCompliance.isEmpty()) { %>
-                        <tr>
-                            <!-- Patient Compliance -->
-                            <td style="width: 100%; text-align: left;" colspan="2">
-                                Patient Compliance: <%= patientCompliance %>
-                                <% if ("no".equals(patientCompliance) && !frequency.isEmpty()) { %>
-                                    (Frequency: <%= frequency %>)
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% } %>
-                </table>
-            </div>
-            <% if (i < bean.getStashSize() - 1) { %>
-                <hr>
+           <div class="prescription-details">
+    <p><strong><%= medicationName %></strong></p>
+    <% 
+        // Append frequency dispense to instructions when compliance is "no"
+        String modifiedInstructions = instructions;
+        if ("no".equals(patientCompliance) && !frequency.isEmpty()) {
+            modifiedInstructions += " (" + frequency.substring(0, 1).toUpperCase() + frequency.substring(1).toLowerCase() + " Dispense)";
+        }
+    %>
+    <% if (!modifiedInstructions.isEmpty()) { %>
+        <p><%= modifiedInstructions %></p>
+    <% } %>
+    <% if (!specialInstructions.isEmpty()) { %>
+        <p><%= specialInstructions %></p>
+    <% } %>
+    <table style="width: 100%;">
+        <tr>
+            <% if (!quantity.isEmpty()) { %>
+                <!-- Quantity -->
+                <td style="width: 50%; text-align: left;">
+                    Quantity: <%= quantity %>
+                </td>
             <% } %>
+            <% if (!repeats.isEmpty()) { %>
+                <!-- Repeats -->
+                <td style="width: 50%; text-align: left;">
+                    Repeats: <%= repeats %>
+                </td>
+            <% } %>
+        </tr>
+        <% if (!startDate.isEmpty() || !duration.isEmpty()) { %>
+            <tr>
+                <% if (!startDate.isEmpty()) { %>
+                    <!-- Start Date -->
+                    <td style="width: 50%; text-align: left;">
+                        Start Date: <%= startDate %>
+                    </td>
+                <% } %>
+                <% if (!duration.isEmpty()) { %>
+                    <!-- Duration -->
+                    <td style="width: 50%; text-align: left;">
+                        Duration: <%= duration %>
+                    </td>
+                <% } %>
+            </tr>
+        <% } %>
+        <% if (!endDate_p.isEmpty() || !longTerm.isEmpty()) { %>
+            <tr>
+                <% if (!endDate_p.isEmpty()) { %>
+                    <!-- End Date -->
+                    <td style="width: 50%; text-align: left;">
+                        End Date: <%= endDate_p %>
+                    </td>
+                <% } %>
+                <% if (!longTerm.isEmpty()) { %>
+                    <!-- Long Term -->
+                    <td style="width: 50%; text-align: left;">
+                        Long Term: <%= longTerm %>
+                    </td>
+                <% } %>
+            </tr>
+        <% } %>
+    </table>
+</div>
+<% if (i < bean.getStashSize() - 1) { %>
+    <hr>
+<% } %>
 
             <!-- Hidden fields for each prescription entry -->
             <input type="hidden" name="medicationName_<%=i%>" value="<%= StringEscapeUtils.escapeHtml(medicationName) %>" />

@@ -49,6 +49,15 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 	@Column(name="recordID")
 	private Integer id;
 
+	@Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+	// @Transient // This field will not be stored in the database
+    // private Double distance;
+
 	private String name;
 
 	private String address;
@@ -90,6 +99,31 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 	public void setId(Integer id) {
     	this.id = id;
     }
+
+	public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+	 // Getters and setters
+	//  public Double getDistance() {
+    //     return distance;
+    // }
+
+    // public void setDistance(Double distance) {
+    //     this.distance = distance;
+    // }
 
 	public String getName() {
     	return name;

@@ -72,5 +72,13 @@
 	<context:component-scan base-package="org.oscarehr.PMmodule.dao" />
 	<!-- Sharing Center -->
 	<context:component-scan base-package="org.oscarehr.sharingcenter.dao" />
+	
+	 <!-- <bean id="pharmacyInfoDao" class="org.oscarehr.common.dao.PharmacyInfoDao">
+    </bean>
+
+	<bean id="pharmacyManager" class="org.oscarehr.managers.PharmacyManager">
+    <property name="pharmacyInfoDao" ref="pharmacyInfoDao" />
+</bean> -->
+
 
 </beans>

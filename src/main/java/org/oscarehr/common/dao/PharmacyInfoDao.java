@@ -39,6 +39,7 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
 	
 	public PharmacyInfoDao() {
 		super(PharmacyInfo.class);
+        // System.out.println("PharmacyInfoDao initialized successfully.");
 	}
 
     synchronized public void addPharmacy(String name,String address,String city,String province,String postalCode, String phone1, String phone2, String fax, String email,String serviceLocationIdentifier, String notes) {
@@ -169,42 +170,68 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
 
 	
 	
-	public void addapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character status) {
-        PharmacyInfo pharmacyInfo = new PharmacyInfo();
-        pharmacyInfo.setId(id);  // Set the id from the API
-        pharmacyInfo.setName(name);
-        pharmacyInfo.setAddress(address);
-        pharmacyInfo.setCity(city);
-        pharmacyInfo.setProvince(province);
-        pharmacyInfo.setPostalCode(postalCode);
-        pharmacyInfo.setPhone1(phone1);
-        pharmacyInfo.setPhone2(phone2);
-        pharmacyInfo.setFax(fax);
-        pharmacyInfo.setEmail(email);
-        pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
-        pharmacyInfo.setNotes(notes);
-        pharmacyInfo.setStatus(status);
-        pharmacyInfo.setAddDate(new Date());
-        persist(pharmacyInfo);
-    }
+	public void addapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, 
+                           String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, 
+                           String notes, Character status) {
+    PharmacyInfo pharmacyInfo = new PharmacyInfo();
+    pharmacyInfo.setId(id);  // Set the id from the API
+    pharmacyInfo.setName(name);
+    pharmacyInfo.setAddress(address);
+    pharmacyInfo.setCity(city);
+    pharmacyInfo.setProvince(province);
+    pharmacyInfo.setPostalCode(postalCode);
+    pharmacyInfo.setPhone1(phone1);
+    pharmacyInfo.setPhone2(phone2);
+    pharmacyInfo.setFax(fax);
+    pharmacyInfo.setEmail(email);
+    pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
+    pharmacyInfo.setNotes(notes);
+    pharmacyInfo.setStatus(status);
+    // pharmacyInfo.setLatitude(latitude); // Set latitude
+    // pharmacyInfo.setLongitude(longitude); // Set longitude
+    pharmacyInfo.setAddDate(new Date());
+    persist(pharmacyInfo);
+}
+
 	
-	public void updateapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character status) {
-        PharmacyInfo pharmacyInfo = findById(id);
-        if (pharmacyInfo != null) {
-            pharmacyInfo.setName(name);
-            pharmacyInfo.setAddress(address);
-            pharmacyInfo.setCity(city);
-            pharmacyInfo.setProvince(province);
-            pharmacyInfo.setPostalCode(postalCode);
-            pharmacyInfo.setPhone1(phone1);
-            pharmacyInfo.setPhone2(phone2);
-            pharmacyInfo.setFax(fax);
-            pharmacyInfo.setEmail(email);
-            pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
-            pharmacyInfo.setNotes(notes);
-            pharmacyInfo.setStatus(status);
-            merge(pharmacyInfo);
-        }
-    }
+public void updateapiPharmacy(Integer id, String name, String address, String city, String province, String postalCode, 
+String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, 
+String notes, Character status) {
+PharmacyInfo pharmacyInfo = findById(id);
+if (pharmacyInfo != null) {
+pharmacyInfo.setName(name);
+pharmacyInfo.setAddress(address);
+pharmacyInfo.setCity(city);
+pharmacyInfo.setProvince(province);
+pharmacyInfo.setPostalCode(postalCode);
+pharmacyInfo.setPhone1(phone1);
+pharmacyInfo.setPhone2(phone2);
+pharmacyInfo.setFax(fax);
+pharmacyInfo.setEmail(email);
+pharmacyInfo.setServiceLocationIdentifier(serviceLocationIdentifier);
+pharmacyInfo.setNotes(notes);
+pharmacyInfo.setStatus(status);
+// pharmacyInfo.setLatitude(latitude); // Update latitude
+// pharmacyInfo.setLongitude(longitude); // Update longitude
+merge(pharmacyInfo);
+}
+}
+
+// public List<PharmacyInfo> getPharmaciesSortedByDistance(double userLat, double userLng) {
+//     String sql = "SELECT *, " +
+//             "(6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) " +
+//             "+ sin(radians(:lat)) * sin(radians(latitude)))) AS distance " +
+//             "FROM pharmacy_info " +
+//             "ORDER BY distance ASC";
+
+//             System.out.println("Executing query: " + sql);
+//             System.out.println("Parameters: lat=" + userLat + ", lng=" + userLng);
+
+//     Query query = entityManager.createNativeQuery(sql, PharmacyInfo.class);
+//     query.setParameter("lat", userLat);
+//     query.setParameter("lng", userLng);
+//     return query.getResultList();
+// }
+
 
 }

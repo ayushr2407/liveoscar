@@ -61,24 +61,33 @@ function newWindow(url) {
                     	<b><bean:message key="SearchDrug.DOBtext" /> </b><%= RxUtil.DateToString(patient.getDOB(), "MMM d, yyyy") %>
                     </span>
 		     		
-                    <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white; "href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
-                    <select style="text-transform:uppercase;" id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
-                    <%
-                    	if( pharmacyList != null ) {
-                    	    ObjectMapper mapper = new ObjectMapper();
-                    	    StringWriter jsonObject;
-	        				for( PharmacyInfo pharmacyInfo : pharmacyList ) {
-	        					
-	        				    jsonObject = new StringWriter();
-	        					mapper.writeValue(jsonObject, pharmacyInfo);
+                   <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white;" href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
+				<span style="text-transform:uppercase; margin-left: 10px; font-size: 14px;">
+					<% 
+						if (pharmacyList != null && !pharmacyList.isEmpty()) {
+							// Assuming only one preferred pharmacy can exist, take the first from the list
+							PharmacyInfo preferredPharmacy = pharmacyList.get(0);
 
+							// Ensure statusText is set correctly
+							String statusText = "Inactive";
+							if ("1".equals(String.valueOf(preferredPharmacy.getStatus()).trim())) { // Convert Character to String and trim
+								statusText = "Active";
+							}
 					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + "  (" + pharmacyInfo.getCity()%>)</option>
+							<%= preferredPharmacy.getName() %> (<%= preferredPharmacy.getCity() %>) - 
+							<span style="color: <%= "Active".equals(statusText) ? "#00ff00" : "red" %>;">
+								<%= statusText %>
+							</span>
 					<%
-	        				}
-	       		 		}
+						} else {
 					%>
-                    </select>        
+							<span style="color: red; font-weight: bold;">
+								No preferred pharmacy set.
+							</span>
+					<%
+						}
+					%>
+				</span>     
                     </td>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">

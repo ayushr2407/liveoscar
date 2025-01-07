@@ -39,6 +39,8 @@
 <%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
 
 <%
     if ("update".equals(request.getParameter("action"))) {
@@ -103,21 +105,158 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 
 
 <style>
-.ui-autocomplete {
-	background-color: #CEF6CE;
-	border: 3px outset #2EFE2E;
-	width:300px;
+#preferredList div {
+    margin: 0 !important;
+    border: none !important;
 }
 
-.ui-menu-item:hover {
-		background-color:#426FD9;
-		color:#FFFFFF;
+.status-active {
+    display: block;
+    width: 40px !important;
+    background-color: green !important;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: small;
+    font-weight: bold;
 }
+
+.status-inactive {
+    display: block;
+    width: 40px !important;
+    background-color: red !important;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: small;
+    font-weight: bold;
+}
+
+
+.preferred-pharmacy {
+    background-color: #FDFEC7;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #CCCCCC;
+    width: 30%; 
+    display: inline-block; 
+    vertical-align: top;
+}
+
+#preferredList {
+    width: 45%; 
+}
+
+
+.search-section {
+    width: 45%; 
+    display: inline-block; 
+    vertical-align: top;
+    text-align: center; 
+}
+
+.search-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.search-fields input, 
+.ControlPushButton {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.search-heading {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center; 
+}
+
+.ControlPushButton {
+    background-color: #00008B;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.ControlPushButton:hover {
+    background-color: #000099; 
+}
+
+.search-section,
+.preferred-pharmacy {
+    margin-right: 2%; 
+}
+
 th {
-    font-size:14px;
+    font-size: 14px;
+    text-align: left;
+    padding: 8px;
+    border-bottom: 2px solid #CCCCCC;
 }
 
+#pharmacyList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#pharmacyList td, #pharmacyList th {
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+#pharmacyList tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#pharmacyList tr:hover {
+    background-color: #f1f1f1;
+}
+
+.DivCCBreadCrumbs a {
+    color: black;
+    text-decoration: none;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.DivCCBreadCrumbs a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .preferred-pharmacy,
+    .search-section {
+        width: 100%;
+        text-align: center;
+    }
+
+    .search-fields {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-fields input {
+        width: 100%;
+    }
+
+    .ControlPushButton {
+        width: 100%;
+    }
+}
 </style>
+
 <script>
   function updatePharmacyList() {
     if (confirm('<bean:message key="SelectPharmacy.confirmUpdate" />')) {
@@ -148,14 +287,24 @@ th {
 						preferredPharmacyInfo = data[idx];
 						json = JSON.stringify(preferredPharmacyInfo);
 
-						var pharm = "<div prefOrder='"+idx+"' pharmId='"+preferredPharmacyInfo.id+"'><table><tr><td class='prefAction prefUp'> Up </td>";
-						pharm += "<td rowspan='3' style='padding-left: 5px'>" + preferredPharmacyInfo.name + "<br /> ";
-						pharm += preferredPharmacyInfo.address + ", " + preferredPharmacyInfo.city + " " +preferredPharmacyInfo.province + "<br /> ";
-						pharm += preferredPharmacyInfo.postalCode + "<br />";
-						pharm += "Main Phone: " + preferredPharmacyInfo.phone1 + "<br />";
-						pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
-                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id  + ");'>View Details</a>" + "</td>";
-						pharm += "</tr><tr><td class='prefAction prefUnlink'> Unlink </td></tr><tr><td class='prefAction prefDown'>Down</td></tr></table></div>";
+						
+    // Determine status and CSS class
+            var statusText = preferredPharmacyInfo.status === "1" ? "Active" : "Inactive";
+            var statusClass = preferredPharmacyInfo.status === "1" ? "status-active" : "status-inactive";
+
+
+ // Build pharmacy details
+                        var pharm = "<div prefOrder='" + idx + "' pharmId='" + preferredPharmacyInfo.id + "' style='border: none; margin: 0; font-size: small;'><table><tr>";
+                        pharm += "<td rowspan='3' style='font-size: small;'>";
+                        pharm += "<div style='white-space: nowrap;'>" + preferredPharmacyInfo.name + "</div>"; // Pharmacy name with nowrap
+                        pharm += "<div class='" + statusClass + "'>" + statusText + "</div>"; // Status badge below name
+                        pharm += preferredPharmacyInfo.address + ", " + preferredPharmacyInfo.city + " " + preferredPharmacyInfo.province + "<br />";
+                        pharm += preferredPharmacyInfo.postalCode + "<br />";
+                        pharm += "Phone: " + preferredPharmacyInfo.phone1 + "<br />";
+                        pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
+                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id + ");'>View Details</a>" + "</td>";
+                        pharm += "</tr></table></div>";
+
 
 						$("#preferredList").append(pharm);
 					}
@@ -455,109 +604,309 @@ function returnToRx(){
 </script>
 </head>
 <body>
-<form id="pharmacyForm">
-<input type="hidden" id="demographicNo" name="demographicNo" value="<%=bean.getDemographicNo()%>">
+    <form id="pharmacyForm">
+        <input type="hidden" id="demographicNo" name="demographicNo" value="<%=bean.getDemographicNo()%>">
 
+        <!-- Breadcrumbs and Return to Rx Button -->
+        <div class="DivCCBreadCrumbs" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <a href="SearchDrug3.jsp"> <bean:message key="SearchDrug.title" /></a> >  
+                <bean:message key="SelectPharmacy.title" />
+            </div>
+            <input type="button" class="ControlPushButton" onclick="returnToRx();" value="<bean:message key='SelectPharmacy.ReturnToRx' />">
+        </div>
+        <hr style="border:1px solid black;">
 
-		<table style="border-collapse: collapse; width:100%; height:100%;">
-			<tr>
-				<td style="vertical-align: top;" colspan="1">
-				<div class="DivCCBreadCrumbs"><a href="SearchDrug3.jsp"> <bean:message
-					key="SearchDrug.title" /></a> >  <bean:message key="SelectPharmacy.title" /></div>
-				</td>
+        <!-- Patient Details and Search Section -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <!-- Patient Name and Preferred Pharmacy -->
+            <div class="preferred-pharmacy">
+                    <div style="font-size: medium;">
+                        <b><bean:message key="SearchDrug.nameText" /></b>
+                        <jsp:getProperty name="patient" property="surname" />,
+                        <jsp:getProperty name="patient" property="firstName" />
+                    </div>
+                    <div id="preferredList">
+                        <bean:message key="SelectPharmacy.noPharmaciesSelected" />
+                    </div>
+            </div>
 
-				<td colspan="1" style="text-align:right; vertical-align: top;">
-				<div class="DivCCBreadCrumbs">
-				<a style="color:black;" href="<%=help_url%>pharmacies/" target="_blank">Help</a> |
-                 		<a style="color:black;" href="<%=request.getContextPath() %>/oscarEncounter/About.jsp" target="_blank">About</a></div>
-            			</td>
-			</tr>
-			<!--Start new rows here-->
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-heading">Search Pharmacy</div>
+                <div class="search-fields">
+                    <!-- Left Column -->
+                    <div>
+                        <input placeholder="Pharmacy Name" type="text" id="pharmacySearch">
+                        <input placeholder="Postal" type="text" id="pharmacyPostalCodeSearch">
+                        <input placeholder="Fax" type="text" id="pharmacyFaxSearch">
+                        <%-- <a href="javascript:void(0)" onclick="addPharmacy();" class="ControlPushButton">Add a New Pharmacy</a> --%>
+                    </div>
+                    <!-- Right Column -->
+                    <div>
+                        <input placeholder="City" type="text" id="pharmacyCitySearch">
+                        <input placeholder="Phone" type="text" id="pharmacyPhoneSearch">
+                        <input placeholder="Address" type="text" id="pharmacyAddressSearch">
+                        <%-- <a href="javascript:void(0)" onclick="updatePharmacyList();" class="ControlPushButton">Update Pharmacy List</a> --%>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			<tr>
-				<td colspan="2">
-				<hr style="border:1px solid black;">
-				<div class="DivContentTitle"><b><bean:message
-					key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient"
-					property="surname" />, <jsp:getProperty name="patient"
-					property="firstName" />&nbsp;&nbsp;&nbsp;
+        <!-- Help and About Links -->
+        <div style="text-align: right; margin-bottom: 10px;">
+            <a style="color:black;" href="<%=help_url%>pharmacies/" target="_blank">Help</a> |
+            <a style="color:black;" href="<%=request.getContextPath() %>/oscarEncounter/About.jsp" target="_blank">About</a>
+        </div>
 
-					<input type=button class="ControlPushButton" onclick="returnToRx();" value="<bean:message key="SelectPharmacy.ReturnToRx" />" >
-				</div>
-				<br>
-				</td>
-			</tr>
-			<tr>
-				<th style="width:33%;"  class="DivContentSectionHead">
-					<p><bean:message key="SelectPharmacy.linkedPreferredPharmacy" /></p>
-				</th>
-				<th class="DivContentSectionHead">
-					<bean:message key="SelectPharmacy.searchExistingLabel" />: &nbsp;&nbsp;<input placeholder="Pharmacy Name" type="text" id="pharmacySearch">&nbsp;&nbsp;
-					<input placeholder="<bean:message key="SelectPharmacy.table.city" />" type="text" id="pharmacyCitySearch" style="width: 82px"> &nbsp;&nbsp;
-					<input placeholder="<bean:message key="SelectPharmacy.table.postalCode" />" type="text" id="pharmacyPostalCodeSearch" style="width: 82px"> &nbsp;&nbsp;
-					<input placeholder="<bean:message key="SelectPharmacy.table.phone" />" type="text" id="pharmacyPhoneSearch" style="width: 82px"> &nbsp;&nbsp;
-					<input placeholder="<bean:message key="SelectPharmacy.table.fax" />" type="text" id="pharmacyFaxSearch" style="width: 82px"> &nbsp;&nbsp;
-					<input placeholder="<bean:message key="SelectPharmacy.table.address" />" type="text" id="pharmacyAddressSearch" style="width: 125px">  &nbsp;&nbsp;
-					<a href="javascript:void(0)" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
-					<a href="javascript:void(0)" onclick="updatePharmacyList();"><bean:message key="SelectPharmacy.updateList" /></a>
-				</th>
-			</tr>
-			<tr>
-				<td id="preferredList">
+        <!-- Instruction Text -->
+        <div style="padding: 4px; background-color: #FDFEC7; font-size: 12px; text-align: center; border: 1px solid #CCCCCC; margin-bottom: 10px;">
+            <bean:message key="SelectPharmacy.instructions" />
+        </div>
 
-					<div>
-							<bean:message key="SelectPharmacy.noPharmaciesSelected" />
-					</div>
-				</td>
-				<td>
-					<% List<PharmacyInfo> pharList = (List<PharmacyInfo>)request.getAttribute("pharmacies"); %>
+        <!-- Pharmacy List -->
+        <div style="width: 100%; height: 560px; overflow: auto;">
+          <table id="pharmacyList" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Pharmacy Name</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Postal</th>
+            <th>Phone</th>
+            <th>Fax</th>
+            <th>Distance</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+        </div>
+    </form>
 
-					<div style="width:100%; height:560px; overflow:auto;">
-					<table id="pharmacyList" style="width:100%;">
-						<tr>
-							<th><bean:message key="SelectPharmacy.table.pharmacyName" /></th>
-							<th><bean:message key="SelectPharmacy.table.address" /></th>
-							<th><bean:message key="SelectPharmacy.table.city" /></th>
-							<th><bean:message key="SelectPharmacy.table.postalCode" /></th>
-							<th><bean:message key="SelectPharmacy.table.phone" /></th>
-							<th><bean:message key="SelectPharmacy.table.fax" /></th>
-							<%-- <th><bean:message key="SelectPharmacy.table.status" /></th> --%>
-							<th>&nbsp;</th>
-							<th>&nbsp;</th>
-						</tr>
-						<tr><td colspan="8"><br><hr style="border:1px solid black;">
-						<p style="padding:4px;background-color:#FDFEC7;font-size:12px; text-align:center;"><bean:message key="SelectPharmacy.instructions" /></p>
-                        </td></tr>
-						  <% if (pharList != null && !pharList.isEmpty()) { %>
-            <% for (org.oscarehr.common.model.PharmacyInfo ph : pharList) { %>
-                <tr class="pharmacyItem" pharmId="<%=ph.getId()%>">
-                    <td class="pharmacyName" ><%=Encode.forHtml(ph.getName())%></td>
-                    <td class="address" ><%=Encode.forHtml(ph.getAddress())%></td>
-                    <td class="city" ><%=Encode.forHtml(ph.getCity())%></td>
-                    <td class="postalCode" ><%=Encode.forHtml(ph.getPostalCode())%></td>
-                    <td class="phone" ><%=Encode.forHtml(ph.getPhone1())%></td>
-                    <td class="fax" ><%=Encode.forHtml(ph.getFax())%></td>
-					<td class="status">
-                    <%= ph.getStatus() == '1' ? "Active" : "Inactive" %>
-</td>
-                    <td onclick='event.stopPropagation();return false;'><a href="#"  onclick="editPharmacy(<%=ph.getId()%>);"><bean:message key="SelectPharmacy.editLink" /></a></td>
-                    <td onclick='event.stopPropagation();return false;'><a href="#" class="deletePharm"><bean:message key="SelectPharmacy.deleteLink" /></a></td>
-                </tr>
-            <% } %>
+      <% 
+        // Fetch the demographicNo from the bean
+        int demographicNumber = bean.getDemographicNo();
+
+        // Create an instance of DemographicDAO
+        DemographicDao demographicDao = new DemographicDao();
+
+        // Call the method to fetch demographic details
+        Demographic demographic = demographicDao.getDemographicDetails(demographicNumber);
+
+        // Check if the demographic details were fetched
+        if (demographic != null) {
+            System.out.println("Fetched Demographic address Details: " + demographic.getAddress() + ", " + demographic.getCity() + ", " + demographic.getProvince() + ", " + demographic.getPostal());
+        } else {
+            System.out.println("No demographic details found for demographicNo: " + demographicNumber);
+        }
+    %>
+    
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        <% if (demographic != null) { %>
+            // Construct the full address using demographic details
+            const fullAddress = "<%= demographic.getAddress() %>, <%= demographic.getCity() %>, <%= demographic.getProvince() %>, <%= demographic.getPostal() %>";
+            console.log('[Debug] Automatically triggering geocoding for address:', fullAddress);
+
+            // Call the triggerGeocoding function
+            triggerGeocoding(fullAddress);
         <% } else { %>
-            <tr><td colspan="8">No pharmacies found</td></tr>
+            console.error('[Debug] Demographic details are null. Cannot trigger geocoding.');
         <% } %>
-    </table>
-					</div>
-				</td>
-			</tr>
-			<!--End new rows here-->
-			<tr style="height:100%;">
-				<td colspan="2"></td>
-			</tr>
-		</table>
+    });
 
-</form>
+
+    function triggerGeocoding(fullAddress) {
+    console.log('[Debug] Triggering geocoding for address: ' + fullAddress);
+
+    // Clean and encode the address
+    var cleanAddress = fullAddress.trim();
+    if (!cleanAddress) {
+        console.error('[Geocoding Script] Full Address is empty. Cannot proceed.');
+        return;
+    }
+
+    var encodedAddress = encodeURIComponent(cleanAddress);
+    console.log('[Debug] Encoded Address for API: ' + encodedAddress);
+
+    var apiKey = 'AIzaSyBzuzGR9_XoLdb7nx-L9UdPPmIwZyiSOdM';
+    var apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedAddress + '&key=' + apiKey;
+    console.log('[Debug] Full API URL: ' + apiUrl);
+
+    // Call the geocoding API
+    fetch(apiUrl)
+        .then(function(response) {
+            console.log('[Debug] API Response:', response);
+            if (!response.ok) {
+                throw new Error('HTTP Error! Status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            // console.log('[Geocoding Script] Geocoding response:', data);
+            
+            if (data.results && data.results.length > 0) {
+                var location = data.results[0].geometry.location;
+                // console.log('[Geocoding Script] Latitude: ' + location.lat + ', Longitude: ' + location.lng);
+
+                // Fetch pharmacies based on latitude and longitude
+                fetchPharmaciesSortedByDistance(location.lat, location.lng);
+            } else {
+                console.error('[Geocoding Script] No results found for geocoding.');
+            }
+        })
+        .catch(function(error) {
+            console.error('[Geocoding Script] Error during geocoding:', error);
+        });
+}
+
+   function fetchPharmaciesSortedByDistance(lat, lng) {
+    // console.log('[Debug] Latitude (type and value):', typeof lat, lat);
+    // console.log('[Debug] Longitude (type and value):', typeof lng, lng);
+
+    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        console.error('[Error] Invalid latitude or longitude:', { lat, lng });
+        alert('Error: Unable to fetch pharmacies due to invalid location coordinates.');
+        return;
+    }
+
+    // console.log('[Debug] Fetching pharmacies near latitude:', lat, 'and longitude:', lng);
+
+    var pharmacyapiUrl = "https://oatrx.ca/api/fetch-all-pharmacies?lat=" + lat + "&long=" + lng;
+    // console.log('[Debug] Pharmacy API URL:', pharmacyapiUrl);
+
+    fetch(pharmacyapiUrl)
+        .then(response => {
+            if (!response.ok) throw new Error("HTTP Error! Status: " + response.status);
+            return response.json();
+        })
+        .then(data => {
+            // console.log("[Pharmacy Script] Pharmacies data:", data);
+
+            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                const pharmacies = data.data.filter(pharmacy => pharmacy.active === 1); // Filter only active pharmacies
+                populatePharmacyTable(pharmacies); // Call the populatePharmacyTable function
+            } else {
+                const tableBody = document.querySelector("#pharmacyList tbody");
+                if (tableBody) {
+                    tableBody.innerHTML = `<tr><td colspan="8">No pharmacies found</td></tr>`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error("[Pharmacy Script] Error during pharmacy fetching:", error);
+            const tableBody = document.querySelector("#pharmacyList tbody");
+            if (tableBody) {
+                tableBody.innerHTML = `<tr><td colspan="8">Error fetching pharmacies</td></tr>`;
+            }
+            alert("Error: Unable to fetch pharmacies. Please try again.");
+        });
+}
+
+function populatePharmacyTable(pharmacies) {
+    const tableBody = document.querySelector("#pharmacyList tbody"); // Select the table body
+    if (!tableBody) {
+        console.error("[Pharmacy Table Script] Table body not found!");
+        return;
+    }
+
+    // Clear existing rows
+    tableBody.innerHTML = "";
+
+    // Check if pharmacies exist
+    if (!pharmacies || pharmacies.length === 0) {
+        const noDataRow = `
+            <tr>
+                <td colspan="7">No pharmacies found</td>
+            </tr>
+        `;
+        tableBody.innerHTML = noDataRow;
+        return;
+    }
+
+    // Populate table rows
+    pharmacies.forEach(pharmacy => {
+        // console.log("[Pharmacy Table Script] Pharmacy:", pharmacy);
+
+        const name = String(pharmacy.name || "Unknown Pharmacy").trim();
+        const address = String(pharmacy.address || "No Address").trim();
+        const city = String(pharmacy.city || "No City").trim();
+        const postalCode = String(pharmacy.zip_code || "No Postal Code").trim();
+        const phone = String(pharmacy.phone || "No Phone").trim();
+        const fax = String(pharmacy.fax || "No Fax").trim();
+        const distance = (pharmacy.distance !== undefined && !isNaN(pharmacy.distance))
+                            ? String(pharmacy.distance).trim() + ' kms away'
+                            : 'Distance undefined';
+                            
+        // const distance = pharmacy.distance !== undefined && !isNaN(pharmacy.distance)
+        //     ? `${pharmacy.distance} kms away`
+        //     : "Distance undefined";
+
+        const row = 
+        '<tr class="pharmacyItem" pharmId="' + pharmacy.id + '">' +
+            '<td class="pharmacyName">' + name + '</td>' +
+            '<td class="address">' + address + '</td>' +
+            '<td class="city">' + city + '</td>' +
+            '<td class="postalCode">' + postalCode + '</td>' +
+            '<td class="phone">' + phone + '</td>' +
+            '<td class="fax">' + fax + '</td>' +
+            '<td class="distance">' + distance + '</td>' +
+        '</tr>';
+
+        tableBody.insertAdjacentHTML('beforeend', row);
+
+    });
+
+      // Rebind the click event to the newly created rows
+    bindPharmacyRowClickEvent();
+}
+
+function bindPharmacyRowClickEvent() {
+    $(".pharmacyItem").on("click", function() {
+        var pharmId = $(this).attr("pharmId");
+        var demo = $("#demographicNo").val();
+
+        var data = "pharmId=" + pharmId + "&demographicNo=" + demo;
+
+        $.ajax({
+            url: "<%=request.getContextPath()%>/oscarRx/managePharmacy.do?method=setPreferred",
+            method: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Update preferred pharmacy UI
+                    $("#preferredList").empty();
+                    var newPharmacy = $("<div>")
+                        .addClass("linkedPrefPharmacy")
+                        .attr("pharmId", pharmId)
+                        .html(
+                            "Preferred Pharmacy: " + response.pharmacyName + "<br>" +
+                            "Address: " + response.address + "<br>" +
+                            "Phone: " + response.phone
+                        );
+                    $("#preferredList").append(newPharmacy);
+
+                    // Highlight the preferred pharmacy in the table
+                    $(".pharmacyItem").removeClass("preferred");
+                    $(".pharmacyItem[pharmId='" + pharmId + "']").addClass("preferred");
+
+                    alert("Preferred pharmacy updated successfully");
+                } else {
+                    alert("Error updating preferred pharmacy: " + (response.message || "Unknown error"));
+                }
+            },
+            error: function() {
+                alert("Error communicating with the server");
+            }
+        });
+    });
+}
+
+
+</script>
+
 </body>
 
 </html:html>

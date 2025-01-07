@@ -232,12 +232,29 @@ public class RxPharmacyData {
 		
 	}
 
-   public void addOrUpdatePharmacy(int id, String name, String address, String city, String province, String zipCodeOrPostalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character activationStatus) {
-      PharmacyInfo existingPharmacy = pharmacyInfoDao.findById(id);
-      if (existingPharmacy == null) {
-          pharmacyInfoDao.addapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
-      } else {
-          pharmacyInfoDao.updateapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
-      }
-  }
+//    public void addOrUpdatePharmacy(int id, String name, String address, String city, String province, String zipCodeOrPostalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes, Character activationStatus) {
+//       PharmacyInfo existingPharmacy = pharmacyInfoDao.findById(id);
+//       if (existingPharmacy == null) {
+//           pharmacyInfoDao.addapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
+//       } else {
+//           pharmacyInfoDao.updateapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes, activationStatus);
+//       }
+//   }
+
+
+public void addOrUpdatePharmacy(int id, String name, String address, String city, String province, String zipCodeOrPostalCode, 
+                                String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, 
+                                String notes, Character activationStatus, double latitude, double longitude) {
+    PharmacyInfo existingPharmacy = pharmacyInfoDao.findById(id);
+    if (existingPharmacy == null) {
+        // Add new pharmacy with latitude and longitude
+        pharmacyInfoDao.addapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, 
+                                       serviceLocationIdentifier, notes, activationStatus);
+    } else {
+        // Update existing pharmacy with latitude and longitude
+        pharmacyInfoDao.updateapiPharmacy(id, name, address, city, province, zipCodeOrPostalCode, phone1, phone2, fax, email, 
+                                          serviceLocationIdentifier, notes, activationStatus);
+    }
+}
+
 }

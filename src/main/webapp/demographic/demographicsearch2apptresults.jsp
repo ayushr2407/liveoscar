@@ -211,6 +211,33 @@ function searchAll() {
 .custom-margin-container {
     margin-left: 20px;
 }
+
+
+/* Keep content aligned to the left */
+#demographicSearch {
+    padding: 20px;
+    margin-left: 0; /* Remove automatic centering */
+    max-width: 1200px; /* Optional: Prevent layout from stretching too much */
+}
+
+#searchResults {
+    padding: 20px;
+    margin-left: 0; /* Keep the content aligned to the left */
+    max-width: 1200px;
+}
+
+/* Adjust for medium screens (optional, for tablets or smaller desktops) */
+@media (max-width: 992px) {
+    #demographicSearch, #searchResults {
+        padding: 15px; /* Slightly reduce padding for medium screens */
+    }
+
+    table.table th, table.table td {
+        font-size: 14px; /* Adjust font size for readability */
+    }
+}
+
+
 </style>
 
 </head>
@@ -703,6 +730,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
             <bean:message key="demographic.search.btnCreateNew" />
         </a>
     </div>
+	<br>
 </div>
 
 

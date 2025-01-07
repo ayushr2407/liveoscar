@@ -28,6 +28,10 @@ public class PharmacyAPIFetcher {
                 JSONObject pharmacy = pharmacies.getJSONObject(i);
                 int active = pharmacy.optInt("active", 1);  // Use 'active' instead of 'activation_status'
                 Character status = (active == 1) ? PharmacyInfo.ACTIVE : PharmacyInfo.DELETED;
+
+                  // Fetch latitude and longitude
+                  double latitude = pharmacy.optDouble("lat", 0.0);
+                  double longitude = pharmacy.optDouble("lng", 0.0);
                 rxPharmacyData.addOrUpdatePharmacy(
                     pharmacy.getInt("id"),
                     pharmacy.getString("name"),
@@ -41,7 +45,9 @@ public class PharmacyAPIFetcher {
                     pharmacy.optString("email", ""),
                     "",  // serviceLocationIdentifier (not provided in API)
                     "",  // notes (not provided in API)
-                    status
+                    status,
+                    pharmacy.optDouble("lat", 0.0), // Pass latitude
+                    pharmacy.optDouble("lng", 0.0)
                 );
                 totalPharmacies++;
             }
@@ -55,48 +61,3 @@ public class PharmacyAPIFetcher {
     }
 }
 
-// public class PharmacyAPIFetcher {
-
-// public void fetchAndSavePharmacies() {
-//     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-//         int page = 1;
-//         int totalPages;
-//         RxPharmacyData rxPharmacyData = new RxPharmacyData();
-
-//         do {
-//             HttpGet request = new HttpGet("https://oatrx.ca/api/fetch-all-pharmacies" + "?page=" + page);
-//             String jsonResponse = EntityUtils.toString(httpClient.execute(request).getEntity());
-            
-//             JSONObject jsonObject = new JSONObject(jsonResponse);
-//             JSONArray pharmacies = jsonObject.getJSONArray("data");
-//             totalPages = jsonObject.getJSONObject("meta").getInt("last_page");
-            
-//             for (int i = 0; i < pharmacies.length(); i++) {
-//                 JSONObject pharmacy = pharmacies.getJSONObject(i);
-//                 int active = pharmacy.getInt("active");
-//                 Character status = (active == 1) ? PharmacyInfo.ACTIVE : PharmacyInfo.DELETED;
-//                 rxPharmacyData.addOrUpdatePharmacy(
-//                     pharmacy.getInt("id"),
-//                     pharmacy.getString("name"),
-//                     pharmacy.getString("address"),
-//                     pharmacy.getString("city"),
-//                     pharmacy.getString("province"),
-//                     pharmacy.getString("zip_code"),
-//                     pharmacy.getString("phone"),
-//                     "",  // phone2 (not provided in API)
-//                     pharmacy.getString("fax"),
-//                     pharmacy.getString("email"),
-//                     "",  // serviceLocationIdentifier (not provided in API)
-//                     "",  // notes (not provided in API)
-//                     status
-//                 );
-//             }
-            
-//             page++;
-//         } while (page <= totalPages);
-
-//     } catch (Exception e) {
-//         e.printStackTrace();
-//     }
-// }
-// }

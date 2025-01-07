@@ -2353,4 +2353,53 @@ try {
 	public List<Demographic> findByLastNameAndDob(String lastName, Calendar dateOfBirth) {
 		return findByAttributes(null, null, lastName, null, dateOfBirth, null, null, null, null, null, 0, 99);
 	}
+
+	public Demographic getDemographicDetails(int demographicNo) {
+		Demographic demographic = null;
+		Connection connection = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+	
+		try {
+			// Get database connection
+			connection = getConnection(); // Assuming a method that returns a DB connection
+	
+			// SQL query to fetch the demographic details
+			String query = "SELECT address, city, province, postal FROM demographic WHERE demographic_no = ?";
+			ps = connection.prepareStatement(query);
+			ps.setInt(1, demographicNo); // Set the demographic_no parameter
+	
+			// Execute the query
+			rs = ps.executeQuery();
+	
+			// Process the result
+			if (rs.next()) {
+				demographic = new Demographic();
+				demographic.setAddress(rs.getString("address"));
+				demographic.setCity(rs.getString("city"));
+				demographic.setProvince(rs.getString("province"));
+				demographic.setPostal(rs.getString("postal"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(); // Handle the exception as needed
+		} finally {
+			// Close resources
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace(); // Handle any exceptions while closing resources
+			}
+		}
+	
+		return demographic;
+	}
+	
 }

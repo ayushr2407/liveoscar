@@ -25,6 +25,9 @@ package org.oscarehr.managers;
 
 import java.util.List;
 
+import java.util.ArrayList;
+
+
 import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.model.DemographicPharmacy;
@@ -51,6 +54,10 @@ public class PharmacyManager {
 	private DemographicPharmacyDao demographicPharmacyDao;
 	@Autowired
 	private PharmacyInfoDao pharmacyInfoDao;
+
+	// public PharmacyManager() {
+    //     System.out.println("PharmacyManager is initialized.");
+    // }
 
 	public List<DemographicPharmacy> getPharmacies(LoggedInInfo loggedInInfo, Integer demographicId) {
 		List<DemographicPharmacy> result =  demographicPharmacyDao.findAllByDemographicId(demographicId);
@@ -96,5 +103,51 @@ public class PharmacyManager {
 	public PharmacyInfo getPharmacy(LoggedInInfo loggedInInfo, Integer pharmacyId) {
 		return pharmacyInfoDao.find(pharmacyId);		
 	}
+
+// 	/**
+//  * Fetch pharmacies sorted by distance from the user's location.
+//  *
+//  * @param loggedInInfo Logged-in user information (optional if you need logging)
+//  * @param userLat Latitude of the user's entered address
+//  * @param userLng Longitude of the user's entered address
+//  * @return List of pharmacies sorted by distance
+//  */
+// public List<PharmacyInfo> getPharmaciesSortedByDistance(LoggedInInfo loggedInInfo, double userLat, double userLng) {
+//     System.out.println("getPharmaciesSortedByDistance triggered.");
+//     System.out.println("Latitude: " + userLat + ", Longitude: " + userLng);
+
+//     // Check if pharmacyInfoDao is null
+//     if (pharmacyInfoDao == null) {
+//         System.err.println("pharmacyInfoDao is null in PharmacyManager.");
+//         throw new NullPointerException("pharmacyInfoDao is not initialized.");
+//     }
+
+//     // Fetch sorted pharmacies using the DAO
+//     List<PharmacyInfo> result = pharmacyInfoDao.getPharmaciesSortedByDistance(userLat, userLng);
+
+//     // Check if result is null
+//     if (result == null) {
+//         System.err.println("DAO returned null for getPharmaciesSortedByDistance.");
+//         return new ArrayList<>(); // Return empty list to prevent further errors
+//     }
+
+//     // Log results if required
+//     if (result.isEmpty()) {
+//         System.out.println("No pharmacies found.");
+//     } else {
+//         for (PharmacyInfo pharmacy : result) {
+//             if (pharmacy.getId() == null) {
+//                 System.err.println("Pharmacy ID is null for pharmacy: " + pharmacy.getName());
+//                 continue; // Skip logging for this pharmacy
+//             }
+//             LogAction.addLogSynchronous(loggedInInfo, "PharmacyManager.getPharmaciesSortedByDistance",
+//                 "pharmacyId=" + pharmacy.getId() + ", distance calculated");
+//         }
+//     }
+
+//     return result;
+// }
+
+
 
 }
