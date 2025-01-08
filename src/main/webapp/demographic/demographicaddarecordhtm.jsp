@@ -3057,10 +3057,9 @@ var pharmacyapiUrl = "https://oatrx.ca/api/fetch-all-pharmacies?lat=" + lat + "&
                 pharmacyDropdown.innerHTML = '<option value="">Select Pharmacy</option>'; // Reset to default option
 
                 data.data.forEach(pharmacy => {
-                    // Skip inactive pharmacies (if active field is present)
                     if (pharmacy.active !== 1) {
                         console.log(`Skipping inactive pharmacy: ${pharmacy.name}`);
-                        return; // Skip inactive pharmacies
+                        return;
                     }
 
                     const name = String(pharmacy.name || 'Unknown Pharmacy').trim();
@@ -3077,12 +3076,12 @@ var pharmacyapiUrl = "https://oatrx.ca/api/fetch-all-pharmacies?lat=" + lat + "&
                     const constructedOption = name + ' - ' + address + ', ' + city + ', ' + province + (distance !== 'Distance undefined' ? ' - ' + distance : '');
 
                     var option = document.createElement('option');
-                    option.value = pharmacy.id; // Use pharmacy ID as the value
+                    option.value = pharmacy.id;
                     option.textContent = constructedOption;
                     pharmacyDropdown.appendChild(option);
                 });
 
-                $(pharmacyDropdown).trigger('change'); // Refresh Select2
+                $(pharmacyDropdown).trigger('change');
             } else {
                 pharmacyDropdown.innerHTML = '<option value="">No pharmacies found</option>';
                 $(pharmacyDropdown).trigger('change');

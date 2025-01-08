@@ -785,7 +785,7 @@ function returnToRx(){
             // console.log("[Pharmacy Script] Pharmacies data:", data);
 
             if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-                const pharmacies = data.data.filter(pharmacy => pharmacy.active === 1); // Filter only active pharmacies
+                const pharmacies = data.data; 
                 populatePharmacyTable(pharmacies); // Call the populatePharmacyTable function
             } else {
                 const tableBody = document.querySelector("#pharmacyList tbody");
@@ -838,7 +838,7 @@ function populatePharmacyTable(pharmacies) {
         const distance = (pharmacy.distance !== undefined && !isNaN(pharmacy.distance))
                             ? String(pharmacy.distance).trim() + ' kms away'
                             : 'Distance undefined';
-                            
+
         // const distance = pharmacy.distance !== undefined && !isNaN(pharmacy.distance)
         //     ? `${pharmacy.distance} kms away`
         //     : "Distance undefined";
