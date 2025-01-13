@@ -101,6 +101,7 @@ public final class LoginAction extends DispatchAction {
     private UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 	
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // System.out.println("LoginAction invoked");
     	boolean ajaxResponse = request.getParameter("ajaxResponse") != null?Boolean.valueOf(request.getParameter("ajaxResponse")):false;
     	
     	String ip = request.getRemoteAddr();
@@ -167,16 +168,36 @@ public final class LoginAction extends DispatchAction {
     	    forcedpasswordchange = false;
     	    
     	} else {
-    		userName = ((LoginForm) form).getUsername();
-            if(! Pattern.matches("[a-zA-Z0-9]{1,30}", userName)) {
-        	    userName = "Invalid Username";
-			}
-    	    password = ((LoginForm) form).getPassword();
-    	    pin = ((LoginForm) form).getPin();
-            if(! Pattern.matches("[0-9]{4,255}", pin) ) { // 4 is the minimal pin length, 255 is the maximal length of security.pin
-        	    pin = "";
+            // Check if credentials are forwarded via request attributes (from RelayLoginAction)
+            userName = (String) request.getAttribute("username");
+            password = (String) request.getAttribute("password");
+            pin = (String) request.getAttribute("pin");
+        
+            // If attributes are null, fall back to form-based credentials
+            if (userName == null) {
+                userName = ((LoginForm) form).getUsername();
             }
-    	    nextPage=request.getParameter("nextPage");
+            if (password == null) {
+                password = ((LoginForm) form).getPassword();
+            }
+            if (pin == null) {
+                pin = ((LoginForm) form).getPin();
+            }
+        
+            // Validate inputs
+            if (!Pattern.matches("[a-zA-Z0-9]{1,30}", userName)) {
+                userName = "Invalid Username";
+            }
+            if (!Pattern.matches("[0-9]{4,255}", pin)) { // 4 is the minimal pin length, 255 is the maximal length of security.pin
+                pin = "";
+            }
+        
+            // Get next page
+            nextPage = request.getParameter("nextPage");
+
+             // Add your debug log here
+    // logger.debug("Received credentials - Username: " + userName + ", Password: [HIDDEN], PIN: " + pin);
+    // System.out.println("Received credentials in loginaction.java - Username: " + userName + ", Password: [HIDDEN], PIN: " + pin);
     		        
 	        logger.debug("nextPage: "+nextPage);
 	        if (nextPage!=null) {

@@ -80,12 +80,14 @@ public class LoginFilter implements Filter {
 		"/myoscar_login_tester2.jsp",
 		"/eho/callback.jsp",
 		"/eho/login2.jsp",
-		"/eho/loginForm.jsp"
+		"/eho/loginForm.jsp",
+		"/relayLogin.do"  
 	};
 	
 	private static final String[] EXEMPT_URLS_FOR_REQUEST_TIMEOUT = {
 		"/images/",  
 		"/login.do",
+		"/relayLogin.do",
 		"/ssoLogin.do",
 		"/econsultSSOLogin.do",
 		"/logout.jsp",

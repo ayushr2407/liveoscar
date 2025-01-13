@@ -220,10 +220,13 @@ function upCaseCtrl(ctrl) {
 
 
 <div width="100%">
-    <div id="header"><H4><bean:message
-			key="admin.provideraddrecordhtm.description" /></H4>
+    <div id="header">
+        <h4 style="font-size: 25px;">
+            <bean:message key="admin.provideraddrecordhtm.description" />
+        </h4>
     </div>
 </div>
+
 
 <%
     String sName = request.getParameter("last_name");
@@ -403,13 +406,13 @@ else {
 <% } %>
 
 <form method="post" action="provideraddarecordhtm.jsp" name="searchprovider" autocomplete="off" novalidate >
-<div class="container-fluid well form-horizontal span12" >
+<div class="container-fluid well form-horizontal span12" style="width: 650px;" >
 
  <div  id="requiredSection" class="span11">
 		<fieldset>
 			<legend><bean:message key="admin.provider.professional" /></legend>
 		</fieldset>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="provider_no"><bean:message
                 key="admin.provider.formProviderNo" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -435,7 +438,7 @@ else {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="last_name"><bean:message
                 key="admin.provider.formLastName" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -444,7 +447,7 @@ else {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="first_name"><bean:message
                 key="admin.provider.formFirstName" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -456,7 +459,7 @@ else {
 <%
 		if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	%>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="sites"><bean:message
                 key="admin.provider.sitesAssigned" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -478,7 +481,7 @@ for (int i=0; i<sites.size(); i++) {
 	}
 %>
 
-    <div class="control-group span5" id="provider_type_div">
+    <div class="control-group" id="provider_type_div">
         <label class="control-label" for="provider_type"><bean:message
                 key="admin.provider.formType" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -503,7 +506,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block text-danger"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="status"><bean:message
                 key="admin.provider.formStatus" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -513,7 +516,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for"confidentiality"><bean:message
                 key="admin.provider.confidentialityagreement" /><span style="color:red">*</span></label>
         <div class="controls">
@@ -525,7 +528,7 @@ for (int i=0; i<sites.size(); i++) {
 
             List<ProviderData>providerL = providerDataDao.findAllBilling("1");
         %>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="supervisor"><bean:message
                 key="admin.provider.supervisor" /></label>
         <div class="controls">
@@ -549,7 +552,7 @@ for (int i=0; i<sites.size(); i++) {
 		<%
 			if (OscarProperties.getInstance().getBooleanProperty("rma_enabled", "true")) {
 		%>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_nbr">Default Clinic NBR</label>
         <div class="controls">
 						<select name="xml_p_nbr">
@@ -572,7 +575,7 @@ for (int i=0; i<sites.size(); i++) {
 
 	</caisi:isModuleLoad>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="practitionerNoType"><bean:message
                 key="admin.provider.formCPSIDType" /></label>
         <div class="controls">
@@ -599,7 +602,7 @@ for (int i=0; i<sites.size(); i++) {
     </div>
 
 <div id="registrationNumbers">
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="practitionerNo"><bean:message
                 key="admin.provider.formCPSID" />#<span style="color:red">*</span></label>
         <div class="controls">
@@ -614,7 +617,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="ohip_no"><bean:message
                 key="admin.provider.formOhipNo" /></label>
         <div class="controls">
@@ -628,7 +631,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="rma_no"><bean:message
                 key="admin.provider.formRmaNo"  /></label>
         <div class="controls">
@@ -642,7 +645,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="billing_no"><bean:message
                 key="admin.provider.formBillingNo" /></label>
         <div class="controls">
@@ -656,7 +659,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="hso_no"><bean:message
                 key="admin.provider.formHsoNo"  /></label>
         <div class="controls">
@@ -670,7 +673,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_specialty_code"><bean:message
                 key="admin.provider.formSpecialtyCode" /></label>
         <div class="controls">
@@ -684,7 +687,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_billinggroup_no"><bean:message
                 key="admin.provider.formBillingGroupNo" /></label>
         <div class="controls">
@@ -697,7 +700,7 @@ for (int i=0; i<sites.size(); i++) {
             <p class="help-block"></p>
         </div>
     </div>
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="admin.provider.billcenter"><bean:message
                 key="admin.provider.billcenter" /></label>
         <div class="controls">
@@ -738,7 +741,7 @@ for (int i=0; i<sites.size(); i++) {
 		</fieldset>
 
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="team"><bean:message
                 key="admin.provider.formTeam" /></label>
         <div class="controls">
@@ -747,7 +750,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="specialty"><bean:message
                 key="admin.provider.formSpecialty" /></label>
         <div class="controls">
@@ -757,7 +760,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="sex"><bean:message
                 key="admin.provider.formSex" /></label>
         <div class="controls">
@@ -784,7 +787,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="dob"><bean:message
                 key="admin.provider.formDOB" /></label>
         <div class="controls">
@@ -793,7 +796,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="address"><bean:message
                 key="admin.provider.formAddress" /></label>
         <div class="controls">
@@ -803,7 +806,7 @@ for (int i=0; i<sites.size(); i++) {
     </div>
 
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="phone"><bean:message
 				key="admin.provider.formHomePhone" /></label>
         <div class="controls">
@@ -812,7 +815,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="workphone"><bean:message
                 key="admin.provider.formWorkPhone" /></label>
         <div class="controls">
@@ -821,7 +824,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="email"><bean:message
                 key="admin.provider.formEmail" /></label>
         <div class="controls">
@@ -831,7 +834,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_pager"><bean:message
                 key="admin.provider.formPager" /></label>
         <div class="controls">
@@ -840,7 +843,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_cell"><bean:message
                 key="admin.provider.formCell" /></label>
         <div class="controls">
@@ -849,7 +852,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_phone2"><bean:message
                 key="admin.provider.formOtherPhone" /></label>
         <div class="controls">
@@ -858,7 +861,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
 
-    <div class="control-group span5">
+    <div class="control-group">
         <label class="control-label" for="xml_p_fax"><bean:message
                 key="admin.provider.formFax" /></label>
         <div class="controls">

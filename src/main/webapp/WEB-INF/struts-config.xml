@@ -780,6 +780,15 @@
 
 		</action>
 
+         <!-- new endpoint for relay -->
+		<action input="/relayLogin.jsp" name="relayLoginForm" path="/relayLogin" scope="request" type="oscar.login.RelayLoginAction" validate="false">
+
+			<!-- Forward decrypted credentials to the existing /login action -->
+			<forward name="login" path="/login.do" redirect="false" />
+			<forward name="error" path="/loginfailed.jsp" />
+		</action>
+
+
 		<action input="/login.jsp" name="loginForm" path="/ssoLogin" scope="request" type="oscar.login.SSOLoginAction" validate="true" parameter="ssoLogin">
 			<forward name="provider" path="/provider/providercontrol.jsp" redirect="true" />
 			<forward name="failure" path="/logout.jsp?login=failed" />

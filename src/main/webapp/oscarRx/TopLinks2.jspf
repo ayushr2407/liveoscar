@@ -60,8 +60,8 @@ function newWindow(url) {
                     <span title="<bean:message key="SearchDrug.ageText" />&nbsp;<jsp:getProperty name="patient" property="age" />">
                     	<b><bean:message key="SearchDrug.DOBtext" /> </b><%= RxUtil.DateToString(patient.getDOB(), "MMM d, yyyy") %>
                     </span>
-		     		
-                   <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white;" href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
+
+  <%-- <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white;" href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
 				<span style="text-transform:uppercase; margin-left: 10px; font-size: 14px;">
 					<% 
 						if (pharmacyList != null && !pharmacyList.isEmpty()) {
@@ -86,7 +86,80 @@ function newWindow(url) {
 							</span>
 					<%
 						}
-					%>
+					%> --%>
+
+<b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white;" href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
+<span style="text-transform:uppercase; margin-left: 10px; font-size: 14px;">
+    <% 
+        if (pharmacyList != null && !pharmacyList.isEmpty()) {
+            PharmacyInfo preferredPharmacy = pharmacyList.get(0);
+
+            // Determine the status of the pharmacy
+            String statusText = "Inactive";
+            if ("1".equals(String.valueOf(preferredPharmacy.getStatus()).trim())) { // Convert Character to String and trim
+                statusText = "Active";
+            }
+    %>
+        <span>
+            <%= preferredPharmacy.getName() %> (<%= preferredPharmacy.getCity() %>) - 
+            <span style="color: <%= "Active".equals(statusText) ? "#00ff00" : "red" %>;">
+                <%= statusText %>
+            </span>
+        </span>
+        <!-- Hidden dropdown to preserve functionality -->
+        <select id="Calcs" name="pharmacyId" style="display: none;" onchange="populatePharmacy(this.options[this.selectedIndex].value);">
+            <%
+                for (PharmacyInfo pharmacyInfo : pharmacyList) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    StringWriter jsonObject = new StringWriter();
+                    mapper.writeValue(jsonObject, pharmacyInfo);
+            %>
+            <option value='<%= jsonObject.toString().replaceAll("'", "") %>' 
+                <%= pharmacyInfo.equals(preferredPharmacy) ? "selected" : "" %>>
+                <%= pharmacyInfo.getName() + " (" + pharmacyInfo.getCity() + ")" %>
+            </option>
+            <%
+                }
+            %>
+        </select>
+    <%
+        } else {
+    %>
+        <span style="color: red; font-weight: bold;">
+            No preferred pharmacy set.
+        </span>
+    <%
+        }
+    %>
+</span>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Trigger the onchange event for the hidden dropdown
+        const calcSelect = document.getElementById('Calcs');
+        if (calcSelect) {
+            calcSelect.dispatchEvent(new Event('change')); // Trigger onchange event
+        }
+    });
+</script>
+
+<%-- original code having dropdown --%>
+				<%-- <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white;" href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
+				<select style="text-transform:uppercase;" id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');">
+				<%
+					if (pharmacyList != null) {
+						ObjectMapper mapper = new ObjectMapper();
+						StringWriter jsonObject;
+						for (PharmacyInfo pharmacyInfo : pharmacyList) {
+							jsonObject = new StringWriter();
+							mapper.writeValue(jsonObject, pharmacyInfo);
+				%>
+				<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + "  (" + pharmacyInfo.getCity() %>)</option>
+				<%
+						}
+					}
+				%>
+				</select> --%>
 				</span>     
                     </td>
                     <td valign="top" align="right">

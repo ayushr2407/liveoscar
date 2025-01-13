@@ -144,7 +144,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 }
 
 #preferredList {
-    width: 45%; 
+    width: 100%; 
 }
 
 
@@ -214,6 +214,7 @@ th {
     text-align: left;
     vertical-align: top;
     border-bottom: 1px solid #CCCCCC;
+    font-size: 14px;
 }
 
 #pharmacyList tr:nth-child(even) {
@@ -296,13 +297,13 @@ th {
  // Build pharmacy details
                         var pharm = "<div prefOrder='" + idx + "' pharmId='" + preferredPharmacyInfo.id + "' style='border: none; margin: 0; font-size: small;'><table><tr>";
                         pharm += "<td rowspan='3' style='font-size: small;'>";
-                        pharm += "<div style='white-space: nowrap;'>" + preferredPharmacyInfo.name + "</div>"; // Pharmacy name with nowrap
-                        pharm += "<div class='" + statusClass + "'>" + statusText + "</div>"; // Status badge below name
+                        pharm += "<div style='white-space: nowrap; font-size: 18px; font-weight: bold;'>" + preferredPharmacyInfo.name + "</div>"; // Pharmacy name with nowrap
+                        pharm += "<div class='" + statusClass + "' style='font-weight: normal;'>" + statusText + "</div>"; // Status badge below name
                         pharm += preferredPharmacyInfo.address + ", " + preferredPharmacyInfo.city + " " + preferredPharmacyInfo.province + "<br />";
                         pharm += preferredPharmacyInfo.postalCode + "<br />";
                         pharm += "Phone: " + preferredPharmacyInfo.phone1 + "<br />";
                         pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
-                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id + ");'>View Details</a>" + "</td>";
+                        // pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id + ");'>View Details</a>" + "</td>";
                         pharm += "</tr></table></div>";
 
 
@@ -621,7 +622,7 @@ function returnToRx(){
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <!-- Patient Name and Preferred Pharmacy -->
             <div class="preferred-pharmacy">
-                    <div style="font-size: medium;">
+                    <div style="font-size: 20px; font-weight: bold;">
                         <b><bean:message key="SearchDrug.nameText" /></b>
                         <jsp:getProperty name="patient" property="surname" />,
                         <jsp:getProperty name="patient" property="firstName" />
@@ -633,7 +634,7 @@ function returnToRx(){
 
             <!-- Search Section -->
             <div class="search-section">
-                <div class="search-heading">Search Pharmacy</div>
+                <div class="search-heading" style="text-align: left;">Search Pharmacy</div>
                 <div class="search-fields">
                     <!-- Left Column -->
                     <div>
@@ -667,15 +668,15 @@ function returnToRx(){
         <!-- Pharmacy List -->
         <div style="width: 100%; height: 560px; overflow: auto;">
           <table id="pharmacyList" style="width: 100%; border-collapse: collapse;">
-    <thead>
+    <thead style="background-color: #f1f1f1; border: 1px solid #e1e1e1;">
         <tr>
-            <th>Pharmacy Name</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Postal</th>
-            <th>Phone</th>
-            <th>Fax</th>
-            <th>Distance</th>
+            <th style="width: 20%;">Pharmacy Name</th>
+            <th style="width: 20%;">Address</th>
+            <th style="width: 10%;">City</th>
+            <th style="width: 10%;">Postal</th>
+            <th style="width: 15%;">Phone</th>
+            <th style="width: 15%;">Fax</th>
+            <th style="width: 10%;">Distance</th>
         </tr>
     </thead>
     <tbody></tbody>

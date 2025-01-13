@@ -928,6 +928,81 @@ legend {
 	padding: 2px 15px;
 }
 
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 430px;
+}
+
+/* Dropdown Button */
+.dropdown-toggle {
+    width: 430px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Search Box */
+.dropdown-search {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+/* Options Container */
+#dropdownOptionsContainer {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Dropdown Option */
+.dropdown-option {
+    padding: 5px; /* Adjusted padding to match the button */
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #111111;
+    white-space: normal; /* Allow multi-line text */
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background-color: #f1f1f1;
+}
+
+/* Distance Styling */
+.option-distance {
+    font-size: 10px;
+    background-color: #e5e5e5; /* Set background color */
+    display: block; /* Force distance to be on a new line */
+    width: 70px; /* Set fixed width */
+    text-align: center; /* Center text horizontally */
+}
+
+
 </style>
 
 <!-- Select2 CSS -->
@@ -1388,14 +1463,14 @@ legend {
         <div class="control-group">
             <label class="control-label" for="address"><bean:message key="demographic.demographiceditdemographic.formAddr" /></label>
             <div class="controls">
-              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />"  id="address" name="address" value="<%=Encode.forHtmlAttribute(address)%>" oninput="fetchAndLogAddressValues()" />
+              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />"  id="address" name="address" value="<%=Encode.forHtmlAttribute(address)%>" />
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="city"><bean:message key="demographic.demographiceditdemographic.formCity" /></label>
             <div class="controls">
               <input type="text" id="city" placeholder="<bean:message key="demographic.demographiceditdemographic.formCity" />" name="city"
-					value="<%=StringUtils.trimToEmpty(defaultCity)%>" oninput="fetchAndLogAddressValues()" />
+					value="<%=StringUtils.trimToEmpty(defaultCity)%>"/>
             </div>
         </div>
         <div class="control-group">
@@ -1414,7 +1489,7 @@ legend {
 					    key="demographic.demographiceditdemographic.filterByCountry" /> : <select name="country" id="country" ></select>
 
 				<% } else  {  %>
-				<select id="province" name="province" onchange="fetchAndLogAddressValues()">
+				<select id="province" name="province">
 					<option value="BC"
 						<%=defaultProvince.equals("")||defaultProvince.equals("BC")?" selected":""%>>Other</option>
 					<%-- <option value="">None Selected</option> --%>
@@ -1507,7 +1582,7 @@ legend {
                               	 } %></label>
             <div class="controls">
                 <input type="text" id="postal" placeholder="<bean:message key="demographic.demographiceditdemographic.formPostal" /> "
-                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" oninput="fetchAndLogAddressValues()" onBlur="upCaseCtrl(this)" maxlength=10
+                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" onBlur="upCaseCtrl(this)" maxlength=10
 <% if (checkP) { %>
 pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVXYWZ]\s\d[ABCEGHJ-NPRSTVXYWZ]\d"
 required
@@ -1761,12 +1836,25 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
 
         <div class="control-group">
     <label class="control-label" for="preferredPharmacy">Preferred Pharmacy:</label>
+    <div class="custom-dropdown" id="preferredPharmacyDropdown">
+        <button class="dropdown-toggle" id="dropdownToggle" onclick="fetchAndLogAddressValues(); fetchPharmaciesSortedByDistance(0, 0);">Select Pharmacy</button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <input type="text" id="dropdownSearch" placeholder="Search for a pharmacy..." class="dropdown-search">
+            <div id="dropdownOptionsContainer"></div>
+        </div>
+    </div>
+        <input type="hidden" name="preferredPharmacy" id="preferredPharmacy" value="">
+
+</div>
+
+        <%-- <div class="control-group">
+    <label class="control-label" for="preferredPharmacy">Preferred Pharmacy:</label>
     <div class="controls">
         <select id="preferredPharmacy" name="preferredPharmacy" class="form-control">
             <option value="">Select Pharmacy</option>
         </select>
     </div>
-</div>
+</div> --%>
 
         <%-- <div class="control-group">
             <label class="control-label" for="news"><bean:message key="demographic.demographiceditdemographic.formNewsLetter" /></label>
@@ -2865,115 +2953,98 @@ $(document).ready(function(){
 <%//}%>
 
 <script>
-    $(document).ready(function() {
-    $('#preferredPharmacy').select2({
-        placeholder: "Search for a pharmacy",
-        allowClear: true,
-        width: '100%', // Ensures the dropdown matches the width of the parent container
-        matcher: function(params, data) {
-            // If there are no search terms, return all options
-            if ($.trim(params.term) === '') {
-                return data;
-            }
+   // Toggle the dropdown menu
+document.getElementById('dropdownToggle').addEventListener('click', function (event) {
+    event.preventDefault();
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
 
-            // Split the search term into multiple keywords
-            const keywords = params.term.toLowerCase().split(' ').filter(word => word.trim() !== '');
-
-            // Check if all keywords match any part of the data text
-            const optionText = data.text.toLowerCase();
-            const matches = keywords.every(keyword => optionText.includes(keyword));
-
-            // If all keywords match, return the data
-            return matches ? data : null;
-        }
-    });
-
-    $(document).on('select2:open', () => {
-        setTimeout(() => {
-            let select2SearchField = document.querySelector('.select2-container--open .select2-search__field');
-            if (select2SearchField) {
-                select2SearchField.focus();
-            }
-        }, 100); // Add a small delay (100ms)
-    });
+    // Focus on the search box when the dropdown opens
+    const searchBox = document.getElementById('dropdownSearch');
+    if (searchBox && dropdownMenu.style.display === 'block') {
+        searchBox.value = ''; // Clear the search box
+        searchBox.focus(); // Focus on the search box
+        filterOptions(''); // Show all options initially
+    }
 });
 
-    
-    // Cache to store the initial values
-    var cachedValues = {
-        address: '',
-        city: '',
-        province: '',
-        postal: ''
-    };
-
-    // Function to fetch and log address values
-    function fetchAndLogAddressValues() {
-        console.log('[Debug] Starting fetchAndLogAddressValues function.');
-
-        // Fetch and store values only if the cache is empty
-        if (!cachedValues.address || !cachedValues.city || !cachedValues.province || !cachedValues.postal) {
-            console.log('[Debug] Fetching values for the first time.');
-
-            // Fetch the postal element and its value
-            var postalElement = document.getElementById('postal');
-            if (!postalElement) {
-                console.error("[Debug] Postal Input Element not found!");
-                return;
-            }
-            cachedValues.postal = postalElement.value || '';
-            console.log("[Debug] Postal Input Element Value:", cachedValues.postal);
-
-            // Fetch the address element and its value
-            var addressElement = document.getElementById('address');
-            if (!addressElement) {
-                console.error("[Debug] Address Input Element not found!");
-                return;
-            }
-            cachedValues.address = addressElement.value || '';
-            console.log("[Debug] Address Input Element Value:", cachedValues.address);
-
-            // Fetch the city element and its value
-            var cityElement = document.getElementById('city');
-            if (!cityElement) {
-                console.error("[Debug] City Input Element not found!");
-                return;
-            }
-            cachedValues.city = cityElement.value || '';
-            console.log("[Debug] City Input Element Value:", cachedValues.city);
-
-            // Fetch the province element and its value
-            var provinceElement = document.getElementById('province');
-            if (!provinceElement) {
-                console.error("[Debug] Province Input Element not found!");
-                return;
-            }
-            cachedValues.province = provinceElement.value || '';
-            console.log("[Debug] Province Input Element Value:", cachedValues.province);
-        } else {
-            console.log('[Debug] Using cached values:');
-        }
-
-        // Verify if variables are populated
-        console.log("[Geocoding Script] Variables Before Validation:");
-        console.log('Address: ' + cachedValues.address);
-        console.log('City: ' + cachedValues.city);
-        console.log('Province: ' + cachedValues.province);
-        console.log('Postal: ' + cachedValues.postal);
-
-        // Check if all fields are filled
-        if (!cachedValues.address || !cachedValues.city || !cachedValues.province || !cachedValues.postal) {
-            console.warn("[Geocoding Script] One or more required fields are missing.");
-            return; // Do not proceed if fields are incomplete
-        }
-
-        // Construct the full address
-        var fullAddress = cachedValues.address + ', ' + cachedValues.city + ', ' + cachedValues.province + ', ' + cachedValues.postal;
-        console.log('[Geocoding Script] Full Address: ' + fullAddress);
-
-        // Trigger the geocoding process
-        triggerGeocoding(fullAddress);
+// Close the dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    const dropdown = document.querySelector('.custom-dropdown');
+    if (!dropdown.contains(event.target)) {
+        document.getElementById('dropdownMenu').style.display = 'none';
     }
+});
+
+   // Cache to store the current values
+var cachedValues = {
+    address: '',
+    city: '',
+    province: '',
+    postal: ''
+};
+
+// Function to fetch and log address values
+function fetchAndLogAddressValues() {
+    console.log('[Debug] Starting fetchAndLogAddressValues function.');
+
+    // Fetch the postal element and its value
+    var postalElement = document.getElementById('postal');
+    if (!postalElement) {
+        console.error("[Debug] Postal Input Element not found!");
+        return;
+    }
+    cachedValues.postal = postalElement.value || '';
+    console.log("[Debug] Postal Input Element Value:", cachedValues.postal);
+
+    // Fetch the address element and its value
+    var addressElement = document.getElementById('address');
+    if (!addressElement) {
+        console.error("[Debug] Address Input Element not found!");
+        return;
+    }
+    cachedValues.address = addressElement.value || '';
+    console.log("[Debug] Address Input Element Value:", cachedValues.address);
+
+    // Fetch the city element and its value
+    var cityElement = document.getElementById('city');
+    if (!cityElement) {
+        console.error("[Debug] City Input Element not found!");
+        return;
+    }
+    cachedValues.city = cityElement.value || '';
+    console.log("[Debug] City Input Element Value:", cachedValues.city);
+
+    // Fetch the province element and its value
+    var provinceElement = document.getElementById('province');
+    if (!provinceElement) {
+        console.error("[Debug] Province Input Element not found!");
+        return;
+    }
+    cachedValues.province = provinceElement.value || '';
+    console.log("[Debug] Province Input Element Value:", cachedValues.province);
+
+    // Log the current values
+    console.log("[Geocoding Script] Variables Before Validation:");
+    console.log('Address: ' + cachedValues.address);
+    console.log('City: ' + cachedValues.city);
+    console.log('Province: ' + cachedValues.province);
+    console.log('Postal: ' + cachedValues.postal);
+
+    // Check if all fields are filled
+    if (!cachedValues.address || !cachedValues.city || !cachedValues.province || !cachedValues.postal) {
+        console.warn("[Geocoding Script] One or more required fields are missing.");
+        return; // Do not proceed if fields are incomplete
+    }
+
+    // Construct the full address
+    var fullAddress = cachedValues.address + ', ' + cachedValues.city + ', ' + cachedValues.province + ', ' + cachedValues.postal;
+    console.log('[Geocoding Script] Full Address: ' + fullAddress);
+
+    // Trigger the geocoding process
+    triggerGeocoding(fullAddress);
+}
+
 
     // Function to trigger geocoding
 function triggerGeocoding(fullAddress) {
@@ -3022,78 +3093,109 @@ function triggerGeocoding(fullAddress) {
 
 // Function to fetch pharmacies based on latitude and longitude
 function fetchPharmaciesSortedByDistance(lat, lng) {
-    // Log input values explicitly
-    console.log('[Debug] Latitude (type and value):', typeof lat, lat);
-    console.log('[Debug] Longitude (type and value):', typeof lng, lng);
-
-    // Validate the latitude and longitude
-    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        console.error('[Error] Invalid latitude or longitude:', { lat, lng });
-        alert('Error: Unable to fetch pharmacies due to invalid location coordinates.');
-        return;
-    }
-
     console.log('[Debug] Fetching pharmacies near latitude:', lat, 'and longitude:', lng);
 
-    var pharmacyDropdown = document.getElementById('preferredPharmacy');
-    pharmacyDropdown.innerHTML = '<option value="">Loading pharmacies...</option>'; // Show loading indicator
+    const dropdownOptionsContainer = document.getElementById('dropdownOptionsContainer');
+    dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">Loading pharmacies...</div>'; // Show loading indicator
 
-    console.log('[Debug] Lat and Long before constructing the URL:', lat, lng);
+    // Check if lat and lng are valid, if not fallback to the base API URL
+    let pharmacyApiUrl = 'https://oatrx.ca/api/fetch-all-pharmacies';
+    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        pharmacyApiUrl += '?lat=' + lat + '&long=' + lng;
+    } else {
+        console.warn('[Debug] Latitude and Longitude not provided or invalid. Fetching all pharmacies without sorting.');
+    }
 
-    // Construct the API URL
-var pharmacyapiUrl = "https://oatrx.ca/api/fetch-all-pharmacies?lat=" + lat + "&long=" + lng;
-    console.log('[Debug] Pharmacy API URL:', pharmacyapiUrl);
-
-    console.log('[Debug] Lat and Long after constructing the URL:', lat, lng);
-    fetch(pharmacyapiUrl)
-        .then(response => {
+    fetch(pharmacyApiUrl)
+        .then(function (response) {
             if (!response.ok) throw new Error('HTTP Error! Status: ' + response.status);
             return response.json();
         })
-        .then(data => {
-            console.log('[Pharmacy Script] Pharmacies data:', data);
+        .then(function (data) {
+            console.log('[Debug] Pharmacies data:', data);
 
             if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-                pharmacyDropdown.innerHTML = '<option value="">Select Pharmacy</option>'; // Reset to default option
-
-                data.data.forEach(pharmacy => {
-                    if (pharmacy.active !== 1) {
-                        console.log(`Skipping inactive pharmacy: ${pharmacy.name}`);
-                        return;
-                    }
-
-                    const name = String(pharmacy.name || 'Unknown Pharmacy').trim();
-                    const address = String(pharmacy.address || 'No Address').trim();
-                    const city = String(pharmacy.city || 'No City').trim();
-                    const province = String(pharmacy.province || 'No Province').trim();
+                dropdownOptionsContainer.innerHTML = ''; // Clear existing options
+                data.data.forEach(function (pharmacy) {
+                    const name = pharmacy.name ? pharmacy.name.trim() : 'Unknown Pharmacy';
+                    const address = pharmacy.address ? pharmacy.address.trim() : 'No Address';
+                    const city = pharmacy.city ? pharmacy.city.trim() : 'No City';
+                    const province = pharmacy.province ? pharmacy.province.trim() : 'No Province';
                     const distance = (pharmacy.distance !== undefined && !isNaN(pharmacy.distance))
-                            ? String(pharmacy.distance).trim() + ' kms away'
-                            : 'Distance undefined';
+                        ? pharmacy.distance + ' kms away'
+                        : 'Distance undefined';
 
-                            console.log('[Debug] Distance:', distance);
+                    // Create a custom dropdown option
+                    const option = document.createElement('div');
+                    option.className = 'dropdown-option';
+                    option.setAttribute('data-id', pharmacy.id);
+                    option.setAttribute('data-search-text', name + ' ' + address + ' ' + city + ' ' + province); // Include all searchable fields
+                    // Add content with distance on a new line
+                    option.innerHTML =
+                    '<span>' + name + '</span>' + // Name on the first line
+                    '<span style="display: block;">' + address + ', ' + city + ', ' + province +
+                    '<span style="background-color: #f0f0f0; padding: 2px 5px; margin-left: 5px;">' + 
+                    (distance || '') + '</span></span>'; // Distance in a grey background
 
-                            // Construct the dropdown option
-                    const constructedOption = name + ' - ' + address + ', ' + city + ', ' + province + (distance !== 'Distance undefined' ? ' - ' + distance : '');
+                    // Add click event listener
+                    option.addEventListener('click', function () {
+                        const dropdownToggle = document.getElementById('dropdownToggle');
+                        
+                        // Get the pharmacy details from the clicked option's attributes
+                        const pharmacyID = option.getAttribute('data-id');
+                        const pharmacyStatus = option.getAttribute('data-status') || "active";
+                        const name = option.querySelector('span').textContent; // Assuming a span contains the name
+                        
+                        if (pharmacyID && name) {
+                            dropdownToggle.textContent = name; // Update the button text
+                            document.getElementById('dropdownMenu').style.display = 'none'; // Close the dropdown
 
-                    var option = document.createElement('option');
-                    option.value = pharmacy.id;
-                    option.textContent = constructedOption;
-                    pharmacyDropdown.appendChild(option);
+                            // Update the hidden input value with the pharmacy ID and status
+                            document.getElementById('preferredPharmacy').value = pharmacyID + "|" + pharmacyStatus;
+                        } else {
+                            console.error('Invalid pharmacy data. Ensure pharmacy ID and name are defined.');
+                        }
+                    });
+
+
+                    dropdownOptionsContainer.appendChild(option); // Append the option to the dropdown
                 });
-
-                $(pharmacyDropdown).trigger('change');
             } else {
-                pharmacyDropdown.innerHTML = '<option value="">No pharmacies found</option>';
-                $(pharmacyDropdown).trigger('change');
+                dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">No pharmacies found</div>';
             }
         })
-        .catch(error => {
-            console.error('[Pharmacy Script] Error during pharmacy fetching:', error);
-            pharmacyDropdown.innerHTML = '<option value="">Error fetching pharmacies</option>';
-            alert('Error: Unable to fetch pharmacies. Please try again.');
-            $(pharmacyDropdown).trigger('change');
+        .catch(function (error) {
+            console.error('[Debug] Error during pharmacy fetching:', error);
+            dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">Error fetching pharmacies</div>';
         });
 }
+
+// Filter dropdown options based on search input
+function filterOptions(searchTerm) {
+    const options = document.querySelectorAll('.dropdown-option');
+    const searchKeywords = searchTerm.toLowerCase().split(' ').filter(keyword => keyword.trim() !== '');
+
+    options.forEach(function (option) {
+        const searchText = option.getAttribute('data-search-text') || ''; // Default to empty string if null
+        const lowerCaseSearchText = searchText.toLowerCase();
+
+        // Check if all keywords are present in the search text
+        const matches = searchKeywords.every(keyword => lowerCaseSearchText.includes(keyword));
+
+        if (matches) {
+            option.style.display = 'block'; // Show matching options
+        } else {
+            option.style.display = 'none'; // Hide non-matching options
+        }
+    });
+}
+
+
+// Add event listener for the search box
+document.getElementById('dropdownSearch').addEventListener('input', function (event) {
+    const searchTerm = event.target.value;
+    filterOptions(searchTerm); // Call the filter function with the user's input
+});
 
 
 </script>

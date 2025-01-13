@@ -1269,6 +1269,83 @@ background-color: grey;
 .info {
     font-weight:bold;
 }
+
+
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 430px;
+}
+
+/* Dropdown Button */
+.dropdown-toggle {
+    width: 430px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Search Box */
+.dropdown-search {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+/* Options Container */
+#dropdownOptionsContainer {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Dropdown Option */
+.dropdown-option {
+    padding: 5px; /* Adjusted padding to match the button */
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #111111;
+    white-space: normal; /* Allow multi-line text */
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background-color: #f1f1f1;
+}
+
+/* Distance Styling */
+.option-distance {
+    font-size: 10px;
+    background-color: #e5e5e5; /* Set background color */
+    display: block; /* Force distance to be on a new line */
+    width: 70px; /* Set fixed width */
+    text-align: center; /* Center text horizontally */
+}
+
 </style>
 
  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -3289,7 +3366,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
         <div class="control-group">
             <label class="control-label" for="addr"><bean:message key="demographic.demographiceditdemographic.formAddr" /></label>
             <div class="controls">
-              <input type="text" id="addr" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />" name="address" <%=getDisabled("address")%> value="<%=StringUtils.trimToEmpty(demographic.getAddress())%>" oninput="fetchAndLogAddressValues()">
+              <input type="text" id="addr" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />" name="address" <%=getDisabled("address")%> value="<%=StringUtils.trimToEmpty(demographic.getAddress())%>">
             </div>
         </div>
         <div class="control-group">
@@ -3311,7 +3388,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 				%>
 					<select name="province" id="province"></select>
 					<br/><br>
-					Filter by Country:<br><br> <select name="country" id="country" ></select>
+					Filter by Country:<br><br> <select name="country" id="country"></select>
 
 						<% } else { %>
 								<select name="province" style="width: 200px" <%=getDisabled("province")%>>
@@ -3408,7 +3485,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
                               	 } %></label>
             <div class="controls">
               <input type="text" id="postal" placeholder="<% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>								<bean:message key="demographic.demographiceditdemographic.formPostal" /> <% } else {  out.print(oscarProps.getProperty("demographicLabelPostal")); } %>" name="postal" <%=getDisabled("postal")%>
-									value="<%=StringUtils.trimToEmpty(demographic.getPostal())%>"
+									value="<%=StringUtils.trimToEmpty(demographic.getPostal())%>" 
 									onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
             </div>
         </div>
@@ -3599,20 +3676,47 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
         
-        <div class="control-group">
+      <div class="control-group">
     <label class="control-label" for="preferredPharmacy">Preferred Pharmacy:</label>
-    <div class="controls">
-        <select id="preferredPharmacy" name="preferredPharmacy" class="form-control">
-            <option value="">Select Pharmacy</option>
-            <% for (PharmacyInfo pharmacy : pharmacyList) { %>
-                <option value="<%= pharmacy.getId() %>|<%= pharmacy.getStatus() %>" 
-                    <%= (preferredPharmacyId != null && preferredPharmacyId.equals(String.valueOf(pharmacy.getId()))) ? "selected" : "" %>>
-                    <%= pharmacy.getName() %> - <%= pharmacy.getCity() %> (<%= pharmacy.getPhone1() %>)
-                </option>
+    <div class="custom-dropdown" id="preferredPharmacyDropdown">
+        <!-- Dropdown Toggle -->
+        <button class="dropdown-toggle" id="dropdownToggle" onclick="fetchAndLogAddressValues()">
+            <% 
+                // Determine the preselected pharmacy
+                PharmacyInfo selectedPharmacy = null;
+                for (PharmacyInfo pharmacy : pharmacyList) {
+                    if (pharmacy.getId().equals(preferredPharmacyId)) {
+                        selectedPharmacy = pharmacy;
+                        break;
+                    }
+                }
+
+                // Display the preselected pharmacy name or default text
+                if (selectedPharmacy != null) { 
+            %>
+                <%= selectedPharmacy.getName() %>, <%= selectedPharmacy.getAddress() %> - <%= selectedPharmacy.getCity() %>
+            <% } else { %>
+                Select Pharmacy
             <% } %>
-        </select>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" id="dropdownMenu">
+            <input type="text" id="dropdownSearch" placeholder="Search for a pharmacy..." class="dropdown-search">
+            <div id="dropdownOptionsContainer">
+                <% for (PharmacyInfo pharmacy : pharmacyList) { %>
+                    <div class="dropdown-option" 
+                         data-id="<%= pharmacy.getId() %>"
+                         <%= (preferredPharmacyId != null && preferredPharmacyId.equals(String.valueOf(pharmacy.getId()))) ? "data-selected='true'" : "" %>>
+                        <span><%= pharmacy.getName() %>, <%= pharmacy.getAddress() %> - <%= pharmacy.getCity() %></span>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
+	        <input type="hidden" name="preferredPharmacy" id="preferredPharmacy" value="">
 </div>
+
 
 		<br>
     </div><!-- end contactSectionContent -->
@@ -3727,6 +3831,19 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
         <div class="control-group">
             <label class="control-label" for="effDate"><bean:message key="demographic.demographiceditdemographic.formEFFDate" /></label>
             <div class="controls">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Update the dropdown toggle button text based on preselected pharmacy
+        const preselectedOption = document.querySelector('.dropdown-option[data-selected="true"]');
+        if (preselectedOption) {
+            const dropdownToggle = document.getElementById('dropdownToggle');
+            const name = preselectedOption.querySelector('span').textContent;
+            dropdownToggle.textContent = name; // Update the toggle button text
+        }
+    });
+</script>
+
 <script>
 
 function loaddob(){
@@ -4932,22 +5049,273 @@ jQuery(document).ready(function(){
 </script>
 
 <script>
-    $(document).ready(function() {
-        $('#preferredPharmacy').select2({
-            placeholder: "Search for a pharmacy",
-            allowClear: true,
-            width: '100%' // Ensures the dropdown matches the width of the parent container
-        });
+    // Toggle the dropdown menu
+document.getElementById('dropdownToggle').addEventListener('click', function (event) {
+    event.preventDefault();
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
 
-        $(document).on('select2:open', () => {
-            setTimeout(() => {
-                let select2SearchField = document.querySelector('.select2-container--open .select2-search__field');
-                if (select2SearchField) {
-                    select2SearchField.focus();
-                }
-            }, 100); // Add a small delay (100ms)
+    // Focus on the search box when the dropdown opens
+    const searchBox = document.getElementById('dropdownSearch');
+    if (searchBox && dropdownMenu.style.display === 'block') {
+        searchBox.value = ''; // Clear the search box
+        searchBox.focus(); // Focus on the search box
+        filterOptions(''); // Show all options initially
+    }
+});
+
+// Close the dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    const dropdown = document.querySelector('.custom-dropdown');
+    if (!dropdown.contains(event.target)) {
+        document.getElementById('dropdownMenu').style.display = 'none';
+    }
+});
+
+// Add click event listeners to dropdown options
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdownOptions = document.querySelectorAll('.dropdown-option');
+    const dropdownToggle = document.getElementById('dropdownToggle');
+    const hiddenInput = document.getElementById('preferredPharmacy');
+
+    dropdownOptions.forEach(option => {
+        option.addEventListener('click', function () {
+            // Update the dropdown toggle text
+            dropdownToggle.textContent = this.querySelector('span').textContent;
+
+            // Update the hidden input value
+            hiddenInput.value = this.getAttribute('data-id');
+
+            // Close the dropdown menu
+            document.getElementById('dropdownMenu').style.display = 'none';
         });
     });
+
+    // Add event listener to the search box for filtering
+    const searchBox = document.getElementById('dropdownSearch');
+    searchBox.addEventListener('input', function (event) {
+        const searchTerm = event.target.value;
+        filterOptions(searchTerm); // Call the filter function with the user's input
+    });
+});
+
+   // Cache to store the current values
+var cachedValues = {
+    address: '',
+    city: '',
+    province: '',
+    postal: ''
+};
+
+// Function to fetch and log address values
+function fetchAndLogAddressValues() {
+    console.log('[Debug] Starting fetchAndLogAddressValues function.');
+
+    // Fetch the postal element and its value
+    var postalElement = document.getElementById('postal');
+    if (!postalElement) {
+        console.error("[Debug] Postal Input Element not found!");
+        return;
+    }
+    cachedValues.postal = postalElement.value || '';
+    console.log("[Debug] Postal Input Element Value:", cachedValues.postal);
+
+    // Fetch the address element and its value
+    var addressElement = document.getElementById('addr');
+    if (!addressElement) {
+        console.error("[Debug] Address Input Element not found!");
+        return;
+    }
+    cachedValues.address = addressElement.value || '';
+    console.log("[Debug] Address Input Element Value:", cachedValues.address);
+
+    // Fetch the city element and its value
+    var cityElement = document.getElementById('city');
+    if (!cityElement) {
+        console.error("[Debug] City Input Element not found!");
+        return;
+    }
+    cachedValues.city = cityElement.value || '';
+    console.log("[Debug] City Input Element Value:", cachedValues.city);
+
+    // Fetch the province element and its value
+    var provinceElement = document.getElementById('province');
+    if (!provinceElement) {
+        console.error("[Debug] Province Input Element not found!");
+        return;
+    }
+    cachedValues.province = provinceElement.value || '';
+    console.log("[Debug] Province Input Element Value:", cachedValues.province);
+
+    // Log the current values
+    console.log("[Geocoding Script] Variables Before Validation:");
+    console.log('Address: ' + cachedValues.address);
+    console.log('City: ' + cachedValues.city);
+    console.log('Province: ' + cachedValues.province);
+    console.log('Postal: ' + cachedValues.postal);
+
+    // Check if all fields are filled
+    if (!cachedValues.address || !cachedValues.city || !cachedValues.province || !cachedValues.postal) {
+        console.warn("[Geocoding Script] One or more required fields are missing.");
+        return; // Do not proceed if fields are incomplete
+    }
+
+    // Construct the full address
+    var fullAddress = cachedValues.address + ', ' + cachedValues.city + ', ' + cachedValues.province + ', ' + cachedValues.postal;
+    console.log('[Geocoding Script] Full Address: ' + fullAddress);
+
+    // Trigger the geocoding process
+    triggerGeocoding(fullAddress);
+}
+
+
+    // Function to trigger geocoding
+function triggerGeocoding(fullAddress) {
+    console.log('[Debug] Triggering geocoding for address: ' + fullAddress);
+
+    // Clean and encode the address
+    var cleanAddress = fullAddress.trim();
+    if (!cleanAddress) {
+        console.error('[Geocoding Script] Full Address is empty. Cannot proceed.');
+        return;
+    }
+
+    var encodedAddress = encodeURIComponent(cleanAddress);
+    console.log('[Debug] Encoded Address for API: ' + encodedAddress);
+
+    var apiKey = 'AIzaSyBzuzGR9_XoLdb7nx-L9UdPPmIwZyiSOdM';
+    var apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedAddress + '&key=' + apiKey;
+    console.log('[Debug] Full API URL: ' + apiUrl);
+
+    // Call the geocoding API
+    fetch(apiUrl)
+        .then(function(response) {
+            console.log('[Debug] API Response:', response);
+            if (!response.ok) {
+                throw new Error('HTTP Error! Status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            console.log('[Geocoding Script] Geocoding response:', data);
+            
+            if (data.results && data.results.length > 0) {
+                var location = data.results[0].geometry.location;
+                console.log('[Geocoding Script] Latitude: ' + location.lat + ', Longitude: ' + location.lng);
+
+                // Fetch pharmacies based on latitude and longitude
+                fetchPharmaciesSortedByDistance(location.lat, location.lng);
+            } else {
+                console.error('[Geocoding Script] No results found for geocoding.');
+            }
+        })
+        .catch(function(error) {
+            console.error('[Geocoding Script] Error during geocoding:', error);
+        });
+}
+
+// Function to fetch pharmacies based on latitude and longitude
+function fetchPharmaciesSortedByDistance(lat, lng) {
+    console.log('[Debug] Fetching pharmacies near latitude:', lat, 'and longitude:', lng);
+
+    const dropdownOptionsContainer = document.getElementById('dropdownOptionsContainer');
+    dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">Loading pharmacies...</div>'; // Show loading indicator
+
+    const pharmacyApiUrl = 'https://oatrx.ca/api/fetch-all-pharmacies?lat=' + lat + '&long=' + lng;
+
+    fetch(pharmacyApiUrl)
+        .then(function (response) {
+            if (!response.ok) throw new Error('HTTP Error! Status: ' + response.status);
+            return response.json();
+        })
+        .then(function (data) {
+            console.log('[Debug] Pharmacies data:', data);
+
+            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                dropdownOptionsContainer.innerHTML = ''; // Clear existing options
+                data.data.forEach(function (pharmacy) {
+                    const name = pharmacy.name ? pharmacy.name.trim() : 'Unknown Pharmacy';
+                    const address = pharmacy.address ? pharmacy.address.trim() : 'No Address';
+                    const city = pharmacy.city ? pharmacy.city.trim() : 'No City';
+                    const province = pharmacy.province ? pharmacy.province.trim() : 'No Province';
+                    const distance = (pharmacy.distance !== undefined && !isNaN(pharmacy.distance))
+                        ? pharmacy.distance + ' kms away'
+                        : 'Distance undefined';
+
+                    // Create a custom dropdown option
+                    const option = document.createElement('div');
+                    option.className = 'dropdown-option';
+                    option.setAttribute('data-id', pharmacy.id);
+                    option.setAttribute('data-search-text', name + ' ' + address + ' ' + city + ' ' + province); // Include all searchable fields
+                    // Add content with distance on a new line
+                    // option.innerHTML =
+                    //     '<span>' + name + ' - ' + address + ', ' + city + ', ' + province + '</span>' +
+                    //     '<span class="option-distance">' + distance + '</span>';
+					option.innerHTML =
+					'<span>' + name + '</span>' + // Name on the first line
+					'<span style="display: block;">' + address + ', ' + city + ', ' + province +
+					'<span style="background-color: #f0f0f0; padding: 2px 5px; margin-left: 5px;">' + 
+					(distance || '') + '</span></span>'; // Distance in a grey background
+
+					option.addEventListener('click', function () {
+					const dropdownToggle = document.getElementById('dropdownToggle');
+					
+					// Get the pharmacy details from the clicked option's attributes
+					const pharmacyID = option.getAttribute('data-id');
+					const pharmacyStatus = option.getAttribute('data-status') || "active";
+					const name = option.querySelector('span').textContent; // Assuming a span contains the name
+					
+					if (pharmacyID && name) {
+						dropdownToggle.textContent = name; // Update the button text
+						document.getElementById('dropdownMenu').style.display = 'none'; // Close the dropdown
+
+						// Update the hidden input value with the pharmacy ID and status
+						document.getElementById('preferredPharmacy').value = pharmacyID + "|" + pharmacyStatus;
+					} else {
+						console.error('Invalid pharmacy data. Ensure pharmacy ID and name are defined.');
+					}
+				});
+
+                    dropdownOptionsContainer.appendChild(option); // Append the option to the dropdown
+                });
+            } else {
+                dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">No pharmacies found</div>';
+            }
+        })
+        .catch(function (error) {
+            console.error('[Debug] Error during pharmacy fetching:', error);
+            dropdownOptionsContainer.innerHTML = '<div class="dropdown-option">Error fetching pharmacies</div>';
+        });
+}
+
+// Filter dropdown options based on search input
+function filterOptions(searchTerm) {
+    const options = document.querySelectorAll('.dropdown-option');
+    const searchKeywords = searchTerm.toLowerCase().split(' ').filter(keyword => keyword.trim() !== '');
+
+    options.forEach(function (option) {
+        const searchText = option.getAttribute('data-search-text') || ''; // Default to empty string if null
+        const lowerCaseSearchText = searchText.toLowerCase();
+
+        // Check if all keywords are present in the search text
+        const matches = searchKeywords.every(keyword => lowerCaseSearchText.includes(keyword));
+
+        if (matches) {
+            option.style.display = 'block'; // Show matching options
+        } else {
+            option.style.display = 'none'; // Hide non-matching options
+        }
+    });
+}
+
+
+// Add event listener for the search box
+document.getElementById('dropdownSearch').addEventListener('input', function (event) {
+    const searchTerm = event.target.value;
+    filterOptions(searchTerm); // Call the filter function with the user's input
+});
+
+
 </script>
 
 
