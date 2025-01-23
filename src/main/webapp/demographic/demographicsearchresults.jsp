@@ -390,18 +390,23 @@ body {
 	
 	
 	List<Demographic> demoList = null;
-	
-        if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
-            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
-            List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
-            demoList = new ArrayList<Demographic>();
-            for(Integer r:results) {
-                demoList.add(demographicDao.getDemographicById(r));
-            }
-            
-        } else {
-            demoList = doSearch(demographicDao,searchMode,ptstatus,keyword,limit,offset,orderBy,providerNo,outOfDomain);	
-        }	
+
+if (request.getParameter("keyword") != null && request.getParameter("keyword").length() == 0) {
+    // Fetch all demographic numbers
+    List<Integer> demographicNos = demographicDao.getAllDemographicNos();
+
+    demoList = new ArrayList<>();
+    for (Integer demographicNo : demographicNos) {
+        // Fetch demographic details for each demographic number
+        Demographic demographic = demographicDao.getDemographicById(demographicNo);
+        if (demographic != null) {
+            demoList.add(demographic);
+        }
+    }
+} else {
+    demoList = doSearch(demographicDao, searchMode, ptstatus, keyword, limit, offset, orderBy, providerNo, outOfDomain);
+}
+
 	
 	boolean toggleLine = false;
 	boolean firstPageShowIntegratedResults = request.getParameter("firstPageShowIntegratedResults") != null && "true".equals(request.getParameter("firstPageShowIntegratedResults"));

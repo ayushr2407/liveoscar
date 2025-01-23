@@ -504,9 +504,14 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
         String additNotes = req.getParameter("additNotes");
 
         int prescriptionCount = Integer.parseInt(req.getParameter("prescriptionCount")); // Get the count of prescriptions
+
+        // Prescription details processing with splitting logic
 StringBuilder prescriptionsHtml = new StringBuilder();
 
+// Break prescriptions into independent chunks
 for (int i = 0; i < prescriptionCount; i++) {
+    StringBuilder prescriptionBlock = new StringBuilder();
+
     String medicationName = req.getParameter("medicationName_" + i);
     String instructions = req.getParameter("instructions_" + i);
     String specialInstructions = req.getParameter("specialInstructions_" + i);
@@ -525,75 +530,160 @@ for (int i = 0; i < prescriptionCount; i++) {
         modifiedInstructions += " (" + frequency.substring(0, 1).toUpperCase() + frequency.substring(1).toLowerCase() + " Dispense)";
     }
 
-    // Append prescription details
-    prescriptionsHtml.append("<div class='prescription-details'>")
-        .append("<p><strong>").append(escapeHtml(medicationName)).append("</strong></p>")
-        .append("<p style='margin-top: 10px;'>").append(escapeHtml(modifiedInstructions)).append("</p>");
+    // Construct individual prescription block
+    prescriptionBlock.append("<div class='prescription-details'>")
+            .append("<p><strong>").append(escapeHtml(medicationName)).append("</strong></p>")
+            .append("<p style='margin-top: 10px;'>").append(escapeHtml(modifiedInstructions)).append("</p>");
 
-    // Special Instructions
+    // Add special instructions if present
     if (specialInstructions != null && !specialInstructions.isEmpty()) {
-        prescriptionsHtml.append("<p>").append(escapeHtml(specialInstructions)).append("</p>");
+        prescriptionBlock.append("<p>").append(escapeHtml(specialInstructions)).append("</p>");
     }
 
-    // Begin table for prescription details
-    prescriptionsHtml.append("<table style='width: 100%;'>");
+    // Add table with prescription details
+    prescriptionBlock.append("<table style='width: 100%;'>");
 
-    // Quantity and Repeats
+    // Add Quantity and Repeats
     if (quantity != null && !quantity.isEmpty()) {
-        prescriptionsHtml.append("<tr>")
-            .append("<td style='width: 50%; text-align: left;'>Quantity: ").append(escapeHtml(quantity)).append("</td>");
-        
+        prescriptionBlock.append("<tr>")
+                .append("<td style='width: 50%; text-align: left;'>Quantity: ").append(escapeHtml(quantity)).append("</td>");
         if (repeats != null && !repeats.isEmpty()) {
-            prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Repeats: ").append(escapeHtml(repeats)).append("</td>");
+            prescriptionBlock.append("<td style='width: 50%; text-align: left;'>Repeats: ").append(escapeHtml(repeats)).append("</td>");
         }
-        
-        prescriptionsHtml.append("</tr>");
+        prescriptionBlock.append("</tr>");
     }
 
-    // Start Date and Duration
+    // Add Start Date and Duration
     if ((startDate != null && !startDate.isEmpty()) || (duration != null && !duration.equals("0 Days") && !duration.isEmpty())) {
-        prescriptionsHtml.append("<tr>");
-        
+        prescriptionBlock.append("<tr>");
         if (startDate != null && !startDate.isEmpty()) {
-            prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Start Date: ").append(escapeHtml(startDate)).append("</td>");
+            prescriptionBlock.append("<td style='width: 50%; text-align: left;'>Start Date: ").append(escapeHtml(startDate)).append("</td>");
         }
-        
         if (duration != null && !duration.equals("0 Days") && !duration.isEmpty()) {
-            prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Duration: ").append(escapeHtml(duration)).append("</td>");
+            prescriptionBlock.append("<td style='width: 50%; text-align: left;'>Duration: ").append(escapeHtml(duration)).append("</td>");
         }
-        
-        prescriptionsHtml.append("</tr>");
+        prescriptionBlock.append("</tr>");
     }
 
-    // End Date and Long Term
+    // Add End Date and Long Term
     if ((endDate_p != null && !endDate_p.isEmpty()) || (longTerm != null && !longTerm.isEmpty())) {
-        prescriptionsHtml.append("<tr>");
-        
+        prescriptionBlock.append("<tr>");
         if (endDate_p != null && !endDate_p.isEmpty()) {
-            prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>End Date: ").append(escapeHtml(endDate_p)).append("</td>");
+            prescriptionBlock.append("<td style='width: 50%; text-align: left;'>End Date: ").append(escapeHtml(endDate_p)).append("</td>");
         }
-        
         if (longTerm != null && !longTerm.isEmpty()) {
-            prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Long Term: ").append(escapeHtml(longTerm)).append("</td>");
+            prescriptionBlock.append("<td style='width: 50%; text-align: left;'>Long Term: ").append(escapeHtml(longTerm)).append("</td>");
         }
-        
-        prescriptionsHtml.append("</tr>");
+        prescriptionBlock.append("</tr>");
     }
 
-    // Remove explicit Patient Compliance and Frequency display
-    // Logic for Patient Compliance and Frequency moved to instructions above
+    prescriptionBlock.append("</table></div>");
 
-    // Close table
-    prescriptionsHtml.append("</table>");
-
-    // Close prescription-details div
-    prescriptionsHtml.append("</div>");
-
-    // Add <hr> if not the last prescription
+    // Add horizontal rule if not the last prescription
     if (i < prescriptionCount - 1) {
-        prescriptionsHtml.append("<hr />");
+        prescriptionBlock.append("<hr />");
     }
+
+    // Append the block to the main content
+    prescriptionsHtml.append(prescriptionBlock);
+
 }
+
+// Print the entire prescriptionsHtml block to Tomcat console
+System.out.println("Complete Prescriptions HTML: " + prescriptionsHtml.toString());
+
+
+        //original block
+// StringBuilder prescriptionsHtml = new StringBuilder();
+
+// for (int i = 0; i < prescriptionCount; i++) {
+//     String medicationName = req.getParameter("medicationName_" + i);
+//     String instructions = req.getParameter("instructions_" + i);
+//     String specialInstructions = req.getParameter("specialInstructions_" + i);
+//     String quantity = req.getParameter("quantity_" + i);
+//     String repeats = req.getParameter("repeats_" + i);
+//     String startDate = req.getParameter("startDate_" + i);
+//     String endDate_p = req.getParameter("endDate_p_" + i);
+//     String duration = req.getParameter("duration_" + i);
+//     String patientCompliance = req.getParameter("patientCompliance_" + i);
+//     String frequency = req.getParameter("frequency_" + i);
+//     String longTerm = req.getParameter("longTerm_" + i);
+
+//     // Adjust instructions if compliance is "no" and frequency is present
+//     String modifiedInstructions = instructions;
+//     if ("no".equalsIgnoreCase(patientCompliance) && frequency != null && !frequency.isEmpty()) {
+//         modifiedInstructions += " (" + frequency.substring(0, 1).toUpperCase() + frequency.substring(1).toLowerCase() + " Dispense)";
+//     }
+
+//     // Append prescription details
+//     prescriptionsHtml.append("<div class='prescription-details'>")
+//         .append("<p><strong>").append(escapeHtml(medicationName)).append("</strong></p>")
+//         .append("<p style='margin-top: 10px;'>").append(escapeHtml(modifiedInstructions)).append("</p>");
+
+//     // Special Instructions
+//     if (specialInstructions != null && !specialInstructions.isEmpty()) {
+//         prescriptionsHtml.append("<p>").append(escapeHtml(specialInstructions)).append("</p>");
+//     }
+
+//     // Begin table for prescription details
+//     prescriptionsHtml.append("<table style='width: 100%;'>");
+
+//     // Quantity and Repeats
+//     if (quantity != null && !quantity.isEmpty()) {
+//         prescriptionsHtml.append("<tr>")
+//             .append("<td style='width: 50%; text-align: left;'>Quantity: ").append(escapeHtml(quantity)).append("</td>");
+        
+//         if (repeats != null && !repeats.isEmpty()) {
+//             prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Repeats: ").append(escapeHtml(repeats)).append("</td>");
+//         }
+        
+//         prescriptionsHtml.append("</tr>");
+//     }
+
+//     // Start Date and Duration
+//     if ((startDate != null && !startDate.isEmpty()) || (duration != null && !duration.equals("0 Days") && !duration.isEmpty())) {
+//         prescriptionsHtml.append("<tr>");
+        
+//         if (startDate != null && !startDate.isEmpty()) {
+//             prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Start Date: ").append(escapeHtml(startDate)).append("</td>");
+//         }
+        
+//         if (duration != null && !duration.equals("0 Days") && !duration.isEmpty()) {
+//             prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Duration: ").append(escapeHtml(duration)).append("</td>");
+//         }
+        
+//         prescriptionsHtml.append("</tr>");
+//     }
+
+//     // End Date and Long Term
+//     if ((endDate_p != null && !endDate_p.isEmpty()) || (longTerm != null && !longTerm.isEmpty())) {
+//         prescriptionsHtml.append("<tr>");
+        
+//         if (endDate_p != null && !endDate_p.isEmpty()) {
+//             prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>End Date: ").append(escapeHtml(endDate_p)).append("</td>");
+//         }
+        
+//         if (longTerm != null && !longTerm.isEmpty()) {
+//             prescriptionsHtml.append("<td style='width: 50%; text-align: left;'>Long Term: ").append(escapeHtml(longTerm)).append("</td>");
+//         }
+        
+//         prescriptionsHtml.append("</tr>");
+//     }
+
+//     // Remove explicit Patient Compliance and Frequency display
+//     // Logic for Patient Compliance and Frequency moved to instructions above
+
+//     // Close table
+//     prescriptionsHtml.append("</table>");
+
+//     // Close prescription-details div
+//     prescriptionsHtml.append("</div>");
+
+//     // Add <hr> if not the last prescription
+//     if (i < prescriptionCount - 1) {
+//         prescriptionsHtml.append("<hr />");
+//     }
+// }
 
         
         // Define folder path to organize files by month
@@ -745,7 +835,7 @@ if ("oscarRxFax".equals(isFaxRequest)) {
     
         // Replace placeholders in HTML template
         String filledHtml = htmlTemplate
-         .replace("{{faxInfo}}", faxInfo)
+        .replace("{{faxInfo}}", faxInfo)
         .replace("{{prescriptions}}", prescriptionsHtml.toString())
         .replace("${clinicName}", escapeHtml(clinicName))
         .replace("${clinicAddress}", escapeHtml(clinicAddress))
@@ -782,7 +872,7 @@ if ("oscarRxFax".equals(isFaxRequest)) {
         .replace("${logo}", logoBase64.isEmpty() ? "" : logoBase64);
 
 
-         // Render HTML to PDF using Flying Saucer
+         // Render HTML to PDF using Flying Saucer library
          ByteArrayOutputStream baosPDF = new ByteArrayOutputStream();
          ITextRenderer renderer = new ITextRenderer();
          renderer.setDocumentFromString(filledHtml);

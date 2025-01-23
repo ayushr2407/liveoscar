@@ -1478,7 +1478,7 @@ function locale(){
             <tr style="background-color:#e8e8e8;">
                 <th colspan="2">
                     <bean:message key="appointment.addappointment.msgDemgraphics"/>
-                    <a title="Master File" onclick="popup(700,1000,'<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=demoNo%>&amp;displaymode=edit&amp;dboperation=search_detail','master')" href="javascript: function myFunction() {return false; }"><bean:message key="appointment.addappointment.btnEdit"/></a>
+                    <a title="Master File" onclick="popup(window.screen.height - 250, window.screen.width - 350,'<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=demoNo%>&amp;displaymode=edit&amp;dboperation=search_detail','master')" href="javascript: function myFunction() {return false; }"><bean:message key="appointment.addappointment.btnEdit"/></a>
 
                     <bean:message key="appointment.addappointment.msgSex"/>: <%=sex%> &nbsp; <bean:message key="appointment.addappointment.msgDOB"/>: <%=dob%>
                 </th>

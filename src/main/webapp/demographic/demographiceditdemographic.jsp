@@ -1364,7 +1364,7 @@ background-color: grey;
 		<td class="xMainTableTopRowRightColumn">
 		<table class="xTopStatusBar">
 			<tr>
-				<td><h3>
+				<td style="width: 85%;"><h3>
 				<%
                            java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
                                 //----------------------------REFERRAL DOCTOR------------------------------

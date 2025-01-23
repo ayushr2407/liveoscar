@@ -572,7 +572,7 @@ th, td {
 	font-size: 13px;
     color: <%=(showClassicSchedule? "black;" : "white;")%>
     font-weight: bold;
-    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>
+    background-color: <%=(showClassicSchedule? "ivory;" : "#224562;")%>
     height: 30px;
     padding: 5px 0px 0px 0px;
 }
@@ -602,7 +602,7 @@ th, td {
     padding:0px;
     font-weight: bold;
     color: <%=(showClassicSchedule? "black" : "white")%>;
-    background-color: <%=(showClassicSchedule? "ivory" : "steelblue")%>;
+    background-color: <%=(showClassicSchedule? "ivory" : "#224562")%>;
 }
 
 .quick:hover {
@@ -620,23 +620,49 @@ th, td {
 }
 
 
-#navlist{
+#navlist {
     margin: 0;
     padding: 0;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 10px;
 }
 
 #navlist li {
-    padding-top: 0.5px;
-    padding-bottom: 0.5px;
-    padding-left: 3px;
-    padding-right: 3px;
-    display: inline;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
 }
 
-#navlist li:hover { color:  <%=(showClassicSchedule? "red" : "red")%>; }
-#navlist li a:hover { color:  <%=(showClassicSchedule? "red" : "black")%>; }
-#navlist #logoutMobile { display:none; }
+#navlist li a {
+    text-decoration: none;
+	display: flex;
+    color: black;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 12px;
+    background-color: #ffffff;
+    border: 1px solid #d1d5da;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#navlist li a:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+#navlist li a:active {
+    background-color: #d6d8db;
+    color: #003d80;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#navlist #logoutMobile {
+    display: none;
+}
 
 .dropdown {
 	display: inline-block !important;
@@ -695,14 +721,14 @@ th, td {
 }
 
 .scheduleTime00 {
-    background-color: <%=(showClassicSchedule? "#3EA4E1;" : "gainsboro;")%>
+    background-color: <%=(showClassicSchedule? "#3EA4E1;" : "#224562;")%>
 }
 .scheduleTimeNot00 {
-    background-color: <%=(showClassicSchedule? "#00A488;" : "#E8E8E8;")%>
+    background-color: <%=(showClassicSchedule? "#00A488;" : "#224562;")%>
 }
 
 .scheduleTime00 a, .scheduleTimeNot00 a {
-    color: <%=(showClassicSchedule? "white" : "#606060")%>
+    color: <%=(showClassicSchedule? "white" : "#ffffff")%>
 }
 .appt a { color: black; }  //best to leave it black
 
@@ -769,7 +795,10 @@ function pop1(url) {
 }
 
 function pop2(url, windowName) {
-  return pop4(700, 1024, url, windowName);
+//   return pop4(700, 1024, url, windowName);
+    const screenHeight = window.screen.height - 150; // Get the full screen height
+  const screenWidth = window.screen.width - 250;   // Get the full screen width
+  return pop4(screenHeight, screenWidth, url, windowName);
 }
 
 function pop3(vheight, vwidth, varpage) { 
@@ -1222,12 +1251,12 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <% } %>&nbsp;
 </td> --%>
 
-<td rowspan=2 id="logo" >&nbsp;
+<td rowspan=2 id="logo" style="padding-left: 10px;">
 <%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false"))) { %>
-	<a href="<%=request.getContextPath()%>/web/" title="OSCAR EMR"><img src="/clinic_data/logo/logo2.png" width="30" height="30" border="0"></a>
+	<a href="<%=request.getContextPath()%>/web/" title="OSCAR EMR"><img src="/clinic_data/logo/logo2.png" width="50" height="50" border="0"></a>
 <% } else { %>
     <a href="#" ONCLICK ="pop1('<%=resourcebaseurl%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>" onmouseover="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>';return true" title="<bean:message key="oscarEncounter.Index.clinicalResources"/>">
-	<img src="/clinic_data/logo/logo2.png" width="30" height="30"  border="0"></a>
+	<img src="/clinic_data/logo/logo2.png" width="50" height="50"  border="0"></a>
 <% } %>&nbsp;
 </td>
 
@@ -1307,7 +1336,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
    <li>
-       <a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+       <a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>' style="padding: 6.5px;">
 	   <span id="oscar_new_lab"><bean:message key="global.lab"/></span>
        </a>
        <oscar:newUnclaimedLab>
@@ -1558,214 +1587,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 </td>
 
 
-<td align="right" valign="bottom" >
-<div class="btn-group">
-	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'<%=request.getContextPath()%>/scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
-
-	<%if(resourcehelpHtml==""){ %>
-		<a href="javascript:void(0)" onClick ="pop3(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
-
-        
-	<%}else{%>
-		<a href="javascript:void(0)" onClick ="pop3(750,750,'<%=help_url%>booking-appointment-screen/')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
-
-
-
-
-	<%}%>
-<a href="javascript:void(0)" onclick="window.open('/oscar/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')"><i class="icon-info-sign" title="<bean:message key="app.top2"/>"></i></a>
-	
-		<%  	if(loggedInInfo1.getOneIdGatewayData() != null){ 
-				int numberOfMinutesUntilRefreshTokenIsInvalid = loggedInInfo1.getOneIdGatewayData().numberOfMinutesUntilRefreshTokenIsInvalid();
-				String gtwyColor = "";
-				String gtwyMsg = "Token is valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes";
-				if(numberOfMinutesUntilRefreshTokenIsInvalid > 10){
-					//use default message;
-				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 10 && numberOfMinutesUntilRefreshTokenIsInvalid > 0){
-					gtwyColor = "style='color:yellow;'";
-					gtwyMsg = "Token will expire soon, valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes. Click here to refresh";
-				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 0 && numberOfMinutesUntilRefreshTokenIsInvalid > -10){
-					gtwyColor = "style='color:red'";
-					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
-				}else{
-					gtwyColor = "style='color:grey'";
-					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
-				}
-				%>
-				<a href="<%=request.getContextPath()%>/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=<%=URLEncoder.encode(request.getContextPath()+"/provider/providercontrol.jsp","UTF-8") %>" <%=gtwyColor%> title="<%=gtwyMsg%>">GTWY</a>
-				| <a href="uaoSelector.jsp" title="Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%>. Click to Change">UAO</a> 
-				| <a target="_blank" href="<%=request.getContextPath()%>/admin/omdGatewayLog.jsp" title="Current Gateway Log">Log</a>
-				| <a href="<%=request.getContextPath()%>/logoutSSO.jsp">Global Logout</a>
-			<%
-			}else if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { 
-				if(loggedInInfo1.getOneIdGatewayData() == null){ %>
-					<script>
-					window.location = 'uaoSelector.jsp';
-					</script>
-				<%   /*?ondIdwasnull*/
-					return;
-				}%>
-				
-				| <a href="<%=request.getContextPath()%>/logoutSSO.jsp">Global Logout</a>
- 		<% }
-		   else { %>
-				 &nbsp;&nbsp;&nbsp;<a href="<%=request.getContextPath()%>/logout.jsp"><i class="icon-off icon-large" title="<bean:message key="global.btnLogout"/>"></i>&nbsp;</a>
-		<% } %>
-</div>
-</td>
-
-
-</tr>
-
-
-
-<script>
-	<%if(loggedInInfo1.getOneIdGatewayData() != null && loggedInInfo1.getOneIdGatewayData().isDoubleCheckUAO()){
-		%>
-		if (!confirm('Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%> Press Cancel to select another.')){
-		 	window.location = 'uaoSelector.jsp';	 
-		} 
-		<%
-		loggedInInfo1.getOneIdGatewayData().setDoubleCheckUAO(false);
-	}
-	%>
-	jQuery(document).ready(function(){
-		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do","method=view&autoRefresh=true",function(data,textStatus){
-			jQuery("#system_message").html(data);
-		});
-		jQuery.get("<%=request.getContextPath()%>/FacilityMessage.do","method=view&autoRefresh=true",function(data,textStatus){
-			jQuery("#facility_message").html(data);
-		});
-	});
-</script>
-
-<div id="system_message"></div>
-<div id="facility_message"></div>
-<%
-	if (caseload) {
-%>
-<jsp:include page="caseload.jspf"/>
-<%
-	} else {
-%>
-
-<tr id="ivoryBar" class="topbar noprint">
-<td colspan="3">
-    <table width="100%">
-        <tr class="topbar" >
-        <td id="dateAndCalendar" width="43%">
-         <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
-         &nbsp;&nbsp;<i class="icon-angle-left icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></i></a>
-
-
-
- <span class="dateAppointment" id="theday" ><%
- 	if (isWeekView) {
- %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
- 	} else {
- %>
-    <% if (showLargeCalendar) { %>
-    <a id="calendarLink" href=# onClick ="popupPage(425,430,'<%=request.getContextPath()%>/share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')" title="<bean:message key="tickler.ticklerEdit.calendarLookup"/>" ><%=formatDate%></a>
-    <% } else { %>
-
-<%=formatDate%><%
- 	}
- %>
-<%
- 	}
- %></span>
-<input type="hidden" id="storeday" onchange="goDate(this.value)";>
-
- <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
- <i class="icon-angle-right icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>"></i>&nbsp;&nbsp;</a>
-
-<logic:notEqual name="infirmaryView_isOscar" value="false">
- <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
- <!-- <span style="color:#333"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></span> -->
- <a href=# onClick = "review('0')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a>
- 
-<%}else{%>
-	<a href=# onClick = "review('1')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></a>
-<%}%>
-</logic:notEqual>
-
-<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
-<security:oscarSec roleName="<%=roleName$%>" objectName="_day" rights="r">
- | <a class="rightButton top" href="providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' ; return true"><bean:message key="global.today"/></a>
-</security:oscarSec>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_month" rights="r">
-
-   | <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=1&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=month&dboperation=searchappointmentmonth" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>' ; return true"><bean:message key="global.month"/></a>
-
- </security:oscarSec>
- 
-</caisi:isModuleLoad>
-
-<%
-	boolean anonymousEnabled = false;
-	if (loggedInInfo1.getCurrentFacility() != null) {
-		anonymousEnabled = loggedInInfo1.getCurrentFacility().isEnableAnonymous();
-	}
-	if(anonymousEnabled) {
-%>
-&nbsp;&nbsp;(<a href="#" onclick="popupPage(710, 1024,'<html:rewrite page="/PMmodule/createAnonymousClient.jsp"/>?programId=<%=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID)%>');return false;">New Anon Client</a>)
-<%
-	}
-%>
-<%
-	boolean epe = false;
-	if (loggedInInfo1.getCurrentFacility() != null) {
-		epe = loggedInInfo1.getCurrentFacility().isEnablePhoneEncounter();
-	}
-	if(epe) {
-%>
-&nbsp;&nbsp;(<a href="#" onclick="popupPage(710, 1024,'<html:rewrite page="/PMmodule/createPEClient.jsp"/>?programId=<%=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID)%>');return false;">Phone Encounter</a>)
-<%
-	}
-%>
-<% if (showQuickDateMultiplier) { %> 
-&nbsp;
-<input id="monthBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: Gainsboro; color: black;" /><input id="weekForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
-<% } %> 
-<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
-<input id="weekForward1" type="button" value="1W" class="quick" onclick="getLocation('weekForward',1) "/>
-<% } %>
-<% if (showQuickDatePicker) { %> 
-<input id="weekForward2" type="button" value="2<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',2) "/>
-<input id="weekForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',3) "/>
-<input id="weekForward4" type="button" value="4<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
-<input id="weekForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',6) "/>
-<% } %>
-<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
-<input id="monthForward1" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
-<% } %>
-<% if (showQuickDatePicker) { %>
-<input id="monthForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',12) "/>
-<input id="monthForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',25) "/>
-<input id="monthForward12" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.yearLetter"/>" class="quick"  onclick="getLocation('weekForward',367/7) "/>
-<% } %> 
-
-</td>
-
-<td  ALIGN="center"  width="14%" id="bimble_extension">
-
-<%
-	if (isWeekView) {
-for(int provIndex=0;provIndex<numProvider;provIndex++) {
-if (curProvider_no[provIndex].equals(provNum)) {
-%>
-<bean:message key="provider.appointmentProviderAdminDay.weekView"/>: <%=curProviderName[provIndex]%>
-<%
-	} } } else { if (view==1) {
-%>
-<a href='providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=0&displaymode=day&dboperation=searchappointmentday'><bean:message key="provider.appointmentProviderAdminDay.grpView"/></a>
-<% } else { %>
-<% if (!isMobileOptimized) { %> <bean:message key="global.hello"/> <% } %>
-<% out.println( userfirstname+" "+userlastname); %>
-</td>
-<% } } %>
-
-<td id="group" ALIGN="RIGHT" >
+<td id="group" ALIGN="RIGHT" style="padding-right: 5px; >
 
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <form method="post" name="findprovider" onSubmit="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;" target="apptReception" action="receptionistfindprovider.jsp" style="display:inline;margin:0px;padding:0px;padding-right:10px">
@@ -1933,6 +1755,214 @@ class="noprint" title="Find a Provider" placeholder='<bean:message key="receptio
 <!-- caisi infirmary view extension add end fffffffffffff-->
 
       </td>
+
+</tr>
+
+
+
+<script>
+	<%if(loggedInInfo1.getOneIdGatewayData() != null && loggedInInfo1.getOneIdGatewayData().isDoubleCheckUAO()){
+		%>
+		if (!confirm('Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%> Press Cancel to select another.')){
+		 	window.location = 'uaoSelector.jsp';	 
+		} 
+		<%
+		loggedInInfo1.getOneIdGatewayData().setDoubleCheckUAO(false);
+	}
+	%>
+	jQuery(document).ready(function(){
+		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do","method=view&autoRefresh=true",function(data,textStatus){
+			jQuery("#system_message").html(data);
+		});
+		jQuery.get("<%=request.getContextPath()%>/FacilityMessage.do","method=view&autoRefresh=true",function(data,textStatus){
+			jQuery("#facility_message").html(data);
+		});
+	});
+</script>
+
+<div id="system_message"></div>
+<div id="facility_message"></div>
+<%
+	if (caseload) {
+%>
+<jsp:include page="caseload.jspf"/>
+<%
+	} else {
+%>
+
+<tr id="ivoryBar" class="topbar noprint">
+<td colspan="3">
+    <table width="100%">
+        <tr class="topbar" >
+        <td id="dateAndCalendar" width="43%">
+         <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
+         &nbsp;&nbsp;<i class="icon-angle-left icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></i></a>
+
+
+
+ <span class="dateAppointment" id="theday" ><%
+ 	if (isWeekView) {
+ %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
+ 	} else {
+ %>
+    <% if (showLargeCalendar) { %>
+    <a id="calendarLink" href=# onClick ="popupPage(425,430,'<%=request.getContextPath()%>/share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')" title="<bean:message key="tickler.ticklerEdit.calendarLookup"/>" ><%=formatDate%></a>
+    <% } else { %>
+
+<%=formatDate%><%
+ 	}
+ %>
+<%
+ 	}
+ %></span>
+<input type="hidden" id="storeday" onchange="goDate(this.value)";>
+
+ <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
+ <i class="icon-angle-right icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>"></i>&nbsp;&nbsp;</a>
+
+<logic:notEqual name="infirmaryView_isOscar" value="false">
+ <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
+ <!-- <span style="color:#333"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></span> -->
+ <a href=# onClick = "review('0')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a>
+ 
+<%}else{%>
+	<a href=# onClick = "review('1')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></a>
+<%}%>
+</logic:notEqual>
+
+<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
+<security:oscarSec roleName="<%=roleName$%>" objectName="_day" rights="r">
+ | <a class="rightButton top" href="providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' ; return true"><bean:message key="global.today"/></a>
+</security:oscarSec>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_month" rights="r">
+
+   | <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=1&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=month&dboperation=searchappointmentmonth" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>' ; return true"><bean:message key="global.month"/></a>
+
+ </security:oscarSec>
+ 
+</caisi:isModuleLoad>
+
+<%
+	boolean anonymousEnabled = false;
+	if (loggedInInfo1.getCurrentFacility() != null) {
+		anonymousEnabled = loggedInInfo1.getCurrentFacility().isEnableAnonymous();
+	}
+	if(anonymousEnabled) {
+%>
+&nbsp;&nbsp;(<a href="#" onclick="popupPage(710, 1024,'<html:rewrite page="/PMmodule/createAnonymousClient.jsp"/>?programId=<%=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID)%>');return false;">New Anon Client</a>)
+<%
+	}
+%>
+<%
+	boolean epe = false;
+	if (loggedInInfo1.getCurrentFacility() != null) {
+		epe = loggedInInfo1.getCurrentFacility().isEnablePhoneEncounter();
+	}
+	if(epe) {
+%>
+&nbsp;&nbsp;(<a href="#" onclick="popupPage(710, 1024,'<html:rewrite page="/PMmodule/createPEClient.jsp"/>?programId=<%=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID)%>');return false;">Phone Encounter</a>)
+<%
+	}
+%>
+<% if (showQuickDateMultiplier) { %> 
+&nbsp;
+<input id="monthBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: Gainsboro; color: black;" /><input id="weekForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
+<% } %> 
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
+<input id="weekForward1" type="button" value="1W" class="quick" onclick="getLocation('weekForward',1) "/>
+<% } %>
+<% if (showQuickDatePicker) { %> 
+<input id="weekForward2" type="button" value="2<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',2) "/>
+<input id="weekForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',3) "/>
+<input id="weekForward4" type="button" value="4<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
+<input id="weekForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',6) "/>
+<% } %>
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
+<input id="monthForward1" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
+<% } %>
+<% if (showQuickDatePicker) { %>
+<input id="monthForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',12) "/>
+<input id="monthForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',25) "/>
+<input id="monthForward12" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.yearLetter"/>" class="quick"  onclick="getLocation('weekForward',367/7) "/>
+<% } %> 
+
+</td>
+
+<td  ALIGN="center"  width="14%" id="bimble_extension">
+
+<%
+	if (isWeekView) {
+for(int provIndex=0;provIndex<numProvider;provIndex++) {
+if (curProvider_no[provIndex].equals(provNum)) {
+%>
+<bean:message key="provider.appointmentProviderAdminDay.weekView"/>: <%=curProviderName[provIndex]%>
+<%
+	} } } else { if (view==1) {
+%>
+<a href='providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=0&displaymode=day&dboperation=searchappointmentday'><bean:message key="provider.appointmentProviderAdminDay.grpView"/></a>
+<% } else { %>
+<% if (!isMobileOptimized) { %> <bean:message key="global.hello"/> <% } %>
+<% out.println( userfirstname+" "+userlastname); %>
+</td>
+<% } } %>
+
+<td align="right" valign="canter" style="padding-right: 5px; >
+<div class="btn-group">
+	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'<%=request.getContextPath()%>/scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
+
+	<%if(resourcehelpHtml==""){ %>
+		<a href="javascript:void(0)" onClick ="pop3(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
+
+        
+	<%}else{%>
+		<a href="javascript:void(0)" onClick ="pop3(750,750,'<%=help_url%>booking-appointment-screen/')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
+
+
+
+
+	<%}%>
+<a href="javascript:void(0)" onclick="window.open('/oscar/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')"><i class="icon-info-sign" title="<bean:message key="app.top2"/>"></i></a>
+	
+		<%  	if(loggedInInfo1.getOneIdGatewayData() != null){ 
+				int numberOfMinutesUntilRefreshTokenIsInvalid = loggedInInfo1.getOneIdGatewayData().numberOfMinutesUntilRefreshTokenIsInvalid();
+				String gtwyColor = "";
+				String gtwyMsg = "Token is valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes";
+				if(numberOfMinutesUntilRefreshTokenIsInvalid > 10){
+					//use default message;
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 10 && numberOfMinutesUntilRefreshTokenIsInvalid > 0){
+					gtwyColor = "style='color:yellow;'";
+					gtwyMsg = "Token will expire soon, valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes. Click here to refresh";
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 0 && numberOfMinutesUntilRefreshTokenIsInvalid > -10){
+					gtwyColor = "style='color:red'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}else{
+					gtwyColor = "style='color:grey'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}
+				%>
+				<a href="<%=request.getContextPath()%>/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=<%=URLEncoder.encode(request.getContextPath()+"/provider/providercontrol.jsp","UTF-8") %>" <%=gtwyColor%> title="<%=gtwyMsg%>">GTWY</a>
+				| <a href="uaoSelector.jsp" title="Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%>. Click to Change">UAO</a> 
+				| <a target="_blank" href="<%=request.getContextPath()%>/admin/omdGatewayLog.jsp" title="Current Gateway Log">Log</a>
+				| <a href="<%=request.getContextPath()%>/logoutSSO.jsp">Global Logout</a>
+			<%
+			}else if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { 
+				if(loggedInInfo1.getOneIdGatewayData() == null){ %>
+					<script>
+					window.location = 'uaoSelector.jsp';
+					</script>
+				<%   /*?ondIdwasnull*/
+					return;
+				}%>
+				
+				| <a href="<%=request.getContextPath()%>/logoutSSO.jsp">Global Logout</a>
+ 		<% }
+		   else { %>
+				 &nbsp;&nbsp;&nbsp;<a href="<%=request.getContextPath()%>/logout.jsp"><i class="icon-off icon-large" title="<bean:message key="global.btnLogout"/>"></i>&nbsp;</a>
+		<% } %>
+</div>
+</td>
+
+
       </tr>
 </table>
 </td></tr>
@@ -2181,7 +2211,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <!-- caisi infirmary view exteion add end ffffffffffffffffff-->
 <!-- =============== following block is the original oscar code. -->
         <!-- table for hours of day start -->
-        <table id="providerSchedule"  <%=userAvail?"":"style=\"background-color:silver;\""%>  width="100%">
+        <table id="providerSchedule"  <%=userAvail?"":"style=\"background-color:#646262;\""%>  width="100%">
 <%
 		bFirstTimeRs=true;
         bFirstFirstR=true;
@@ -2246,7 +2276,7 @@ if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeli
 %>
           <tr>
             <td align="RIGHT" class="<%=bColorHour?"scheduleTime00":"scheduleTimeNot00"%>" NOWRAP>
-             <a href=# onClick="confirmPopupPage(600,842,'<%=request.getContextPath()%>/appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
+             <a href=# onClick="confirmPopupPage(window.screen.height - 150, window.screen.width - 250,'<%=request.getContextPath()%>/appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%>' class="adhour">
              <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></td>
             <td class="hourmin" style="text-align:center;" width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white"%>'><%=hourmin.toString()%></font></td>
@@ -2669,7 +2699,7 @@ start_time += iSm + ":00";
 <!-- billing code block -->
 <security:oscarSec roleName="<%=roleName$%>" objectName="_masterLink" rights="r">
    
-    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="pop4WithApptNo(700,1024,'<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','M<%=demographic_no%>',<%=appointment.getId()%>)"
+    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="pop4WithApptNo(window.screen.height - 150, window.screen.width - 250,'<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','M<%=demographic_no%>',<%=appointment.getId()%>)"
     title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message key="provider.appointmentProviderAdminDay.btnM"/></a>
   
 </security:oscarSec>

@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import net.sf.cookierevolver.matrix.EncryptionUtil;
 import net.sf.json.JSONObject;
 
 import org.apache.logging.log4j.Logger;
@@ -80,6 +81,9 @@ import oscar.oscarSecurity.CRHelper;
 import oscar.util.AlertTimer;
 import oscar.util.CBIUtil;
 import oscar.util.ParameterActionForward;
+
+import oscar.util.OscarEncryptionUtil;
+
 
 public final class LoginAction extends DispatchAction {
 	
@@ -218,7 +222,7 @@ public final class LoginAction extends DispatchAction {
 	            // return mapping.findForward(where); //go to block page
 	            // change to block page
 	            String newURL = mapping.findForward("error").getPath();
-	            newURL = newURL + "?errormsg=Your account is locked. Please contact your administrator to unlock.";
+	            newURL = newURL + "?errormsg=Your account is locked. Please try again after 10 minutes or contact your administrator to unlock.";
 	            
 	            if(ajaxResponse) {
 	            	JSONObject json = new JSONObject();
@@ -352,6 +356,36 @@ public final class LoginAction extends DispatchAction {
             if (isMobileOptimized) session.setAttribute("mobileOptimized","true");
             // initiate security manager
             String default_pmm = null;
+
+            // System.out.println("strAuth[0] (User/Provider ID): " + strAuth[0]);
+            // System.out.println("strAuth[1] (First Name): " + strAuth[1]);
+            // System.out.println("strAuth[2] (Last Name): " + strAuth[2]);
+            // System.out.println("strAuth[4] (Role): " + strAuth[4]);
+
+            // // Use the correct variable for the username
+            // System.out.println("Username: " + userName);
+
+            // Combine credentials (username, password, PIN)
+            String credentials = userName + ":" + password + ":" + pin; // strAuth[0] is username
+            try {
+                // Print the constructed credentials to Tomcat logs (for debugging)
+                // System.out.println("Constructed Credentials String: " + credentials);
+
+                // Encrypt the credentials
+                String encryptedCredentials = OscarEncryptionUtil.encrypt(credentials);
+
+                // Store the encrypted credentials in the session
+                session.setAttribute("encryptedCredentials", encryptedCredentials);
+
+                // Log the encrypted credentials for debugging (optional, avoid in production)
+                // System.out.println("Encrypted Credentials: " + encryptedCredentials);
+
+            } catch (Exception e) {
+                logger.error("Failed to encrypt credentials", e);
+                // Optional: Handle encryption errors gracefully if required
+            }
+
+
             
             
             

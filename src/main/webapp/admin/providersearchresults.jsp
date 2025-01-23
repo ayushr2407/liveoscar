@@ -166,11 +166,11 @@
     <thead>
 	<tr>
 		<th style="text-align:center; width:10%">
-			<bean:message key="admin.providersearchresults.ID" /></th>
+			<bean:message key="admin.provider.formProviderNo" /></th>
 		<th style="text-align:center; width:20%; white-space: nowrap;">
 			<bean:message key="admin.provider.formLastName" />,&nbsp;
 			<bean:message key="admin.provider.formFirstName" /></th>
-		<th style="text-align:center; width:10%"><bean:message key="admin.provider.formProviderNo" /></th>
+		<th style="text-align:center; width:10%">MSP No.</th>
 		<th style="text-align:center; width:18%">
 			<bean:message key="admin.provider.formSpecialty" /></th>
 		<th style="text-align:center; width:14%">
@@ -220,13 +220,13 @@
     <!-- getPractionerNo() getPractitionerNoType() getFormattedName() getComments() getBillingNo() getTitle() getEmail() getOhipNo() getAddress() -->
 	<tr>
 		<td style="text-align:center"><a href='providerupdateprovider.jsp?keyword=<%=provider.getId()%>'><%= provider.getId() %></a></td>
-		<td><%= Encode.forHtmlContent(provider.getLastName()+", "+provider.getFirstName()) %></td>
+		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getLastName()+", "+provider.getFirstName()) %></td>
 		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getOhipNo())%></td>
-		<td><%= Encode.forHtmlContent(provider.getSpecialty()) %></td>
-		<td><%= Encode.forHtmlContent(provider.getTeam()) %></td>
+		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getSpecialty()) %></td>
+		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getTeam()) %></td>
 		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getSex()) %></td>
-		<td><%= Encode.forHtmlContent(provider.getPhone()) %></td>
-		<td><%= (provider.getStatus()!=null)?(provider.getStatus().equals("1")?"Active":"Inactive"):"" %></td>
+		<td style="text-align:center"><%= Encode.forHtmlContent(provider.getPhone()) %></td>
+		<td style="text-align:center"><%= (provider.getStatus()!=null)?(provider.getStatus().equals("1")?"Active":"Inactive"):"" %></td>
 	</tr>
 	<%
     }

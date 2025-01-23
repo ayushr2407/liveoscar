@@ -365,11 +365,17 @@
          <artifactId>itext</artifactId>
          <version>4.2.0</version>
       </dependency>
-      <dependency>
+      <!-- <dependency>
          <groupId>com.itextpdf</groupId>
          <artifactId>itextpdf</artifactId>
          <version>5.4.1</version>
-      </dependency>
+      </dependency> -->
+      <dependency>
+    <groupId>com.itextpdf</groupId>
+    <artifactId>itextpdf</artifactId>
+    <version>5.5.13.3</version>
+</dependency>
+
 <dependency>
     <groupId>com.itextpdf</groupId>
     <artifactId>html2pdf</artifactId>
@@ -1122,11 +1128,11 @@
          <artifactId>jackson-jaxrs</artifactId>
          <version>1.9.13</version>
       </dependency>
-      <dependency>
+      <!-- <dependency>
          <groupId>org.xhtmlrenderer</groupId>
          <artifactId>flying-saucer-pdf</artifactId>
          <version>9.1.1</version>
-      </dependency>
+      </dependency> -->
       <dependency>
          <groupId>org.owasp.encoder</groupId>
          <artifactId>encoder</artifactId>

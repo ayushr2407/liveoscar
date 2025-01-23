@@ -259,6 +259,13 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
             }
 		});
 	}
+
+	@SuppressWarnings("unchecked")
+public List<Integer> getAllDemographicNos() {
+    String query = "SELECT d.DemographicNo FROM Demographic d ORDER BY d.DemographicNo";
+    return (List<Integer>) getHibernateTemplate().find(query);
+}
+
 	
 
 	public Demographic getDemographicById(Integer demographic_id) {
