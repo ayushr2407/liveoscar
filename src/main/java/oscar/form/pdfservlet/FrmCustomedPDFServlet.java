@@ -31,7 +31,8 @@
  import java.time.LocalDate;
  import java.time.Period;
  import java.time.format.DateTimeFormatter;
- import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
 
  import java.io.IOException;
  import java.io.ByteArrayOutputStream;
@@ -105,6 +106,9 @@ import oscar.OscarProperties;
  import com.lowagie.text.pdf.PdfPCell;
  import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
+
+import java.time.format.DateTimeFormatterBuilder;
+
 
 
  public class FrmCustomedPDFServlet extends HttpServlet {
@@ -324,7 +328,7 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
 			 this.pharmaShow=pharmaShow;
 			 this.locale = locale;
 		 }
- 
+ // test
 		 @Override
 		 public void onEndPage(PdfWriter writer, Document document) {
 			try {
@@ -458,11 +462,33 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
 	 }
 
      private String calculateAge(String dob) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-        LocalDate birthDate = LocalDate.parse(dob, formatter);
+    try {
+        // Use a flexible DateTimeFormatter that supports single- and double-digit days
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendPattern("MMM d, yyyy") // Use "d" for single- and double-digit days
+            .toFormatter(Locale.ENGLISH);
+
+        // Parse the date using the formatter
+        LocalDate birthDate = LocalDate.parse(dob.trim(), formatter);
+
+        // Calculate age
         LocalDate currentDate = LocalDate.now();
         return String.valueOf(Period.between(birthDate, currentDate).getYears());
+    } catch (DateTimeParseException e) {
+        System.err.println("Invalid date format for dob: " + dob);
+        e.printStackTrace();
+        return "Unknown"; // Default value if parsing fails
     }
+}
+
+
+    //  private String calculateAge(String dob) {
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+    //     LocalDate birthDate = LocalDate.parse(dob, formatter);
+    //     LocalDate currentDate = LocalDate.now();
+    //     return String.valueOf(Period.between(birthDate, currentDate).getYears());
+    // }
 
     private String escapeHtml(String input) {
         if (input == null) {
