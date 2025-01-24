@@ -649,6 +649,7 @@ function returnToRx(){
                         <input placeholder="Phone" type="text" id="pharmacyPhoneSearch">
                         <input placeholder="Address" type="text" id="pharmacyAddressSearch">
                         <%-- <a href="javascript:void(0)" onclick="updatePharmacyList();" class="ControlPushButton">Update Pharmacy List</a> --%>
+                        <a href="javascript:void(0)" onclick="updatePharmacyList();" class="ControlPushButton">Update Pharmacy List</a>
                     </div>
                 </div>
             </div>
