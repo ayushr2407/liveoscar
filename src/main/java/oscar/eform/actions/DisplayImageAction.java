@@ -58,6 +58,11 @@ public class DisplayImageAction extends DownloadAction{
     	
     	   	
         String fileName = request.getParameter("imagefile");
+
+         // Ensure query parameters are stripped from fileName
+    if (fileName.contains("?")) {
+        fileName = fileName.split("\\?")[0];  // Removes everything after "?"
+    }
         //if (fileName.indexOf('/') != -1) return null;  //prevents navigating away from the page.
         String home_dir = OscarProperties.getInstance().getProperty("eform_image");
 

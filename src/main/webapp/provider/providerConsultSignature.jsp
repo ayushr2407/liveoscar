@@ -24,7 +24,7 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%-- <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ page import="oscar.oscarProvider.data.*" %>
@@ -130,4 +130,149 @@
 		</tr>
 	</table>
 	</body>
+</html:html> --%>
+
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+<%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
+<%@ page import="oscar.oscarProvider.data.*" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="java.util.List" %>
+
+<%
+    UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    
+    if (session.getValue("user") == null) {
+        response.sendRedirect("../logout.htm");
+    }
+    
+    String curUser_no = (String) session.getAttribute("user");
+    List<UserProperty> signatures = userPropertyDAO.getAllSignatures(curUser_no);
+%>
+
+<html:html locale="true">
+<head>
+    <link href="<%=request.getContextPath()%>/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/font-awesome.min.css">
+    <title><bean:message key="provider.consultSignatureStamp.title"/></title>
+</head>
+
+<body>
+    <table class="MainTable" id="scrollNumber1" name="encounterTable">
+        <tr class="MainTableTopRow" width="100%">
+            <td class="MainTableTopRowLeftColumn">
+                <h4>&nbsp;<i class="icon-cogs"></i>&nbsp;<bean:message key="provider.providerSignature.msgPrefs"/>&nbsp;</h4>
+            </td>
+            <td class="MainTableTopRowRightColumn">
+                <table class="table TopStatusBar">
+                    <tr>
+                        <td><strong><bean:message key="provider.consultSignatureStamp.title"/></strong></td>
+                        <td>&nbsp;</td>
+                        <td style="text-align: right">
+                            <oscar:help keywords="signature" key="app.top1"/> 
+                            <a href="<%= request.getContextPath() %>/oscarEncounter/About.jsp" target="_blank"><bean:message key="global.about"/></a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="MainTableLeftColumn">&nbsp;</td>
+            <td class="MainTableRightColumn">
+                <html:form action="/eform/imageUpload" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+                    <input type="hidden" id="method" name="method" value="uploadProviderImage"/>
+                    <input type="hidden" id="imageToDelete" name="imageToDelete" value=""/>
+
+                    <!-- Display existing signatures -->
+                    <%
+                        if (signatures != null && !signatures.isEmpty()) {
+                    %>
+                        <bean:message key="provider.providerSignature.msgCurrentSignature"/>:
+                        <br/>
+                        <div id="signatureContainer">
+                            <%
+                                for (UserProperty signature : signatures) {
+                            %>
+                                <div class="signature-block">
+                                    <img src="<%=request.getContextPath()%>/eform/displayImage.do?imagefile=<%=signature.getValue()%>" 
+                                         style="border: 1px solid black; width: 150px; margin: 5px;"/>
+                                    <button type="button" class="btn btn-danger" onclick="removeSignature('<%=signature.getValue()%>')">
+                                        Remove
+                                    </button>
+                                </div>
+                            <%
+                                }
+                            %>
+                        </div>
+                    <%
+                        } else {
+                    %>
+                        <bean:message key="provider.providerSignature.msgSigNotSet"/>
+                    <%
+                        }
+                    %>
+
+                    <br/><br/>
+                    <bean:message key="provider.consultSignatureStamp.edit"/>
+                    <br/><br/>
+
+                    <!-- File Input for Multiple Signatures -->
+					<input type="file" id="image" name="image" />
+                    <br/>
+                    <div id="signaturePreview"></div>
+                    <br/>
+                    <input type="submit" name="submit" class="btn" id="submit" value="Add File" disabled/>
+                </html:form>
+
+                <!-- JavaScript for Previewing and Deleting Signatures -->
+                <script type="application/javascript">
+                    function changeSignature() {
+                        var files = document.getElementById("image").files;
+                        var previewContainer = document.getElementById("signaturePreview");
+                        previewContainer.innerHTML = ""; 
+
+                        if (files.length > 0) {
+                            document.getElementById("submit").disabled = false;
+                        } else {
+                            document.getElementById("submit").disabled = true;
+                        }
+
+                        for (let i = 0; i < files.length; i++) {
+                            let reader = new FileReader();
+                            reader.onload = function (e) {
+                                let imgElement = document.createElement("img");
+                                imgElement.src = e.target.result;
+                                imgElement.style.border = "1px solid black";
+                                imgElement.style.margin = "5px";
+                                imgElement.style.width = "150px";
+                                previewContainer.appendChild(imgElement);
+                            };
+                            reader.readAsDataURL(files[i]);
+                        }
+                    }
+
+                    function removeSignature(imagePath) {
+                        if (confirm("Are you sure you want to delete this signature?")) {
+                            document.getElementById("method").value = "removeProviderImage";
+                            document.getElementById("imageToDelete").value = imagePath;
+                            document.forms[0].submit();
+                        }
+                    }
+
+                    document.getElementById("image").addEventListener("change", changeSignature);
+                </script>
+            </td>
+        </tr>
+        <tr>
+            <td class="MainTableBottomRowLeftColumn"></td>
+            <td class="MainTableBottomRowRightColumn"></td>
+        </tr>
+    </table>
+</body>
 </html:html>
+

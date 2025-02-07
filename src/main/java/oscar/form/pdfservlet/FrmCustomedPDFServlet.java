@@ -26,7 +26,7 @@
  package oscar.form.pdfservlet;
 
 
- 
+
  import org.apache.commons.codec.binary.Base64;
  import java.time.LocalDate;
  import java.time.Period;
@@ -810,14 +810,69 @@ if ("oscarRxFax".equals(isFaxRequest)) {
         }
     
         // Signature and image handling
-        String imgPath = req.getParameter("imgFile");
-        String imgBase64 = "";
-        if (imgPath != null && !imgPath.isEmpty()) {
-            File imgFile = new File(imgPath);
-            if (imgFile.exists()) {
-                imgBase64 = "data:image/png;base64," + encodeImageToBase64(imgFile);
-            }
-        }
+        // String imgPath = req.getParameter("imgFile");
+        // String imgBase64 = "";
+        // if (imgPath != null && !imgPath.isEmpty()) {
+        //     File imgFile = new File(imgPath);
+        //     if (imgFile.exists()) {
+        //         imgBase64 = "data:image/png;base64," + encodeImageToBase64(imgFile);
+        //     }
+        // }
+
+// Get both static and drawn signatures from JSP
+String imgPath = req.getParameter("imgFile");  // Static signature filename
+String electronicSignature = req.getParameter("electronicSignature");  // Drawn signature in Base64
+
+// System.out.println("DEBUG (Servlet): imgPath (static) = " + imgPath);
+// System.out.println("DEBUG (Servlet): electronicSignature (drawn) = " + (electronicSignature != null ? "Exists" : "NULL"));
+
+// Initialize imgBase64 variable
+String imgBase64 = "";
+
+// **Step 1: Use Drawn Signature If It Exists and is Valid**
+if (electronicSignature != null && !electronicSignature.trim().isEmpty()) {
+    if (electronicSignature.startsWith("data:image/png;base64,")) {
+        electronicSignature = electronicSignature.replace("data:image/png;base64,", "");
+    }
+
+    //  Validate Base64 Content
+    if (isBase64Valid(electronicSignature)) {
+        imgBase64 = "data:image/png;base64," + electronicSignature;  //  Use Drawn Signature
+        // System.out.println(" Using Drawn Signature (Base64, Length: " + imgBase64.length() + ")");
+    } else {
+        System.out.println(" ERROR: Drawn Signature Base64 is INVALID");
+    }
+}
+
+// **Step 2: If No Drawn Signature, Load Static Signature**
+if (imgBase64.isEmpty() && imgPath != null && !imgPath.isEmpty()) {
+    File imgFile;
+
+    // **Handle Case Where Signature is in `/tmp/`**
+    if (imgPath.startsWith("/tmp/")) {
+        imgFile = new File(imgPath);
+        // System.out.println("Checking for drawn signature in /tmp/: " + imgFile.getAbsolutePath());
+    } else {
+        // **Static Signature Directory**
+        String signatureDirectory = "/usr/share/oscar-emr/OscarDocument/oscar/eform/images";
+        imgFile = new File(signatureDirectory, imgPath);
+    }
+
+    if (imgFile.exists()) {
+        imgBase64 = "data:image/png;base64," + encodeImageToBase64(imgFile);
+        // System.out.println("Using Signature from: " + imgFile.getAbsolutePath());
+    } else {
+        System.out.println("Signature Not Found: " + imgFile.getAbsolutePath());
+    }
+}
+
+// **Final Debugging**
+// System.out.println("DEBUG (Servlet): Final imgBase64 length = " + (imgBase64.isEmpty() ? "NO IMAGE" : imgBase64.length()));
+
+
+
+// Now imgBase64 is correctly set and can be used in the HTML template
+
 
         // String logoPath = ctx.getRealPath("/images/rx_logo.png");
         // Gets absolute path of the logo from the webapps directory (complete enviornment)
@@ -829,13 +884,13 @@ if ("oscarRxFax".equals(isFaxRequest)) {
         }
 
         isFaxRequest = req.getParameter("__method").trim();
-        System.out.println("isFaxRequest: [" + isFaxRequest + "]");
+        // System.out.println("isFaxRequest: [" + isFaxRequest + "]");
         
         String faxInfo = ""; // Ensure faxInfo starts empty
-        System.out.println("faxInfo before condition check: [" + faxInfo + "]");
+        // System.out.println("faxInfo before condition check: [" + faxInfo + "]");
 
         if ("oscarRxFax".equals(isFaxRequest)) {
-            System.out.println("Condition met: Setting faxInfo for fax request.");
+            // System.out.println("Condition met: Setting faxInfo for fax request.");
             faxInfo = "<h3>Prescriber Certification</h3>\n"
                 + "<p>I hereby certify that:</p>\n"
                 + "<ul>\n"
@@ -849,10 +904,10 @@ if ("oscarRxFax".equals(isFaxRequest)) {
         }
         else {
             faxInfo = "";
-            System.out.println("Condition NOT met: isFaxRequest = [" + isFaxRequest + "]");
+            // System.out.println("Condition NOT met: isFaxRequest = [" + isFaxRequest + "]");
         }
         
-        System.out.println("Final faxInfo passed to template: [" + faxInfo + "]");
+        // System.out.println("Final faxInfo passed to template: [" + faxInfo + "]");
 
         logger.debug("Base64 encoded logo length: " + (logoBase64 != null ? logoBase64.length() : "not found"));
     
@@ -923,6 +978,23 @@ private String encodeImageToBase64(File imageFile) throws IOException {
     }
 }
 
+public boolean isBase64Valid(String base64) {
+    try {
+        // Remove "data:image/png;base64," prefix if it exists
+        if (base64.startsWith("data:image/png;base64,")) {
+            base64 = base64.replace("data:image/png;base64,", "");
+        }
+
+        // Decode using Apache Commons Codec
+        byte[] decodedBytes = Base64.decodeBase64(base64);
+        
+        // If decoded successfully, return true
+        return decodedBytes.length > 0;
+    } catch (Exception e) {
+        System.out.println("❌ ERROR: Invalid Base64 Encoding");
+        return false;
+    }
+}
 
 // Load HTML template as in your previous code
 private String loadHtmlTemplate() throws IOException {

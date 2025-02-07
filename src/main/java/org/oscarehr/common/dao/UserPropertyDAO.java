@@ -47,6 +47,24 @@ public class UserPropertyDAO extends AbstractDao<UserProperty> {
     	super(UserProperty.class);
     }
 
+    public List<UserProperty> getAllSignatures(String providerNo) {
+        Query query = entityManager.createQuery("SELECT p FROM UserProperty p WHERE p.providerNo = :providerNo AND p.name = :name");
+        query.setParameter("providerNo", providerNo);
+        query.setParameter("name", UserProperty.PROVIDER_CONSULT_SIGNATURE);
+        return query.getResultList();
+    }
+    
+    public void saveSignature(UserProperty signature) {
+        persist(signature);
+    }
+    
+    public void deleteSignature(String providerNo, String imagePath) {
+        Query query = entityManager.createQuery("DELETE FROM UserProperty p WHERE p.providerNo = :providerNo AND p.value = :imagePath");
+        query.setParameter("providerNo", providerNo);
+        query.setParameter("imagePath", imagePath);
+        query.executeUpdate();
+    }
+    
 
     public void delete(UserProperty prop) {
         remove(prop.getId());

@@ -23,57 +23,126 @@
  */
 
 
+// package oscar.eform.upload;
+
+// import java.io.File;
+
+// import javax.servlet.http.HttpServletRequest;
+
+// import org.apache.struts.action.ActionErrors;
+// import org.apache.struts.action.ActionForm;
+// import org.apache.struts.action.ActionMapping;
+// import org.apache.struts.action.ActionMessage;
+// import org.apache.struts.upload.FormFile;
+
+// import oscar.OscarProperties;
+
+// public class ImageUploadForm extends ActionForm {
+//     private FormFile image = null;
+//     private String method = null; 
+    
+//     public ImageUploadForm() {
+//     }
+    
+//     public void setImage(FormFile image) {
+//         this.image = image;
+//     }
+    
+//     public FormFile getImage() {
+//         return image;
+//     }
+    
+//     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
+//         ActionErrors errors = new ActionErrors();
+//         boolean signatureRemove = (request.getParameter("method") != null && request.getParameter("method").equals("removeProviderImage"));
+//         if (signatureRemove) {
+//             request.setAttribute("status", "success");
+//             return errors;
+//         }
+//         if (image.getFileSize() == 0) {
+//             errors.add("image", new ActionMessage("eform.uploadimages.imageMissing"));
+//         }
+        
+//         String serverImagePath = OscarProperties.getInstance().getProperty("eform_image") + "/" + image.getFileName();
+//         File testimage = new File(serverImagePath);
+//         boolean signatureUpload = (request.getParameter("method") != null && request.getParameter("method").equals("uploadProviderImage"));
+//         if (testimage.exists() && !signatureUpload) {
+//             errors.add("image", new ActionMessage("eform.uploadimages.imageAlreadyExists", image.getFileName()));
+//         }
+        
+//         if(errors.size()==0){
+//         	request.setAttribute("status", "success");
+//         }
+        
+//         return errors;
+//     }
+// }
+
+
 package oscar.eform.upload;
 
 import java.io.File;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.upload.FormFile;
-
 import oscar.OscarProperties;
 
 public class ImageUploadForm extends ActionForm {
-    private FormFile image = null;
-    private String method = null; 
-    
-    public ImageUploadForm() {
-    }
-    
-    public void setImage(FormFile image) {
-        this.image = image;
-    }
-    
-    public FormFile getImage() {
+
+    private FormFile image;  // Changed from List<FormFile> to Single File
+
+    private String method;
+
+    public ImageUploadForm() {}
+
+    public FormFile getImage() {  // Changed getter to single file
         return image;
     }
-    
+
+    public void setImage(FormFile image) {  // Changed setter to single file
+        this.image = image;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    @Override
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = new ActionErrors();
-        boolean signatureRemove = (request.getParameter("method") != null && request.getParameter("method").equals("removeProviderImage"));
+        boolean signatureRemove = ("removeProviderImage".equals(request.getParameter("method")));
+
         if (signatureRemove) {
             request.setAttribute("status", "success");
             return errors;
         }
-        if (image.getFileSize() == 0) {
+
+        // Ensure file is selected
+        if (image == null || image.getFileSize() == 0) {
             errors.add("image", new ActionMessage("eform.uploadimages.imageMissing"));
+        } else {
+            String serverImagePath = OscarProperties.getInstance().getProperty("eform_image") + "/" + image.getFileName();
+            File testImage = new File(serverImagePath);
+            boolean signatureUpload = ("uploadProviderImage".equals(request.getParameter("method")));
+
+            if (testImage.exists() && !signatureUpload) {
+                errors.add("image", new ActionMessage("eform.uploadimages.imageAlreadyExists", image.getFileName()));
+            }
         }
-        
-        String serverImagePath = OscarProperties.getInstance().getProperty("eform_image") + "/" + image.getFileName();
-        File testimage = new File(serverImagePath);
-        boolean signatureUpload = (request.getParameter("method") != null && request.getParameter("method").equals("uploadProviderImage"));
-        if (testimage.exists() && !signatureUpload) {
-            errors.add("image", new ActionMessage("eform.uploadimages.imageAlreadyExists", image.getFileName()));
+
+        if (errors.isEmpty()) {
+            request.setAttribute("status", "success");
         }
-        
-        if(errors.size()==0){
-        	request.setAttribute("status", "success");
-        }
-        
+
         return errors;
     }
 }
+
+
