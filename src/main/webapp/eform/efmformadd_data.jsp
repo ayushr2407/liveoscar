@@ -57,6 +57,7 @@ function hideDiv() {
 	String provider_no = (String) session.getValue("user");
   String demographic_no = request.getParameter("demographic_no");
   String appointment_no = request.getParameter("appointment");
+  System.out.println("demographic's appointment_no in JSP = " + appointment_no);
   String fid = request.getParameter("fid");
   String eform_link = request.getParameter("eform_link");
   String source = request.getParameter("source");
@@ -82,7 +83,25 @@ function hideDiv() {
   thisEForm.setAction();
   thisEForm.setSource(source);
   thisEForm.setFdid("");
-  out.print(thisEForm.getFormHtml());
+  String formHtml = thisEForm.getFormHtml();
+
+  // Inject hidden appointment number field inside the form dynamically
+  String hiddenAppointmentField = "<input type='hidden' name='appointment' value='" + appointment_no + "'>";
+
+  // Append the hidden field inside the <form> tag before printing
+  if (formHtml.contains("</form>")) {
+      formHtml = formHtml.replace("</form>", hiddenAppointmentField + "</form>");
+  } else {
+      // If no <form> tag exists, just append it at the end
+      formHtml += hiddenAppointmentField;
+  }
+
+  // Print modified form HTML to the page
+  out.print(formHtml);
+
+  // Debugging Log
+  System.out.println("📌 DEBUG: Injected hidden appointment field into form.");
+
 
 
 
