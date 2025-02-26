@@ -530,7 +530,7 @@ boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demo
 <%-- <link rel="shortcut icon" href="<%=request.getContextPath()%>/images/Oscar.ico">  --%>
     <link rel="icon" type="image/png" href="/clinic_data/logo/logo2.png" />
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
-<title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
+<title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/> - Bimble Pro</title>
 
 <!-- Determine which stylesheet to use: mobile-optimized or regular -->
 <%
@@ -592,7 +592,7 @@ th, td {
 }
 
 .tabalert {
-	color: <%=(showClassicSchedule? "red" : "#97ff00")%>;
+	color: <%=(showClassicSchedule? "red" : "#3357C0")%>;
 }
 
 .quick {
@@ -633,6 +633,18 @@ th, td {
     display: inline-block;
     margin: 0;
     padding: 0;
+	background: #fff;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#navlist li:first-child {
+    border-radius: 5px 0 0 5px;
+    overflow: hidden;
+}
+
+#navlist li:last-child {
+    border-radius: 0 5px 5px 0;
+    overflow: hidden;
 }
 
 #navlist li a {
@@ -642,9 +654,6 @@ th, td {
     font-size: 14px;
     font-weight: bold;
     padding: 8px 12px;
-    background-color: #ffffff;
-    border: 1px solid #d1d5da;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1336,7 +1345,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
    <li>
-       <a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>' style="padding: 6.5px;">
+       <a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>' style="padding: 6.6px;">
 	   <span id="oscar_new_lab"><bean:message key="global.lab"/></span>
        </a>
        <oscar:newUnclaimedLab>
@@ -2276,7 +2285,7 @@ if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeli
 %>
           <tr>
             <td align="RIGHT" class="<%=bColorHour?"scheduleTime00":"scheduleTimeNot00"%>" NOWRAP>
-             <a href=# onClick="confirmPopupPage(window.screen.height - 150, window.screen.width - 250,'<%=request.getContextPath()%>/appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
+             <a href=# onClick="confirmPopupPage(750,900,'<%=request.getContextPath()%>/appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%>' class="adhour">
              <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></td>
             <td class="hourmin" style="text-align:center;" width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white"%>'><%=hourmin.toString()%></font></td>

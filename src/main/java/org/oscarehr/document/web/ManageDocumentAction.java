@@ -758,9 +758,9 @@ public class ManageDocumentAction extends DispatchAction {
 
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
+		// if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
+        // 	throw new SecurityException("missing required security object (_edoc)");
+        // }
 		
 		String temp = request.getParameter("remoteFacilityId");
 		Integer remoteFacilityId = null;

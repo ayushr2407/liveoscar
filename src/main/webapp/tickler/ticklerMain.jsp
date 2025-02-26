@@ -504,7 +504,7 @@ var beginD = "1900-01-01"
 
 <oscar:customInterface section="ticklerMain"/>
 </head>
-<body>
+<body style="padding: 10px;">
 
 <table style="width:100%">
   <tr class="noprint">

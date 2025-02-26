@@ -348,9 +348,20 @@ function changeSite(sel) {
 }
 //multisite end ==========================================
 </script>
+
+<style>
+        #reportsTbl th, #reportsTbl td {
+            padding: 0 !important;
+        }
+
+#reportsTbl.table td {
+    padding: 8px !important;  /* Allows Bootstrap’s .table td { padding: 8px; } */
+}
+    </style>
+	
 </head>
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus(); changeSite(document.getElementsByName('siteName')[0])"
-	topmargin="0" leftmargin="0" rightmargin="0">
+	topmargin="0" leftmargin="0" rightmargin="0" style="padding: 15px;">
 <%
 GregorianCalendar now = new GregorianCalendar();
 GregorianCalendar cal = (GregorianCalendar) now.clone();

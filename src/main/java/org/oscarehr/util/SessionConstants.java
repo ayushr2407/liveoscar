@@ -32,5 +32,6 @@ public class SessionConstants
     public static final String LOGGED_IN_PROVIDER_PREFERENCE="providerPreference";
     public static final String INTEGRATOR_OFFLINE="integratorOffline";
     public static final String OH_GATEWAY_DATA="ohGateWayData";
+    public static final String LOGGED_IN_INFO = "loggedInInfo";
     
 }

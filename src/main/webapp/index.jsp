@@ -268,8 +268,11 @@ else if (request.getParameter("errorMessage") != null) {
     </div>
     <div class="form-group">
         <i class="fas fa-key"></i>
+        <input type="tel" id="pin2" name="pin2" autocomplete="off" placeholder="PIN" oninput="maskMe(event);" onchange="checkMe();" inputmode="numeric">
+        <%-- <input type="tel" id="pin2" name="pin2" autocomplete="off" placeholder="PIN" oninput="maskMe(event);" onchange="checkMe();"inputmode="numeric">
+       <input type="text" id="pin2" name="pin2" autocomplete="off" placeholder="PIN" oninput="maskMe();" onchange="checkMe();">
         <input type="text" id="pin2" name="pin2" autocomplete="off" placeholder="PIN" onkeyup="maskMe();" onchange="checkMe();">
-        <%-- <i class="fas fa-eye icon-eye-open" onclick="toggleMask();"></i> --%>
+         <i class="fas fa-eye icon-eye-open" onclick="toggleMask();"></i> --%>
         <span class="error-message" id="pin-error">PIN is required</span>
     </div>
     <input type="hidden" id="pin" name="pin" value="">
@@ -297,7 +300,7 @@ else if (request.getParameter("errorMessage") != null) {
         </div>
     </div>
 
-    <div class="container" style="border-radius: 25px; margin-top: 25px; padding: 14px;">
+    <%-- <div class="container" style="border-radius: 25px; margin-top: 25px; padding: 14px;">
         <div id="auaText" class="span3" style="display:none;">
             <h3><bean:message key="provider.login.title.confidentiality"/></h3>
             <p><%=AcceptableUseAgreementManager.getAUAText()%></p> 
@@ -314,7 +317,7 @@ else if (request.getParameter("errorMessage") != null) {
                 OSCAR <%=OscarProperties.getBuildTag()%>:<%= OscarProperties.getBuildDate() %>
             </small>&nbsp;&nbsp;
         </span>
-    </div>
+    </div> --%>
 
     <script>
 
@@ -368,22 +371,101 @@ function validateForm(event) {
         }
     }
 
-    var mask = true;
-    function maskMe() {
-        if (!mask) {
-            document.getElementById('pin').value = document.getElementById('pin2').value;
-            return;
-        }
-        var key = event.keyCode || event.charCode;
-        if (key == 8) {
-            let str = document.getElementById('pin').value;
-            str = str.substring(0, str.length - 1);
-            document.getElementById('pin').value = str;
-        } else {
-            document.getElementById('pin').value += document.getElementById('pin2').value.slice(-1);
-            document.getElementById('pin2').value = document.getElementById('pin2').value.replace(/./g, "*");
-        }
+// original
+    // var mask = true;
+    // function maskMe() {
+    //     if (!mask) {
+    //         document.getElementById('pin').value = document.getElementById('pin2').value;
+    //         return;
+    //     }
+    //     var key = event.keyCode || event.charCode;
+    //     if (key == 8) {
+    //         let str = document.getElementById('pin').value;
+    //         str = str.substring(0, str.length - 1);
+    //         document.getElementById('pin').value = str;
+    //     } else {
+    //         document.getElementById('pin').value += document.getElementById('pin2').value.slice(-1);
+    //         document.getElementById('pin2').value = document.getElementById('pin2').value.replace(/./g, "*");
+    //     }
+    // }
+
+
+//     var mask = true;
+
+// function maskMe(event) {
+//     var pinInput = document.getElementById('pin'); // Hidden input field (sent in form)
+//     var pinMaskedInput = document.getElementById('pin2'); // Visible masked input
+    
+//     if (!mask) {
+//         pinInput.value = pinMaskedInput.value; // Directly copy if masking is off
+//         return;
+//     }
+
+//     // Ensure that the hidden pin always contains the full value
+//     pinInput.value = pinMaskedInput.value.replace(/\D/g, ""); // Remove non-numeric values
+
+//     // Handle backspace separately
+//     if (event.inputType === "deleteContentBackward") {
+//         pinInput.value = pinInput.value.slice(0, -1);
+//     }
+
+//     // Use a small delay to ensure full input is captured before masking
+//     setTimeout(() => {
+//         pinMaskedInput.value = "*".repeat(pinInput.value.length);
+//     }, 50);
+// }
+
+// var mask = true;
+
+// function maskMe(event) {
+//     var pinInput = document.getElementById('pin'); // Hidden input field (sent in form)
+//     var pinMaskedInput = document.getElementById('pin2'); // Visible masked input
+
+//     if (!mask) {
+//         pinInput.value = pinMaskedInput.value; // Directly copy if masking is off
+//         return;
+//     }
+
+//     // Handle backspace separately
+//     if (event.inputType === "deleteContentBackward") {
+//         pinInput.value = pinInput.value.slice(0, -1);
+//     } else {
+//         pinInput.value += event.data; // Append the new character to `pin`
+//     }
+
+//     // Instantly mask the visible input to prevent interruptions
+//     pinMaskedInput.value = "*".repeat(pinInput.value.length);
+// }
+
+
+var mask = true;
+
+function maskMe(event) {
+    var pinInput = document.getElementById('pin'); // Hidden field (stores actual PIN)
+    var pinMaskedInput = document.getElementById('pin2'); // Visible masked input
+
+    // If mask is off, allow normal input
+    if (!mask) {
+        pinInput.value = pinMaskedInput.value;
+        return;
     }
+
+    // Ensure valid event data (handles undefined cases)
+    let newChar = event.data || ""; // Prevents "null" issue on deletion
+
+    // Handle backspace correctly
+    if (event.inputType === "deleteContentBackward") {
+        pinInput.value = pinInput.value.slice(0, -1); // Remove last digit
+    } else if (newChar.match(/[0-9]/)) { // Ensure only numbers are added
+        pinInput.value += newChar;
+    }
+
+    // Mask input with asterisks
+    setTimeout(() => {
+        pinMaskedInput.value = "*".repeat(pinInput.value.length);
+    }, 0);
+}
+
 
     function toggleMask() {
         if (document.getElementById('pin2').value.slice(0, 1) != "*") {

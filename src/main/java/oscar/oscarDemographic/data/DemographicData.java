@@ -191,10 +191,15 @@ public class DemographicData {
 		return retval;
 	}
 
-	public Demographic getDemographic(LoggedInInfo loggedInInfo, String DemographicNo) {
-		Demographic demographic =  demographicManager.getDemographic(loggedInInfo,DemographicNo);
+	// public Demographic getDemographic(LoggedInInfo loggedInInfo, String DemographicNo) {
+	// 	Demographic demographic =  demographicManager.getDemographic(loggedInInfo,DemographicNo);
+	// 	return demographic;
+	// }
+	public Demographic getDemographic(LoggedInInfo loggedInInfo, String demographicNo) {
+		Demographic demographic = demographicManager.getDemographic(loggedInInfo, demographicNo);	
 		return demographic;
 	}
+	
 
 	public String getDemographicNoByMyOscarUserName(LoggedInInfo loggedInInfo, String myOscarUserName) {
 		org.oscarehr.common.model.Demographic d = demographicManager.getDemographicByMyOscarUserName(loggedInInfo, myOscarUserName);

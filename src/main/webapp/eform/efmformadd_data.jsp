@@ -57,21 +57,21 @@ function hideDiv() {
 	String provider_no = (String) session.getValue("user");
   String demographic_no = request.getParameter("demographic_no");
   String appointment_no = request.getParameter("appointment");
-  System.out.println("demographic's appointment_no in JSP = " + appointment_no);
   String fid = request.getParameter("fid");
   String eform_link = request.getParameter("eform_link");
   String source = request.getParameter("source");
   
 
   EForm thisEForm = null;
-  if (fid == null || demographic_no == null) {
-      //if the info is in the request attribute
-      thisEForm = (EForm) request.getAttribute("curform");
-  } else {
-      //if the info is in the request parameter
-      thisEForm = new EForm(fid, demographic_no);
-      thisEForm.setProviderNo(provider_no);  //needs provider for the action
-  }
+if (fid == null || demographic_no == null) {
+    thisEForm = (EForm) request.getAttribute("curform");
+    System.out.println("efmformadd_data.jsp - Using `curform` from request attributes.");
+} else {
+    thisEForm = new EForm(fid, demographic_no);
+    thisEForm.setProviderNo(provider_no);
+    System.out.println("efmformadd_data.jsp - Created new EForm instance with fid: " + fid + " and demographic_no: " + demographic_no);
+}
+
 
   if (appointment_no!=null) thisEForm.setAppointmentNo(appointment_no);
   if (eform_link!=null) thisEForm.setEformLink(eform_link);
@@ -98,12 +98,6 @@ function hideDiv() {
 
   // Print modified form HTML to the page
   out.print(formHtml);
-
-  // Debugging Log
-  System.out.println("📌 DEBUG: Injected hidden appointment field into form.");
-
-
-
 
 
   String timeStamp = new SimpleDateFormat("dd-MMM-yyyy hh:mm a").format(Calendar.getInstance().getTime());

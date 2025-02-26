@@ -128,6 +128,11 @@ bean.nullAttachment();
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <style>
+
+form {
+    margin: 0 !important;
+}
+
 tr.newMessage td {
      font-weight: bold;
 }
@@ -199,7 +204,7 @@ $(document).ready(function(){
 </script>
 </head>
 
-<body class="BodyStyle" onload="window.focus()" onunload="return uload()">
+<body class="BodyStyle" onload="window.focus()" onunload="return uload()" style="padding: 10px;">
 <div id="pop-up"><p></p></div>
 <table style="width: 100%;">
   <tr>

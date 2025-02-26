@@ -367,7 +367,7 @@ function popup1(height, width, url, windowName){
 
 
 </head>
-<body>
+<body style="padding: 10px;">
 
 
 		<table class="TopStatusBar" style="width:100%">

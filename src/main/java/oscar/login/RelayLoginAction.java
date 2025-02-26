@@ -58,12 +58,69 @@ public class RelayLoginAction extends Action {
             // System.out.println("Password: " + password);
             // System.out.println("PIN: " + pin);
 
+            //add eform redirection from Bimble
+            String action = request.getParameter("action");
+
+
+            if ("addeform".equals(action)) {
+                // Retrieve additional parameters required for redirection
+                String fid = request.getParameter("fid"); // Fetch fid dynamically
+                String demographicNo = request.getParameter("demographic_no");
+                String appointmentNo = request.getParameter("appointment");
+            
+                // Check if any parameter is missing
+                StringBuilder missingParams = new StringBuilder();
+                if (fid == null || fid.isEmpty()) missingParams.append("fid, ");
+                if (demographicNo == null || demographicNo.isEmpty()) missingParams.append("demographic_no, ");
+                if (appointmentNo == null || appointmentNo.isEmpty()) missingParams.append("appointment, ");
+            
+                // If there are missing parameters, forward an error message
+                if (missingParams.length() > 0) {
+                    request.setAttribute("errorMessage", "Missing parameters: " + missingParams.substring(0, missingParams.length() - 2));
+                    return mapping.findForward("error");  // Redirect to error page or login page with an error box
+                }
+            
+                // Forward parameters to LoginAction
+                request.setAttribute("username", username);
+                request.setAttribute("password", password);
+                request.setAttribute("pin", pin);
+                request.setAttribute("action", "addeform");
+                request.setAttribute("fid", fid); // Pass dynamic fid
+                request.setAttribute("demographic_no", demographicNo);
+                request.setAttribute("appointment", appointmentNo);
+            
+                // Forward to LoginAction (which will handle the redirect)
+                return mapping.findForward("login");
+            }
+            
+
+
+            //redirection for viewing document
+if ("viewdoc".equals(action)) {
+    // Retrieve additional parameters required for document viewing
+    String docNo = request.getParameter("doc_no");
+
+    // Ensure parameter exists
+    if (docNo == null) docNo = "0"; // Default document number if missing
+
+    // Forward parameters to LoginAction
+    request.setAttribute("username", username);
+    request.setAttribute("password", password);
+    request.setAttribute("pin", pin);
+    request.setAttribute("action", "viewdoc");
+    request.setAttribute("doc_no", docNo);
+
+    // Forward to LoginAction (which will handle the redirect)
+    return mapping.findForward("login");
+}
+
             // logger.info("Relay login attempt for user: " + username);
 
             // Step 3: Forward the decrypted credentials to the existing /login endpoint
             request.setAttribute("username", username);
             request.setAttribute("password", password);
             request.setAttribute("pin", pin);
+            System.out.println("RelayLogin: Forwarding with username = " + username);
 
             // Forward internally to /login
             return mapping.findForward("login");

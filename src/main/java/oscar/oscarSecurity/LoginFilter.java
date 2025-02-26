@@ -81,13 +81,19 @@ public class LoginFilter implements Filter {
 		"/eho/callback.jsp",
 		"/eho/login2.jsp",
 		"/eho/loginForm.jsp",
-		"/relayLogin.do"  
+		"/relayLogin.do",
+		"/eform/efmshowform_data.jsp",
+		"/eform/displayImage.do"
+		// "/dms/ManageDocument.do"
 	};
 	
 	private static final String[] EXEMPT_URLS_FOR_REQUEST_TIMEOUT = {
 		"/images/",  
 		"/login.do",
 		"/relayLogin.do",
+		"/eform/efmshowform_data.jsp",
+		"/eform/displayImage.do",
+		// "/dms/ManageDocument.do",
 		"/ssoLogin.do",
 		"/econsultSSOLogin.do",
 		"/logout.jsp",

@@ -80,7 +80,7 @@ function BackToOscar()
 }
 </script>
 </head>
-<body class="BodyStyle">
+<body class="BodyStyle" style="padding: 10px;">
 
 <html:errors />
 <!--  -->

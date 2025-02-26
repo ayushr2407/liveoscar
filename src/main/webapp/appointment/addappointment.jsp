@@ -1470,7 +1470,7 @@ function locale(){
 </FORM>
 
 <div class ="span12">
-<table style="margin-left:auto;">
+<table>
 <tr>
     <td style="vertical-align: top;">
         <%if( bFromWL && demoNo != null && demoNo.length() > 0 ) {%>

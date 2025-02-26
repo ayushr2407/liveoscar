@@ -296,7 +296,7 @@ cursor: hand;
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 </head>
-<body class="BodyStyle" vlink="#0000FF" >
+<body class="BodyStyle" vlink="#0000FF" style="padding: 10px;" >
 <!--  -->
 
                 <table class="TopStatusBar" width="100%">

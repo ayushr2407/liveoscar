@@ -71,6 +71,9 @@ import org.oscarehr.util.SpringUtils;
 import org.owasp.encoder.Encode;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import oscar.oscarDemographic.data.DemographicData;
+import org.oscarehr.common.model.Demographic;
+
 
 import com.quatro.model.security.LdapSecurity;
 
@@ -173,20 +176,30 @@ public final class LoginAction extends DispatchAction {
     	    
     	} else {
             // Check if credentials are forwarded via request attributes (from RelayLoginAction)
-            userName = (String) request.getAttribute("username");
-            password = (String) request.getAttribute("password");
-            pin = (String) request.getAttribute("pin");
+            // userName = (String) request.getAttribute("username");
+            // password = (String) request.getAttribute("password");
+            // pin = (String) request.getAttribute("pin");
         
             // If attributes are null, fall back to form-based credentials
-            if (userName == null) {
-                userName = ((LoginForm) form).getUsername();
+            userName = ((LoginForm) form).getUsername();
+            if (userName == null || userName.isEmpty()) {
+                userName = (String) request.getAttribute("username");
             }
-            if (password == null) {
-                password = ((LoginForm) form).getPassword();
+            
+            password = ((LoginForm) form).getPassword();
+            if (password == null || password.isEmpty()) {
+                password = (String) request.getAttribute("password");
             }
-            if (pin == null) {
-                pin = ((LoginForm) form).getPin();
+            
+            pin = ((LoginForm) form).getPin();
+            if (pin == null || pin.isEmpty()) {
+                pin = (String) request.getAttribute("pin");
             }
+            
+            // System.out.println("Received username: " + userName);
+            // System.out.println("Received password: " + (password != null ? "[HIDDEN]" : "NULL"));
+            // System.out.println("Received pin: " + pin);
+
         
             // Validate inputs
             if (!Pattern.matches("[a-zA-Z0-9]{1,30}", userName)) {
@@ -271,7 +284,6 @@ public final class LoginAction extends DispatchAction {
         	
         	
         	//is the provider record inactive?
-        	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
             Provider p = providerDao.getProvider(strAuth[0]);
             if(p == null || (p.getStatus() != null && p.getStatus().equals("0"))) {
             	logger.info(LOG_PRE + " Inactive: " + userName);           
@@ -309,6 +321,7 @@ public final class LoginAction extends DispatchAction {
             	if(request.getParameter("invalidate_session") != null && request.getParameter("invalidate_session").equals("false")) {
             		//don't invalidate in this case..messes up authenticity of OAUTH
             	} else {
+                    // System.out.println("not invalidating");
             		session.invalidate();
             	}
             }
@@ -425,7 +438,137 @@ public final class LoginAction extends DispatchAction {
             session.setAttribute("everymin", providerPreference.getEveryMin().toString());
             session.setAttribute("groupno", providerPreference.getMyGroupNo());
                 
-            where = "provider";
+            // where = "provider";
+
+String action = request.getParameter("action");
+session = request.getSession();
+// System.out.println("[Before Forwarding to addeform] Session ID = " + session.getId());
+// System.out.println("LOGGED_IN_SECURITY present: " + (session.getAttribute(SessionConstants.LOGGED_IN_SECURITY) != null));
+
+
+
+// Redirection to addeform from Bimble
+if ("addeform".equals(action)) {
+    // Retrieve necessary parameters
+    String demographicNo = request.getParameter("demographic_no");
+    if (demographicNo != null) {
+        // System.out.println("Original demographicNo: '" + demographicNo + "'");
+        demographicNo = demographicNo.trim();
+        // System.out.println("Trimmed demographicNo: '" + demographicNo + "'");
+    }
+    String appointmentNo = request.getParameter("appointment");
+    String formId = request.getParameter("fid"); // Use dynamic formId from request
+
+    // Ensure parameters exist with default values
+    if (demographicNo == null) demographicNo = "0";  
+    if (appointmentNo == null) appointmentNo = "0";  
+
+    // Set session attributes
+    session.setAttribute("demographicNo", demographicNo);
+    session.setAttribute("appointmentNo", appointmentNo);
+    session.setAttribute("formId", formId);
+
+    //LoggedInInfo is set properly
+    LoggedInInfo loggedInInfo = (LoggedInInfo) session.getAttribute(SessionConstants.LOGGED_IN_INFO);
+    if (loggedInInfo == null) {
+        System.out.println("ERROR: LoggedInInfo is missing. Creating new instance...");
+        loggedInInfo = new LoggedInInfo();
+        loggedInInfo.setSession(session);
+        session.setAttribute(SessionConstants.LOGGED_IN_INFO, loggedInInfo);
+    }
+
+    //LOGGED_IN_PROVIDER is set
+    Provider provider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
+    if (provider == null) {
+        System.out.println("ERROR: LOGGED_IN_PROVIDER missing! Fetching manually...");
+
+        ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+        provider = providerDao.getProvider((String) session.getAttribute("user"));
+
+        if (provider != null) {
+            session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER, provider);
+            loggedInInfo.setLoggedInProvider(provider);
+            // System.out.println("Restored Provider: " + provider.getProviderNo());
+        } else {
+            System.out.println("ERROR: Unable to fetch Provider from database.");
+        }
+    }
+
+    //LOGGED_IN_SECURITY is set
+    security = (Security) session.getAttribute(SessionConstants.LOGGED_IN_SECURITY);
+    if (security == null) {
+        System.out.println("ERROR: LOGGED_IN_SECURITY missing! Fetching manually...");
+
+        SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
+        security = securityDao.getByProviderNo((String) session.getAttribute("user"));
+
+        if (security != null) {
+            session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, security);
+            loggedInInfo.setLoggedInSecurity(security);
+            // System.out.println("Restored LOGGED_IN_SECURITY for ProviderNo: " + security.getProviderNo());
+        } else {
+            System.out.println("ERROR: Failed to restore LOGGED_IN_SECURITY!");
+        }
+    }
+
+    //`_demographic` is properly set (AFTER security is set)
+    if (session.getAttribute("_demographic") == null) {
+        System.out.println("ERROR: _demographic session attribute missing. Initializing...");
+
+        try {
+            DemographicData demoData = new DemographicData();
+            Demographic demographic = demoData.getDemographic(loggedInInfo, demographicNo);
+
+            if (demographic != null) {
+                session.setAttribute("_demographic", demographic);
+                // System.out.println("_demographic successfully set.");
+            } else {
+                System.out.println("ERROR: Failed to retrieve demographic data.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("ERROR: Exception while fetching demographic data: " + e.getMessage());
+        }
+    }
+
+    // before redirect
+    // System.out.println("🔍 Final Check Before Redirect:");
+    // System.out.println("LOGGED_IN_SECURITY present: " + (session.getAttribute(SessionConstants.LOGGED_IN_SECURITY) != null));
+    // System.out.println("LOGGED_IN_PROVIDER present: " + (session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER) != null));
+    // System.out.println("LoggedInInfo present: " + (session.getAttribute(SessionConstants.LOGGED_IN_INFO) != null));
+    // System.out.println("_demographic present: " + (session.getAttribute("_demographic") != null));
+
+    // Construct redirect URL
+    String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    String redirectUrl = baseUrl + "/eform/efmformadd_data.jsp?fid=" + formId +
+                     "&demographic_no=" + demographicNo + 
+                     "&demographicNo=" + demographicNo + 
+                     "&appointment=" + appointmentNo +
+                     "&JSESSIONID=" + session.getId();
+
+    System.out.println("🚀 Redirecting to: " + redirectUrl);
+
+    return new ActionForward(redirectUrl, true);
+}
+
+
+
+// Redirection to viewdoc from Bimble
+if ("viewdoc".equals(action)) {
+    // Retrieve document number
+    String docNo = request.getParameter("doc_no");
+
+    // Construct base URL dynamically
+    String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    String redirectUrl = baseUrl + "/dms/ManageDocument.do?method=display&doc_no=" + docNo;
+
+    System.out.println("Redirecting to: " + redirectUrl);
+
+    // Force manual redirection instead of using findForward()
+    return new ActionForward(redirectUrl, true);
+}
+    // Default case: Redirect to provider control panel
+    where = "provider";
 
             if (where.equals("provider") && default_pmm != null && "enabled".equals(default_pmm)) {
                 where = "caisiPMM";

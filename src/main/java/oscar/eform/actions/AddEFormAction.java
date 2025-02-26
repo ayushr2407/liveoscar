@@ -27,7 +27,9 @@
 
  import java.util.ArrayList;
  import java.util.Arrays;
+ import java.text.SimpleDateFormat;
  import java.util.Date;
+ import java.util.Locale;
  import java.util.Enumeration;
  import java.util.List;
  
@@ -74,11 +76,29 @@
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.CtlDocumentPK;
 
- import com.itextpdf.kernel.pdf.PdfDocument;
- import com.itextpdf.kernel.pdf.PdfReader;
- import com.itextpdf.html2pdf.ConverterProperties;
+import java.util.regex.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
- import java.nio.file.Files;
+import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.element.Image;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import com.itextpdf.forms.PdfAcroForm;
+import com.itextpdf.forms.fields.PdfFormField;
+import com.itextpdf.kernel.pdf.annot.PdfAnnotation;
+import java.util.Map;
+
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.html2pdf.ConverterProperties;
+import java.nio.file.StandardCopyOption;
+
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.io.BufferedReader;
@@ -111,7 +131,6 @@ import javax.servlet.http.HttpServletRequest;
 	
 		return sessionId;
 	}
- 
 	 
 	 public ActionForward execute(ActionMapping mapping, ActionForm form,
 			 HttpServletRequest request, HttpServletResponse response) {
@@ -257,6 +276,21 @@ import javax.servlet.http.HttpServletRequest;
 				// Remove the Bottom Buttons section before saving
 				String cleanedHtml = formHtml.replaceAll("(?s)<div class=\"DoNotPrint\" id=\"BottomButtons\">.*?</div>", "");
 
+				// Remove any button with class "clearBtn DoNotPrint"
+				cleanedHtml = cleanedHtml.replaceAll("(?s)<button[^>]*class=[\"'].*?clearBtn DoNotPrint.*?[\"'][^>]*>.*?</button>", "");
+
+				// Ensure the CSS rule exists before saving
+				String customStyle = ".noborderPrint { border-color: transparent !important; }\n";
+
+				if (!cleanedHtml.contains(customStyle)) {
+					if (cleanedHtml.contains("<style>")) {
+						cleanedHtml = cleanedHtml.replaceFirst("(?s)(<style>)(.*?)</style>", "$1$2\n" + customStyle + "</style>");
+					} else if (cleanedHtml.contains("</head>")) {
+						cleanedHtml = cleanedHtml.replace("</head>", "<style>\n" + customStyle + "</style>\n</head>");
+					} else {
+						cleanedHtml = "<style>\n" + customStyle + "</style>\n" + cleanedHtml;
+					}
+				}
 				// Debugging Logs (Remove in Production)
 				// System.out.println("DEBUG: Original HTML:\n" + formHtml);
 				// System.out.println("DEBUG: Cleaned HTML (Buttons Removed):\n" + cleanedHtml);
@@ -274,64 +308,169 @@ import javax.servlet.http.HttpServletRequest;
  
 
 
-String appointmentNo = request.getParameter("appointment");
-// System.out.println("request parameterappointmentNo = " + appointmentNo);
+			String appointmentNo = request.getParameter("appointment");
+			// System.out.println("request parameterappointmentNo = " + appointmentNo);
 
-// Declare document outside the try block
-Document document = null;
-try {
-	String scheme = request.getScheme();  // http or https
-	String serverName = request.getServerName(); // clinic2.clinic24.ca (or another domain)
-	int serverPort = request.getServerPort(); // 80, 443, or another port
-	String contextPath = request.getContextPath(); // /oscar
+			// Declare document outside the try block
+			Document document = null;
+			try {
+				String scheme = request.getScheme();  // http or https
+				String serverName = request.getServerName(); // clinic2.clinic24.ca (or another domain)
+				int serverPort = request.getServerPort(); // 80, 443, or another port
+				String contextPath = request.getContextPath(); // /oscar
 
-	String baseUrl = scheme + "://" + serverName + (serverPort == 80 || serverPort == 443 ? "" : ":" + serverPort) + contextPath;
+				String baseUrl = scheme + "://" + serverName + (serverPort == 80 || serverPort == 443 ? "" : ":" + serverPort) + contextPath;
 
-	// System.out.println("DEBUG: Base URL = " + baseUrl);
-	// logger.info("DEBUG: Base URL = " + baseUrl);
+				// System.out.println("DEBUG: Base URL = " + baseUrl);
+				// logger.info("DEBUG: Base URL = " + baseUrl);
 
-	String eformHtmlUrl = baseUrl + "/eform/efmshowform_data.jsp?fdid=" + fdid + "&appointment=" + appointmentNo + "&parentAjaxId=eforms";
+				String eformHtmlUrl = baseUrl + "/eform/efmshowform_data.jsp?fdid=" + fdid + "&appointment=" + appointmentNo + "&parentAjaxId=eforms";
 
-	// System.out.println("DEBUG: eForm URL = " + eformHtmlUrl);
-    String pdfFileName = "EForm_" + fdid + "_" + appointmentNo + "_" + System.currentTimeMillis() + ".pdf";
-    String pdfFilePath = "/usr/share/oscar-emr/OscarDocument/oscar/document/" + pdfFileName;
+				// Extract the title from the HTML content
+				Pattern titlePattern = Pattern.compile("<title>(.*?)</title>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+				Matcher titleMatcher = titlePattern.matcher(cleanedHtml);
 
-    String sessionId = getSessionCookie(request);
+				String title = "EForm"; // Default title in case extraction fails
+				if (titleMatcher.find()) {
+					title = titleMatcher.group(1).trim(); // Extract and trim title
+				}
 
-if (sessionId != null) {
-    ProcessBuilder pb = new ProcessBuilder(
-        "wkhtmltopdf",
-        "--enable-local-file-access",
-        "--disable-javascript", 
-        "--cookie", "JSESSIONID", sessionId,  // Dynamically set session ID
-        "--javascript-delay", "5000",
-        "--page-size", "A4",
-        "--zoom", "1.3",
-        "--run-script", "document.getElementById('BottomButtons').style.display='none';",  // Hide buttons before rendering
-        eformHtmlUrl, pdfFilePath
-    );
+				// Sanitize title for a valid filename
+				title = title.replaceAll("[^a-zA-Z0-9_\\-]", "_");
 
-    pb.redirectErrorStream(true);
-    Process process = pb.start();
-    process.waitFor();
+				// Get the current date in "MMMM dd, yyyy" format (e.g., "February 14, 2025")
+				SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
+				String formattedDate = dateFormat.format(new Date());
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-    String line;
-    while ((line = reader.readLine()) != null) {
-        // System.out.println("wkhtmltopdf output: " + line);
-    }
+				// Construct PDF filename as "<eform-title>_February 14, 2025.pdf"
+				String pdfFileName = title + "_" + formattedDate + ".pdf";
+				// System.out.println("Generated PDF Filename: " + pdfFileName); // Debugging statement
+
+				String pdfFilePath = "/usr/share/oscar-emr/OscarDocument/oscar/document/" + pdfFileName;
+		
+		String tempPdfFilePath = "/tmp/temp_output_" + fdid + ".pdf";  // Temporary PDF
+String finalPdfFilePath = "/usr/share/oscar-emr/OscarDocument/oscar/document/" + pdfFileName; // Final PDF
+
+// Ensure document directory has correct permissions
+new ProcessBuilder("chmod", "-R", "777", "/usr/share/oscar-emr/OscarDocument/oscar/document/").start().waitFor();
+
+String sessionId = getSessionCookie(request);
+
+if (sessionId == null || sessionId.isEmpty()) {
+    System.out.println("Error: Session ID is missing!");
+    logger.error("Error: Session ID is missing!");
+    return mapping.findForward("error");
 }
 
-    File pdfFile = new File(pdfFilePath);
-    if (pdfFile.exists() && pdfFile.length() > 0) {
-        System.out.println("PDF successfully generated: " + pdfFilePath);
-        logger.info("PDF successfully generated: " + pdfFilePath);
+// System.out.println("Using session cookie: JSESSIONID=" + sessionId);
+
+// Use Chrome Headless to directly convert the live page to PDF
+ProcessBuilder pb = new ProcessBuilder(
+    "/usr/bin/google-chrome",
+    "--headless",
+    "--disable-gpu",
+    "--no-sandbox",
+    "--disable-software-rasterizer",
+    "--disable-crash-reporter",
+    "--disable-dev-shm-usage",
+    "--disable-extensions",
+    "--disable-features=TFLiteLanguageDetection",
+    "--user-data-dir=/tmp/chrome-profile",
+    "--disk-cache-dir=/tmp/chrome-profile/cache",
+    "--virtual-time-budget=1000", // Ensure JavaScript runs fully
+    "--window-size=1280x2000",
+    "--force-device-scale-factor=1",
+    "--disable-features=PaintHolding",
+    "--run-all-compositor-stages-before-draw",
+    "--print-to-pdf=" + tempPdfFilePath,
+    "--header=\"Cookie: JSESSIONID=" + sessionId + "\"",  //Pass session cookie in request headers
+    "--header=\"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36\"",
+    eformHtmlUrl
+);
+
+// Force Chrome to use `/tmp/chrome-profile` instead of `/var/lib/tomcat`
+pb.environment().put("HOME", "/tmp/chrome-profile");
+
+pb.redirectErrorStream(true);
+Process process = pb.start();
+
+// Capture Chrome output logs for debugging
+BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+String line;
+while ((line = reader.readLine()) != null) {
+    // System.out.println("Chrome Output: " + line);
+}
+
+int exitCode = process.waitFor();
+// System.out.println("Chrome Exit Code: " + exitCode);
+
+// Verify if the TEMPORARY PDF was created successfully
+File tempPdfFile = new File(tempPdfFilePath);
+if (!tempPdfFile.exists() || tempPdfFile.length() == 0) {
+    System.out.println("PDF generation failed using Chrome Headless!");
+    logger.error("PDF generation failed using Chrome Headless!");
+    return mapping.findForward("error");
+}
+
+// Move the TEMP PDF to FINAL storage
+Files.move(Paths.get(tempPdfFilePath), Paths.get(finalPdfFilePath), StandardCopyOption.REPLACE_EXISTING);
+// System.out.println("PDF successfully moved to: " + finalPdfFilePath);
+
+// Verify FINAL PDF before saving to the database
+File finalPdfFile = new File(finalPdfFilePath);
+if (finalPdfFile.exists() && finalPdfFile.length() > 0) {
+			// System.out.println("PDF successfully generated: " + pdfFilePath);
+			// logger.info("PDF successfully generated: " + pdfFilePath);
+		
+			// try (PDDocument pdDoc = PDDocument.load(pdfFile)) {
+			// 	PDFRenderer pdfRenderer = new PDFRenderer(pdDoc);
+			// 	String imagePdfPath = pdfFilePath.replace(".pdf", "_image.pdf");
+		
+			// 	// Create a new image-based PDF
+			// 	try (PdfWriter writer = new PdfWriter(imagePdfPath);
+			// 		 PdfDocument imgPdf = new PdfDocument(writer)) {
+		
+			// 		for (int page = 0; page < pdDoc.getNumberOfPages(); page++) {
+			// 			BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300); // Convert PDF page to image
+			// 			File tempImage = new File(pdfFilePath.replace(".pdf", "_" + (page + 1) + ".png"));
+			// 			ImageIO.write(bim, "png", tempImage);
+		
+			// 			// Add image to the new PDF
+			// 			Image img = new Image(ImageDataFactory.create(tempImage.getAbsolutePath()));
+			// 			img.scaleToFit(PageSize.A4.getWidth(), PageSize.A4.getHeight());
+		
+			// 			PdfPage pdfPage = imgPdf.addNewPage(PageSize.A4);
+			// 			PdfCanvas canvas = new PdfCanvas(pdfPage);
+			// 			img.setFixedPosition(0, 0);
+			// 			new com.itextpdf.layout.Document(imgPdf).add(img);
+		
+			// 			tempImage.delete(); // Remove temporary image file
+			// 		}
+			// 	}
+		
+			// 	pdDoc.close();
+		
+			// 	// Replace the original PDF with the image-based one
+			// 	File imagePdf = new File(imagePdfPath);
+			// 	if (imagePdf.exists()) {
+			// 		pdfFile.delete();  // Remove original
+			// 		imagePdf.renameTo(pdfFile); // Replace with image PDF
+			// 	}
+		
+			// 	// System.out.println("PDF converted to image-based PDF successfully.");
+			// 	// logger.info("PDF converted to image-based PDF successfully.");
+				
+			// } catch (Exception e) {
+			// 	e.printStackTrace();
+			// 	logger.error("Error converting PDF to image-based PDF: " + e.getMessage());
+			// }
+		
         
         document = new Document();
-		document.setDoctype("eform");
+		document.setDoctype("others");
 		document.setDocClass("");
 		document.setDocSubClass("");
-		document.setDocdesc("EForm PDF - " + new Date());
+		document.setDocdesc(pdfFileName);
 		document.setDocxml(null);
 		document.setDocfilename(pdfFileName);
 		document.setDoccreator(providerNo);

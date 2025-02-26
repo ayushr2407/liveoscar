@@ -150,7 +150,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 <!-- important leave this last to override the css above -->
 <style>
     form {
-        margin: 0px;
+        margin: 10px;
     }
 
     body {
@@ -961,7 +961,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
    else {
 %>
 					<input type="hidden" id="categoryHash" value="<%=categoryHash%>" />
-                    <div style="height:auto; max-height: 96vh; overflow:auto; min-width: 140px; padding-top: 10px;">
+                    <div style="height:auto; max-height: 96vh; overflow:auto; min-width: 140px; padding: 10px;">
                     <%
                     	//Enumeration en=patientIdNames.keys();
                         if((totalNumDocs) > 0){
