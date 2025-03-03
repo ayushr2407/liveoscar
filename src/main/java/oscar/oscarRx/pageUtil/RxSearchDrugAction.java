@@ -53,6 +53,15 @@ import oscar.OscarProperties;
 import oscar.oscarRx.data.RxDrugData;
 import oscar.oscarRx.util.RxDrugRef;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import net.sf.json.JSONArray;
+
+import java.util.HashMap;
+import java.util.Map; 
+
 public final class RxSearchDrugAction extends DispatchAction {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
@@ -213,36 +222,267 @@ public final class RxSearchDrugAction extends DispatchAction {
     
 
     @SuppressWarnings({ "unchecked", "unused" })
-    public ActionForward jsonSearch(
-    		ActionMapping mapping,
-    		ActionForm form,
-    		HttpServletRequest request,
-    		HttpServletResponse response) {
-
+	public ActionForward jsonSearch(
+		ActionMapping mapping,
+		ActionForm form,
+		HttpServletRequest request,
+		HttpServletResponse response) {
+	
 		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
 			throw new RuntimeException("missing required security object (_rx)");
 		}
+	
+		String searchStr = request.getParameter("query");
+		if (searchStr == null) {
+			searchStr = request.getParameter("name");
+		}
+	
+		System.out.println("🔎 User searched for: " + searchStr);
+	
+		String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + searchStr;
+		System.out.println("📡 Fetching drug data from API: " + apiUrl);
+	
+		Vector<Hashtable<String, Object>> vec = new Vector<>();
+	
+		try {
+			URL url = new URL(apiUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+	
+			if (conn.getResponseCode() != 200) {
+				System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+				return mapping.findForward("error");
+			}
+	
+			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			StringBuilder jsonResponse = new StringBuilder();
+			String line;
+			while ((line = br.readLine()) != null) {
+				jsonResponse.append(line);
+			}
+			br.close();
+			conn.disconnect();
+	
+			// System.out.println("✅ API Response received: " + jsonResponse.toString());
+	
+			JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
+	
+			if (responseObject.getBoolean("success")) {
+				JSONArray drugGroups = responseObject.getJSONArray("data");
+	
+				// Create a map to store dosage info based on group ID
+				Map<Integer, String> groupDosageMap = new HashMap<>();
+	
+				for (int i = 0; i < drugGroups.size(); i++) {
+					JSONObject group = drugGroups.getJSONObject(i);
+					int groupId = group.getInt("id");  // Get group_id
+					JSONArray drugs = group.getJSONArray("drugs");
+					JSONArray activeIngredients = group.optJSONArray("active_ingredients");
+	
+					if (activeIngredients != null) {
+						for (int k = 0; k < activeIngredients.size(); k++) {
+							JSONObject ingredient = activeIngredients.getJSONObject(k);
+							String dosageValue = ingredient.optString("dosage_value", "");
+							String dosageUnit = ingredient.optString("dosage_unit", "");
+							String strength = ingredient.optString("strength", "");
+							String strengthUnit = ingredient.optString("strength_unit", "");
+	
+							// Choose dosage or fallback to strength
+							String displayInfo = "";
+							if (!dosageValue.isEmpty() && !dosageUnit.isEmpty()) {
+								displayInfo = dosageValue + " " + dosageUnit;
+							} else if (!strength.isEmpty() && !strengthUnit.isEmpty()) {
+								displayInfo = strength + " " + strengthUnit;
+							}
+	
+							// Store dosage info for the entire group
+							if (!displayInfo.isEmpty()) {
+								groupDosageMap.put(groupId, displayInfo);
+							}
+						}
+					}
+	
+					for (int j = 0; j < drugs.size(); j++) {
+						JSONObject drug = drugs.getJSONObject(j);
+						Hashtable<String, Object> drugData = new Hashtable<>();
+	
+						int drugId = drug.getInt("id");
+						String drugName = drug.getString("name");
+						String din = drug.getString("din");
+	
+						// Get dosage info by group_id only
+						String dosageInfo = groupDosageMap.getOrDefault(groupId, "");
+	
+						// Construct display name
+						String displayName = drugName;
+						if (!dosageInfo.isEmpty()) {
+							displayName += " - " + dosageInfo;  // Show name - value unit
+						}
+	
+						drugData.put("id", drugId);
+						drugData.put("name", displayName);
+						drugData.put("din", din);
+	
+						vec.add(drugData);
+						// System.out.println("   - Drug: " + displayName + ", ID: " + drugId + ", DIN: " + din);
+					}
+				}
+			} else {
+				System.out.println("❌ API returned no results.");
+			}
+	
+			jsonify(vec, response);
+	
+		} catch (Exception e) {
+			System.out.println("❌ Exception while fetching data: " + e.getMessage());
+			e.printStackTrace();
+			return mapping.findForward("error");
+		}
+	
+		return null;
+	}
 
-        String searchStr = request.getParameter("query");
-        if (searchStr == null){
-            searchStr = request.getParameter("name");
-        }
-        String wildcardRightOnly = OscarProperties.getInstance().getProperty("rx.search_right_wildcard_only", "false");                      
-        Vector<Hashtable<String,Object>> vec = null;
- 
-        try {
-	        vec = drugref.list_drug_element3(searchStr, wildCardRight(wildcardRightOnly));        
-	        jsonify(vec, response);
-        } catch (IOException e) {
-	       logger.error("Exception while attempting to contact DrugRef", e);
-	       return mapping.findForward("error");
-        } catch (Exception e) {
-	    	logger.error("Unknown Error", e);
-	    	return mapping.findForward("error");
-        }
 
-        return null;
-    }
+	
+// 	public ActionForward jsonSearch(
+//     ActionMapping mapping,
+//     ActionForm form,
+//     HttpServletRequest request,
+//     HttpServletResponse response) {
+
+//     if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
+//         throw new RuntimeException("missing required security object (_rx)");
+//     }
+
+//     // Capture user input from the search box
+//     String searchStr = request.getParameter("query");
+//     if (searchStr == null) {
+//         searchStr = request.getParameter("name");
+//     }
+
+//     System.out.println("🔎 User searched for: " + searchStr);
+
+//     // Construct API URL
+//     String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + searchStr;
+//     System.out.println("📡 Fetching drug data from API: " + apiUrl);
+
+//     Vector<Hashtable<String, Object>> vec = new Vector<>();
+
+//     try {
+//         // Make HTTP request
+//         URL url = new URL(apiUrl);
+//         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//         conn.setRequestMethod("GET");
+//         conn.setRequestProperty("Accept", "application/json");
+
+//         if (conn.getResponseCode() != 200) {
+//             System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+//             return mapping.findForward("error");
+//         }
+
+//         // Read API response
+//         BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//         StringBuilder jsonResponse = new StringBuilder();
+//         String line;
+//         while ((line = br.readLine()) != null) {
+//             jsonResponse.append(line);
+//         }
+//         br.close();
+//         conn.disconnect();
+
+//         System.out.println("✅ API Response received: " + jsonResponse.toString());
+
+//         // Parse JSON response
+//         JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
+
+//         if (responseObject.getBoolean("success")) {
+//             JSONArray drugGroups = responseObject.getJSONArray("data");
+
+//             for (int i = 0; i < drugGroups.size(); i++) {
+//                 JSONObject group = drugGroups.getJSONObject(i);
+//                 JSONArray drugs = group.getJSONArray("drugs");
+
+//                 for (int j = 0; j < drugs.size(); j++) {
+//                     JSONObject drug = drugs.getJSONObject(j);
+//                     Hashtable<String, Object> drugData = new Hashtable<>();
+
+//                     drugData.put("id", drug.getInt("id"));
+//                     drugData.put("name", drug.getString("name"));
+//                     drugData.put("din", drug.getString("din"));
+
+//                     vec.add(drugData);
+//                     System.out.println("   - Drug: " + drug.getString("name") + ", ID: " + drug.getInt("id") + ", DIN: " + drug.getString("din"));
+//                 }
+//             }
+//         } else {
+//             System.out.println("❌ API returned no results.");
+//         }
+
+//         jsonify(vec, response);
+
+//     } catch (Exception e) {
+//         System.out.println("❌ Exception while fetching data: " + e.getMessage());
+//         e.printStackTrace();
+//         return mapping.findForward("error");
+//     }
+
+//     return null;
+// }
+
+//////////////////////////////////////////////
+
+
+//     public ActionForward jsonSearch(
+//     ActionMapping mapping,
+//     ActionForm form,
+//     HttpServletRequest request,
+//     HttpServletResponse response) {
+
+//     if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
+//         throw new RuntimeException("missing required security object (_rx)");
+//     }
+
+//     // Capture user input from the search box
+//     String searchStr = request.getParameter("query");
+//     if (searchStr == null) {
+//         searchStr = request.getParameter("name");
+//     }
+
+//     System.out.println("🔎 User searched for: " + searchStr);
+
+//     String wildcardRightOnly = OscarProperties.getInstance().getProperty("rx.search_right_wildcard_only", "false");                      
+//     Vector<Hashtable<String, Object>> vec = null;
+
+//     try {
+//         // Send search query to DrugRef
+//         System.out.println("📡 Sending search query to DrugRef: " + searchStr + ", WildcardRightOnly: " + wildcardRightOnly);
+//         vec = drugref.list_drug_element3(searchStr, wildCardRight(wildcardRightOnly));
+
+//         // Print returned drug list
+//         System.out.println("✅ Drug search results received:");
+//         if (vec != null && !vec.isEmpty()) {
+//             for (Hashtable<String, Object> drug : vec) {
+//                 System.out.println("   - Drug: " + drug.get("name") + ", ID: " + drug.get("id"));
+//             }
+//         } else {
+//             System.out.println("   ❌ No results found.");
+//         }
+
+//         jsonify(vec, response);
+//     } catch (IOException e) {
+//         System.out.println("❌ Exception while attempting to contact DrugRef: " + e.getMessage());
+//         e.printStackTrace();
+//         return mapping.findForward("error");
+//     } catch (Exception e) {
+//         System.out.println("❌ Unknown Error: " + e.getMessage());
+//         e.printStackTrace();
+//         return mapping.findForward("error");
+//     }
+
+//     return null;
+// }
+
 
     /**
      * Utilty methods - should be split into a class if they get any bigger.

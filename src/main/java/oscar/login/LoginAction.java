@@ -675,28 +675,72 @@ if ("viewdoc".equals(action)) {
             return(new ActionForward(newURL));
         }
         else { 
-        	logger.debug("go to normal directory");
-
+            logger.error("go to normal directory");
+        
             cl.updateLoginList(ip, userName);
             CRHelper.recordLoginFailure(userName, request);
-            
-            if(ajaxResponse) {
-            	JSONObject json = new JSONObject();
-            	json.put("success", false);
-            	response.setContentType("text/x-json");
-            	json.put("error", "Invalid Credentials");
-            	json.write(response.getWriter());
-            	return null;
+        
+            // Check if the username exists
+            SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
+            List<Security> userExistCheck = securityDao.findByUserName(userName);
+        
+            if (userExistCheck.isEmpty()) {
+                System.out.println("Invalid Username: " + userName);
+                request.setAttribute("usernameError", "Invalid username.");
+            } else {
+                // Retrieve correct credentials from DB
+                Security userSecurity = userExistCheck.get(0);
+                String correctPassword = userSecurity.getPassword(); // Assuming password is stored encrypted
+                String correctPin = userSecurity.getPin(); // Ensure PIN is stored securely
+                
+                boolean isPasswordIncorrect = false;
+
+                try {
+                    isPasswordIncorrect = !encodePassword(password).equals(correctPassword);
+                } catch (Exception e) {
+                    System.out.println("Error encoding password: " + e.getMessage());
+                    request.setAttribute("generalError", "An error occurred during login. Please try again.");
+                    return mapping.findForward("failure"); // Redirect user back to login page
+                }
+                                boolean isPinIncorrect = !pin.equals(correctPin); // Direct comparison (ensure it's properly validated)
+        
+                if (isPasswordIncorrect && isPinIncorrect) {
+                    System.out.println("Incorrect password and PIN for username: " + userName);
+                    request.setAttribute("passwordError", "Incorrect password.");
+                    request.setAttribute("pinError", "Incorrect PIN.");
+                } else if (isPasswordIncorrect) {
+                    System.out.println("Incorrect password for username: " + userName);
+                    request.setAttribute("passwordError", "Incorrect password.");
+                } else if (isPinIncorrect) {
+                    System.out.println("Incorrect PIN for username: " + userName);
+                    request.setAttribute("pinError", "Incorrect PIN.");
+                }
             }
-            
-            ParameterActionForward forward = new ParameterActionForward(mapping.findForward(where));
-            forward.addParameter("login", "failed");
-            if (oneIdKey != null && !oneIdKey.equals("")) {
-            	forward.addParameter("nameId", oneIdKey);
+        
+            // General error message for failed login
+            request.setAttribute("generalError", "Invalid login credentials. Please try again.");
+        
+            // Handle AJAX response (if applicable)
+            if (ajaxResponse) {
+                JSONObject json = new JSONObject();
+                json.put("success", false);
+                if (request.getAttribute("passwordError") != null) {
+                    json.put("error", "Incorrect password.");
+                } else if (request.getAttribute("pinError") != null) {
+                    json.put("error", "Incorrect PIN.");
+                } else {
+                    json.put("error", "Invalid Credentials");
+                }
+                response.setContentType("text/x-json");
+                json.write(response.getWriter());
+                return null;
             }
-            
-            return forward;
+        
+            // Redirect user back to login page
+            return mapping.findForward("failure");
         }
+        
+
 
     	logger.debug("checking oauth_token");
         if(request.getParameter("oauth_token") != null) {

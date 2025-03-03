@@ -2178,7 +2178,7 @@ THEME 2*/
             // Define the schema of the delimited results
             oDS.responseSchema = {
                 resultsList: "results",
-                fields: ["name", "id", "isInactive"]
+                fields: ["name", "id", "dosage_value", "dosage_unit", "isInactive", "din"]
             };
             // Add the filtering function to exclude inactive drugs
     oDS.doBeforeParseData = function (oRequest, oFullResponse) {
@@ -2199,7 +2199,7 @@ THEME 2*/
             oAC.resultTypeList = false;
             oAC.queryMatchSubset = true;
             oAC.minQueryLength = 3;
-            oAC.maxResultsDisplayed = 40;
+            oAC.maxResultsDisplayed = 150;
             oAC.formatResult = resultFormatter2;
 
             // Define an event handler to populate a hidden form field
@@ -2210,7 +2210,11 @@ THEME 2*/
                 var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx"; //"prescribe.jsp";
                 var ran_number = Math.round(Math.random() * 1000000);
                 var name = encodeURIComponent(arr.name);
-                var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number;  //hack to get around ie caching the page
+                // var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number;  //hack to get around ie caching the page
+                var din = arr.din;
+                var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number + "&din=" + din;
+
+                // var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number;  //hack to get around ie caching the page
                 new Ajax.Updater('rxText', url, {
                     method: 'get', parameters: params, evalScripts: true,
                     insertion: Insertion.Bottom, onSuccess: function (transport) {

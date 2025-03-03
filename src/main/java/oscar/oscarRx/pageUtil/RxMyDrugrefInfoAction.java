@@ -84,32 +84,125 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
 
     private static final Logger log2 = MiscUtils.getLogger();
     //return interactions about current pending prescriptions
-    public ActionForward findInteractingDrugList (ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response)throws IOException {
+    public ActionForward findInteractingDrugList(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
         MiscUtils.getLogger().debug("in findInteractingDrugList");
+
+        Enumeration<String> parameterNames = request.getParameterNames();
+System.out.println("🛠 Request Parameters:");
+while (parameterNames.hasMoreElements()) {
+    String paramName = parameterNames.nextElement();
+    System.out.println("   - " + paramName + ": " + request.getParameter(paramName));
+}
+
+        System.out.println("🔹 Drug selected from dropdown!");
+    
+        // Capture parameters from the request
+        String brandName = request.getParameter("brand");
+        String demographicNo = request.getParameter("demographicNo");
+        String atcCode = request.getParameter("atcCode");
+    
+        System.out.println("Brand Name: " + brandName);
+        System.out.println("ATC Code: " + atcCode);
+        System.out.println("Demographic No: " + demographicNo);
+    
         oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
-         if (bean == null) {
-                response.sendRedirect("error.html");
-                return null;
+        if (bean == null) {
+            response.sendRedirect("error.html");
+            return null;
+        }
+    
+        try {
+            // Fetch detailed drug information from the new API
+            String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + brandName;
+            // System.out.println("📡 Fetching drug details from API: " + apiUrl);
+    
+            // Making HTTP GET request to the API
+            StringBuilder apiResponse = new StringBuilder();
+            try (java.util.Scanner scanner = new java.util.Scanner(new java.net.URL(apiUrl).openStream())) {
+                while (scanner.hasNext()) {
+                    apiResponse.append(scanner.nextLine());
+                }
+            } catch (Exception e) {
+                System.out.println("❌ API request failed: " + e.getMessage());
             }
-      try{
-        WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServlet().getServletContext());
-        UserPropertyDAO  propDAO =  (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
-        String provider = (String) request.getSession().getAttribute("user");
-
-        String retStr=RxUtil.findInterDrugStr(propDAO,provider,bean);
-
-        bean.setInteractingDrugList(retStr);
-          /*  int pp=23;
-            if(pp==23)
-                throw new Exception();*/
-     }catch(Exception e){
-        MiscUtils.getLogger().error("Error", e);
-        ResourceBundle prop = ResourceBundle.getBundle("oscarResources");
-        String failedMsg=prop.getString("oscarRx.MyDrugref.InteractingDrugs.error.msgFailed");
-        bean.setInteractingDrugList(failedMsg);
-     }
+    
+            // Log the raw API response
+            // System.out.println("✅ API Response received: " + apiResponse.toString());
+    
+            // Parse the API response
+            JSONObject responseObject = new JSONObject(apiResponse.toString());
+            if (responseObject.getBoolean("success")) {
+                JSONArray data = responseObject.getJSONArray("data");
+    
+                // Log parsed drug details including new dosage form
+                System.out.println("✅ Parsed drug data:");
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject group = data.getJSONObject(i);
+                    JSONArray drugs = group.getJSONArray("drugs");
+    
+                    for (int j = 0; j < drugs.length(); j++) {
+                        JSONObject drug = drugs.getJSONObject(j);
+                        String dosageForm = drug.optString("dosage_form", "N/A");
+                        System.out.println("   - Drug: " + drug.getString("name") + ", ID: " + drug.getInt("id") + ", DIN: " + drug.getString("din") + ", Dosage Form: " + dosageForm);
+                    }
+                }
+            } else {
+                System.out.println("❌ Failed to fetch drug data from API.");
+            }
+    
+            // Existing functionality for drug interaction check
+            WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServlet().getServletContext());
+            UserPropertyDAO propDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+            String provider = (String) request.getSession().getAttribute("user");
+    
+            // Log provider
+            System.out.println("Logged in provider: " + provider);
+    
+            String retStr = RxUtil.findInterDrugStr(propDAO, provider, bean);
+    
+            // Log fetched interactions
+            System.out.println("Retrieved Drug Interactions: " + retStr);
+    
+            bean.setInteractingDrugList(retStr);
+    
+        } catch (Exception e) {
+            System.out.println("❌ Exception in findInteractingDrugList: " + e.getMessage());
+            MiscUtils.getLogger().error("Error", e);
+            ResourceBundle prop = ResourceBundle.getBundle("oscarResources");
+            String failedMsg = prop.getString("oscarRx.MyDrugref.InteractingDrugs.error.msgFailed");
+            bean.setInteractingDrugList(failedMsg);
+        }
         return null;
     }
+    
+
+
+    // public ActionForward findInteractingDrugList (ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response)throws IOException {
+    //     MiscUtils.getLogger().debug("in findInteractingDrugList");
+    //     oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+    //      if (bean == null) {
+    //             response.sendRedirect("error.html");
+    //             return null;
+    //         }
+    //   try{
+    //     WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServlet().getServletContext());
+    //     UserPropertyDAO  propDAO =  (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+    //     String provider = (String) request.getSession().getAttribute("user");
+
+    //     String retStr=RxUtil.findInterDrugStr(propDAO,provider,bean);
+
+    //     bean.setInteractingDrugList(retStr);
+    //       /*  int pp=23;
+    //         if(pp==23)
+    //             throw new Exception();*/
+    //  }catch(Exception e){
+    //     MiscUtils.getLogger().error("Error", e);
+    //     ResourceBundle prop = ResourceBundle.getBundle("oscarResources");
+    //     String failedMsg=prop.getString("oscarRx.MyDrugref.InteractingDrugs.error.msgFailed");
+    //     bean.setInteractingDrugList(failedMsg);
+    //  }
+    //     return null;
+    // }
 
     public ActionForward view(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response)  {
         MiscUtils.getLogger().debug("in view RxMyDrugrefInfoAction");

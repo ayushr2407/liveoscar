@@ -258,6 +258,9 @@ else if (request.getParameter("errorMessage") != null) {
         <i class="fas fa-user"></i>
         <input type="text" id="username" name="username" autocomplete="off" placeholder="Username">
         <span class="error-message" id="username-error">Username is required</span>
+        <c:if test="${not empty usernameError}">
+            <span class="error-message" id="username-error" style="display: block;">${usernameError}</span>
+        </c:if>
     </div>
     <div class="form-group">
         
@@ -265,6 +268,9 @@ else if (request.getParameter("errorMessage") != null) {
         <input type="password" id="password2" name="password" placeholder="Password">
         <%-- <i class="fas fa-eye icon-eye-open" onclick="showPwd('password2');"></i> --%>
         <span class="error-message" id="password-error">Password is required</span>
+        <c:if test="${not empty passwordError}">
+            <span class="error-message" id="password-error" style="display: block;">${passwordError}</span>
+        </c:if>
     </div>
     <div class="form-group">
         <i class="fas fa-key"></i>
@@ -274,6 +280,9 @@ else if (request.getParameter("errorMessage") != null) {
         <input type="text" id="pin2" name="pin2" autocomplete="off" placeholder="PIN" onkeyup="maskMe();" onchange="checkMe();">
          <i class="fas fa-eye icon-eye-open" onclick="toggleMask();"></i> --%>
         <span class="error-message" id="pin-error">PIN is required</span>
+         <c:if test="${not empty pinError}">
+            <span class="error-message" id="pin-error" style="display: block;">${pinError}</span>
+        </c:if>
     </div>
     <input type="hidden" id="pin" name="pin" value="">
     <% if(oneIdEnabled && !oauth2Enabled) { %>

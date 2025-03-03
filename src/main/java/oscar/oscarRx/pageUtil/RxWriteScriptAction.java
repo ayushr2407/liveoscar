@@ -42,7 +42,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.net.URLEncoder;
+
+
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.HttpResponse;
+
 
 import org.apache.logging.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -512,144 +522,212 @@ public final class RxWriteScriptAction extends DispatchAction {
 		}
 	}
 
-	public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		logger.debug("=============Start createNewRx RxWriteScriptAction.java===============");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
-		String success = "newRx";
-		// set default quantity
-		setDefaultQuantity(request);
-		userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
-		UserProperty propUseRx3 = userPropertyDAO.getProp( (String) request.getSession().getAttribute("user"), UserProperty.RX_USE_RX3);
+	
 
-		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
-		if (bean == null) {
-			response.sendRedirect("error.html");
-			return null;
-		}
+public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    logger.debug("=============Start createNewRx RxWriteScriptAction.java===============");
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
 
-		try {
-			RxPrescriptionData rxData = new RxPrescriptionData();
-			RxDrugData drugData = new RxDrugData();
+    String success = "newRx";
+    setDefaultQuantity(request);
+    userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 
-			// create Prescription
-			RxPrescriptionData.Prescription rx = rxData.newPrescription(bean.getProviderNo(), bean.getDemographicNo());
+    oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+    if (bean == null) {
+        response.sendRedirect("error.html");
+        return null;
+    }
 
-			String ra = request.getParameter("randomId");
-			int randomId = Integer.parseInt(ra);
-			rx.setRandomId(randomId);
-			String drugId = request.getParameter("drugId");
-			String text = request.getParameter("text");
+    try {
+        RxPrescriptionData rxData = new RxPrescriptionData();
+        RxPrescriptionData.Prescription rx = rxData.newPrescription(bean.getProviderNo(), bean.getDemographicNo());
 
-			// TODO: Is this to slow to do here? It's possible to do this in ajax, as in when this comes back launch an ajax request to fill in.
-			logger.debug("requesting drug from drugref id="+drugId);
-			RxDrugData.DrugMonograph dmono = drugData.getDrug2(drugId);
+        String ra = request.getParameter("randomId");
+        int randomId = Integer.parseInt(ra);
+        rx.setRandomId(randomId);
+        String drugId = request.getParameter("drugId");
+        String text = request.getParameter("text");
+		String din = request.getParameter("din");
+		System.out.println("🔍 Drug DIN from Request in create new rx is: " + din);  // ✅ Log DIN
 
-			String brandName = null;
-			ArrayList<DrugComponent> drugComponents = dmono.getDrugComponentList();	
-			
-			if(StringUtils.isNullOrEmpty(brandName)) {
-				brandName = text;
-			}
 
-			if( drugComponents != null && drugComponents.size() > 0 ) {
+		System.out.println("drugid is " + drugId);
 
-				StringBuilder stringBuilder = new StringBuilder();
-				int count = 0;
-				for( RxDrugData.DrugMonograph.DrugComponent drugComponent : drugComponents ) {
-					
-					stringBuilder.append( drugComponent.getName() );
-					stringBuilder.append(" ");
-					stringBuilder.append( drugComponent.getStrength() );
-					stringBuilder.append( drugComponent.getUnit() );
-					
-					count++;
-					if( count > 0 && count != drugComponents.size() ) {
-						stringBuilder.append( " / " );
-					}
-				}
-				
-				rx.setGenericName(stringBuilder.toString()); 
-			} else {
-				rx.setGenericName(dmono.name); 
-			}
+        // API call to get drug data
+        // String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + drugId;
+		String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + URLEncoder.encode(din, "UTF-8");
+		System.out.println("📡 Fetching drug data from API: " + apiUrl);
 
-			rx.setBrandName(brandName);
-			
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(apiUrl);
+        HttpResponse apiResponse = httpClient.execute(httpGet);
+        String jsonResponse = EntityUtils.toString(apiResponse.getEntity());
+        httpClient.close();
 
-			//there's a change there's multiple forms. Select the first one by default
-			//save the list in a separate variable to make a drop down in the interface.
-			if(dmono != null && dmono.drugForm!=null && dmono.drugForm.indexOf(",")!=-1) {
-				String[] forms = dmono.drugForm.split(",");
-				rx.setDrugForm(forms[0]);
-			} else if(dmono.drugForm != null){
-				rx.setDrugForm(dmono.drugForm);
-			} else if(dmono.drugForm == null) {
-				rx.setDrugForm("");
-			}
-			rx.setDrugFormList(dmono.drugForm);
+        // Parse JSON response
+        // Log raw API response
+System.out.println("Raw API Response: " + jsonResponse);
 
-			// TO DO: cache the most used route from the drugs table.
-			// for now, check to see if ORAL present, if yes use that, if not use the first one.
-			boolean oral = false;
-			for (int i = 0; i < dmono.route.size(); i++) {
-				if (((String) dmono.route.get(i)).equalsIgnoreCase("ORAL")) {
-					oral = true;
-				}
-			}
-			if (oral) {
-				rx.setRoute("ORAL");
-			} else {
-				if (dmono.route.size() > 0) {
-					rx.setRoute((String) dmono.route.get(0));
-				}
-			}
-			// if user specified route in instructions, it'll be changed to the one specified.
-			String dosage = "";
-			String unit = "";
-			Vector comps = dmono.components;
-			for (int i = 0; i < comps.size(); i++) {
-				RxDrugData.DrugMonograph.DrugComponent drugComp = (RxDrugData.DrugMonograph.DrugComponent) comps.get(i);
-				String strength = drugComp.strength;
-				unit = drugComp.unit;
-				dosage = dosage + " " + strength + " " + unit;// get drug dosage from strength and unit.
-			}
-			rx.setDosage(removeExtraChars(dosage));
-			rx.setUnit(removeExtraChars(unit));
-			rx.setGCN_SEQNO(Integer.parseInt(drugId));
-			rx.setRegionalIdentifier(dmono.regionalIdentifier);
-			String atcCode = dmono.atc;
-			rx.setAtcCode(atcCode);
-			RxUtil.setSpecialQuantityRepeat(rx);
-			rx = setCustomRxDurationQuantity(rx);
-			List<RxPrescriptionData.Prescription> listRxDrugs = new ArrayList();
-			if (RxUtil.isRxUniqueInStash(bean, rx)) {
-				listRxDrugs.add(rx);
-			}
-			bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
-			bean.setStashIndex(rxStashIndex);
-			String today = null;
-			Calendar calendar = Calendar.getInstance();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			try {
-				today = dateFormat.format(calendar.getTime());
-			} catch (Exception e) {
-				logger.error("Error", e);
-			}
-			Date tod = RxUtil.StringToDate(today, "yyyy-MM-dd");
-			rx.setRxDate(tod);
-			rx.setWrittenDate(tod);
-			rx.setDiscontinuedLatest(RxUtil.checkDiscontinuedBefore(rx));// check and set if rx was discontinued before.
-			request.setAttribute("listRxDrugs", listRxDrugs);
-		} catch (Exception e) {
-			logger.error("Error", e);
-		}
-		logger.debug("=============END createNewRx RxWriteScriptAction.java===============");
+JSONObject dmono = new JSONObject(jsonResponse);
+JSONArray dataArray = dmono.optJSONArray("data");
+String drugForm = "";          // Initialize empty variables
+String brandName = "";
+String genericName = "";
+String atcCode = "";
+String regionalIdentifier = "";
+String drugCategory = ""; 
 
-		return ( mapping.findForward(success) );
-	}
+if (dataArray != null) {
+    System.out.println("Data Array Found. Size: " + dataArray.length());
+} else {
+    System.out.println("Data Array is null!");
+}
+
+if (dataArray != null && dataArray.length() > 0) {
+    JSONObject firstDrug = dataArray.getJSONObject(0);
+    System.out.println("First Drug Object: " + firstDrug.toString());
+
+    // Log all keys
+    for (String key : firstDrug.keySet()) {
+        System.out.println("Key in first object: [" + key + "]");
+    }
+
+    // Extract and log dosage_form
+    System.out.println("Extracting dosage_form...");
+    drugForm = firstDrug.optString("dosage_form", "Not Found");
+    System.out.println("Extracted Drug Form: [" + drugForm + "]");
+
+	drugCategory = firstDrug.optString("drug_category", "Not Found");
+	System.out.println("Extracted Drug Category: [" + drugCategory + "]");  
+
+   // Extract the actual drug name from the "drugs" array if available
+JSONArray drugsArray = firstDrug.optJSONArray("drugs");
+String drugName = "";
+if (drugsArray != null && drugsArray.length() > 0) {
+    drugName = drugsArray.getJSONObject(0).optString("name", "Not Found");  // ✅ Use "name" from "drugs" array
+} else {
+    drugName = "Not Found";  // Fallback if "name" is missing
+}
+System.out.println("Extracted Drug Name: [" + drugName + "]");  // ✅ Log the drug name
+
+// Use drugName directly for brandName and genericName
+brandName = drugName;          // ✅ Use "name" for brandName
+genericName = drugName;        // ✅ Use "name" for genericName
+
+
+    // Extract and log atcCode (if it exists)
+    atcCode = firstDrug.optString("atc", "Not Found");
+    System.out.println("Extracted ATC Code: [" + atcCode + "]");
+
+    // Extract and log regionalIdentifier (if it exists)
+    regionalIdentifier = firstDrug.optString("regionalIdentifier", "Not Found");
+    System.out.println("Extracted Regional Identifier: [" + regionalIdentifier + "]");
+
+} else {
+    System.out.println("No valid data in API response.");
+}
+
+// Log final results
+System.out.println("Final Drug Form: [" + drugForm + "]");
+System.out.println("Final Brand Name: [" + brandName + "]");
+System.out.println("Final Generic Name: [" + genericName + "]");
+System.out.println("Final ATC Code: [" + atcCode + "]");
+System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
+
+
+
+        // Handle drug components
+        JSONArray components = dmono.optJSONArray("components");
+        StringBuilder stringBuilder = new StringBuilder();
+        if (components != null && components.length() > 0) {
+            for (int i = 0; i < components.length(); i++) {
+                JSONObject drugComponent = components.getJSONObject(i);
+                stringBuilder.append(drugComponent.optString("name", ""))
+                             .append(" ")
+                             .append(drugComponent.optString("strength", ""))
+                             .append(" ")
+                             .append(drugComponent.optString("unit", ""));
+                if (i < components.length() - 1) {
+                    stringBuilder.append(" / ");
+                }
+            }
+        }
+        rx.setGenericName(stringBuilder.length() > 0 ? stringBuilder.toString() : genericName);
+        rx.setBrandName(brandName);
+
+        // Set drug form
+        if (drugForm.contains(",")) {
+            rx.setDrugForm(drugForm.split(",")[0]);
+        } else {
+            rx.setDrugForm(drugForm);
+        }
+        rx.setDrugFormList(drugForm);
+
+		// ✅ Pass the drug form to the JSP page
+		request.setAttribute("drugForm", rx.getDrugForm());
+		System.out.println("Drug Form being set in createnewrx: " + rx.getDrugForm());  // Log the form for debugging
+		request.setAttribute("drugCategory", drugCategory);  // ✅ Make available in JSP as ${drugCategory}
+		System.out.println("Drug category being set in createnewrx is : " + drugCategory);
+
+
+        // Handle route
+        JSONArray routeArray = dmono.optJSONArray("route");
+        if (routeArray != null && routeArray.length() > 0) {
+            boolean oral = false;
+            for (int i = 0; i < routeArray.length(); i++) {
+                if (routeArray.getString(i).equalsIgnoreCase("ORAL")) {
+                    oral = true;
+                    break;
+                }
+            }
+            rx.setRoute(oral ? "ORAL" : routeArray.getString(0));
+        }
+
+        // Handle dosage and unit
+        String dosage = "";
+        String unit = "";
+        if (components != null) {
+            for (int i = 0; i < components.length(); i++) {
+                JSONObject drugComp = components.getJSONObject(i);
+                String strength = drugComp.optString("strength", "");
+                unit = drugComp.optString("unit", "");
+                dosage += " " + strength + " " + unit;
+            }
+        }
+        rx.setDosage(removeExtraChars(dosage));
+        rx.setUnit(removeExtraChars(unit));
+
+        // Set other drug information
+        rx.setGCN_SEQNO(Integer.parseInt(drugId));
+        rx.setRegionalIdentifier(regionalIdentifier);
+        rx.setAtcCode(atcCode);
+        RxUtil.setSpecialQuantityRepeat(rx);
+        rx = setCustomRxDurationQuantity(rx);
+
+        // Save to session
+        List<RxPrescriptionData.Prescription> listRxDrugs = new ArrayList<>();
+        if (RxUtil.isRxUniqueInStash(bean, rx)) {
+            listRxDrugs.add(rx);
+        }
+        bean.addAttributeName(rx.getAtcCode() + "-" + bean.getStashIndex());
+        int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+        bean.setStashIndex(rxStashIndex);
+
+        // Set dates
+        String today = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+        Date tod = RxUtil.StringToDate(today, "yyyy-MM-dd");
+        rx.setRxDate(tod);
+        rx.setWrittenDate(tod);
+        rx.setDiscontinuedLatest(RxUtil.checkDiscontinuedBefore(rx));
+
+        request.setAttribute("listRxDrugs", listRxDrugs);
+    } catch (Exception e) {
+        logger.error("Error", e);
+    }
+    logger.debug("=============END createNewRx RxWriteScriptAction.java===============");
+    return mapping.findForward(success);
+}
 
 	@SuppressWarnings("unused")
 	public ActionForward updateDrug(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -696,7 +774,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 				hm.put("calQuantity", rx.getQuantity());
 				hm.put("unitName", rx.getUnitName());
 				hm.put("policyViolations", rx.getPolicyViolations());
-				JSONObject jsonObject = JSONObject.fromObject(hm);
+				JSONObject jsonObject = new JSONObject(hm);
 				logger.debug("jsonObject:"+jsonObject.toString());
 				response.getOutputStream().write(jsonObject.toString().getBytes());
 			} catch (Exception e) {
@@ -780,7 +858,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 				hm.put("prn", rx.getPrn());
 				hm.put("calQuantity", rx.getQuantity());
 				hm.put("unitName", rx.getUnitName());
-				JSONObject jsonObject = JSONObject.fromObject(hm);
+				JSONObject jsonObject = new JSONObject(hm);
 				response.getOutputStream().write(jsonObject.toString().getBytes());
 			} catch (Exception e) {
 				logger.error("Error", e);
@@ -1262,7 +1340,7 @@ public final class RxWriteScriptAction extends DispatchAction {
                 hm.put("patientName", "Unknown");
                 hm.put("patientHIN", "Unknown");
             }
-            JSONObject jo=JSONObject.fromObject(hm);
+            JSONObject jo = new JSONObject(hm);
             response.getOutputStream().write(jo.toString().getBytes());
             return null;
         }
@@ -1285,13 +1363,13 @@ public final class RxWriteScriptAction extends DispatchAction {
 			oldRx.SetLongTermAndSave(!oldRx.isLongTerm());
 			HashMap hm = new HashMap();
 			hm.put("success", true);
-			JSONObject jsonObject = JSONObject.fromObject(hm);
+			JSONObject jsonObject = new JSONObject(hm);
 			response.getOutputStream().write(jsonObject.toString().getBytes());
 			return null;
 		} else {
 			HashMap hm = new HashMap();
 			hm.put("success", false);
-			JSONObject jsonObject = JSONObject.fromObject(hm);
+			JSONObject jsonObject = new JSONObject(hm);
 			response.getOutputStream().write(jsonObject.toString().getBytes());
 			return null;
 		}
@@ -1396,7 +1474,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 		int n = bean.getStashSize();
 		HashMap hm = new HashMap();
 		hm.put("NoStashItem", n);
-		JSONObject jsonObject = JSONObject.fromObject(hm);
+		JSONObject jsonObject = new JSONObject(hm);
 		response.getOutputStream().write(jsonObject.toString().getBytes());
 		return null;
 	}
