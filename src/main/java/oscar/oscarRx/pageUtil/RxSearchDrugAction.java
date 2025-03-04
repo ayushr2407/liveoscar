@@ -62,6 +62,14 @@ import net.sf.json.JSONArray;
 import java.util.HashMap;
 import java.util.Map; 
 
+import java.util.HashSet;
+import java.util.Set;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
+
+
+
+
 public final class RxSearchDrugAction extends DispatchAction {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
@@ -222,126 +230,144 @@ public final class RxSearchDrugAction extends DispatchAction {
     
 
     @SuppressWarnings({ "unchecked", "unused" })
-	public ActionForward jsonSearch(
-		ActionMapping mapping,
-		ActionForm form,
-		HttpServletRequest request,
-		HttpServletResponse response) {
-	
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
+		public ActionForward jsonSearch(
+			ActionMapping mapping,
+			ActionForm form,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+		
+			if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
+				throw new RuntimeException("missing required security object (_rx)");
+			}
+		
+			String searchStr = request.getParameter("query");
+			if (searchStr == null) {
+				searchStr = request.getParameter("name");
+			}
+			String encodedSearchStr = "";
+			try {
+				encodedSearchStr = URLEncoder.encode(searchStr, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("Error encoding search string: " + e.getMessage());
+				// You can handle this error or throw it again depending on your requirements
+				throw new RuntimeException("Unsupported encoding for search string");
+			}
+			
+		
+			System.out.println("🔎 User searched for: " + encodedSearchStr);
+		
+			String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + encodedSearchStr;
+			System.out.println("📡 Fetching drug data from API: " + apiUrl);
+		
+			Vector<Hashtable<String, Object>> vec = new Vector<>();
+		
+			try {
+				URL url = new URL(apiUrl);
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Accept", "application/json");
+		
+				if (conn.getResponseCode() != 200) {
+					System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+					return mapping.findForward("error");
+				}
+		
+				BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+				StringBuilder jsonResponse = new StringBuilder();
+				String line;
+				while ((line = br.readLine()) != null) {
+					jsonResponse.append(line);
+				}
+				br.close();
+				conn.disconnect();
+		
+				// System.out.println("✅ API Response received: " + jsonResponse.toString());
+		
+				JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
+		
+				if (responseObject.getBoolean("success")) {
+					JSONArray drugGroups = responseObject.getJSONArray("data");
+		
+					// Create a map to store dosage info based on group ID
+					// Create a set to track added group names to avoid duplicates
+	Set<String> addedGroups = new HashSet<>();
+	Map<Integer, String> groupDosageMap = new HashMap<>();  // Keep this if needed later
+
+	for (int i = 0; i < drugGroups.size(); i++) {
+		JSONObject group = drugGroups.getJSONObject(i);
+		int groupId = group.getInt("id");  // Get group_id
+		JSONArray drugs = group.getJSONArray("drugs");
+
+		// Get group name
+		String groupName = group.optString("group_name", "Unknown Group");
+
+		// Check if the group name is already added to avoid duplicates
+		if (!addedGroups.contains(groupName)) {
+			addedGroups.add(groupName);  // Track added group name to avoid duplicates
+
+			// Use the first drug's ID and DIN for unique identification
+			if (drugs.size() > 0) {
+				JSONObject firstDrug = drugs.getJSONObject(0);
+				int firstDrugId = firstDrug.getInt("id");
+				String firstDrugDin = firstDrug.getString("din");
+
+	// Extract active ingredient names if available
+// Create a list of active ingredients
+// Create a list of active ingredients
+JSONArray activeIngredients = group.optJSONArray("active_ingredients");
+StringBuilder activeIngredientsList = new StringBuilder();
+
+// Check if active ingredients are present
+if (activeIngredients != null && activeIngredients.size() > 0) {
+    // Loop through all active ingredients and append them
+    for (int j = 0; j < activeIngredients.size(); j++) {  // Use 'j' instead of 'i' to avoid duplication
+        JSONObject ingredient = activeIngredients.getJSONObject(j);
+        String ingredientName = ingredient.optString("ingredient_name", "Unknown Ingredient");
+
+        if (j > 0) {
+            activeIngredientsList.append(", ");  // Add separator for multiple ingredients
+        }
+        activeIngredientsList.append(ingredientName);
+    }
+}
+
+// Create display name with group name and active ingredients (if any)
+String displayName = groupName;  // Start with group name
+
+// Append active ingredients after group name
+if (activeIngredientsList.length() > 0) {
+    displayName += "<br><span style='font-size: 12px; color: gray;'>Active Ingredient(s) - " + activeIngredientsList.toString() + "</span>";
+}
+
+
+
+
+	// Create a new hashtable to store group data
+	Hashtable<String, Object> groupData = new Hashtable<>();
+	groupData.put("id", firstDrugId);        // Use first drug's ID for unique ID
+	groupData.put("name", displayName);      // Display group name + active ingredient in dropdown
+	groupData.put("din", firstDrugDin);      // Use first drug's DIN for unique ID
+
+	vec.add(groupData);  // Add group data to vector
+
+			}
 		}
-	
-		String searchStr = request.getParameter("query");
-		if (searchStr == null) {
-			searchStr = request.getParameter("name");
-		}
-	
-		System.out.println("🔎 User searched for: " + searchStr);
-	
-		String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + searchStr;
-		System.out.println("📡 Fetching drug data from API: " + apiUrl);
-	
-		Vector<Hashtable<String, Object>> vec = new Vector<>();
-	
-		try {
-			URL url = new URL(apiUrl);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("Accept", "application/json");
-	
-			if (conn.getResponseCode() != 200) {
-				System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+	}
+
+				} else {
+					System.out.println("❌ API returned no results.");
+				}
+		
+				jsonify(vec, response);
+		
+			} catch (Exception e) {
+				System.out.println("❌ Exception while fetching data: " + e.getMessage());
+				e.printStackTrace();
 				return mapping.findForward("error");
 			}
-	
-			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			StringBuilder jsonResponse = new StringBuilder();
-			String line;
-			while ((line = br.readLine()) != null) {
-				jsonResponse.append(line);
-			}
-			br.close();
-			conn.disconnect();
-	
-			// System.out.println("✅ API Response received: " + jsonResponse.toString());
-	
-			JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
-	
-			if (responseObject.getBoolean("success")) {
-				JSONArray drugGroups = responseObject.getJSONArray("data");
-	
-				// Create a map to store dosage info based on group ID
-				Map<Integer, String> groupDosageMap = new HashMap<>();
-	
-				for (int i = 0; i < drugGroups.size(); i++) {
-					JSONObject group = drugGroups.getJSONObject(i);
-					int groupId = group.getInt("id");  // Get group_id
-					JSONArray drugs = group.getJSONArray("drugs");
-					JSONArray activeIngredients = group.optJSONArray("active_ingredients");
-	
-					if (activeIngredients != null) {
-						for (int k = 0; k < activeIngredients.size(); k++) {
-							JSONObject ingredient = activeIngredients.getJSONObject(k);
-							String dosageValue = ingredient.optString("dosage_value", "");
-							String dosageUnit = ingredient.optString("dosage_unit", "");
-							String strength = ingredient.optString("strength", "");
-							String strengthUnit = ingredient.optString("strength_unit", "");
-	
-							// Choose dosage or fallback to strength
-							String displayInfo = "";
-							if (!dosageValue.isEmpty() && !dosageUnit.isEmpty()) {
-								displayInfo = dosageValue + " " + dosageUnit;
-							} else if (!strength.isEmpty() && !strengthUnit.isEmpty()) {
-								displayInfo = strength + " " + strengthUnit;
-							}
-	
-							// Store dosage info for the entire group
-							if (!displayInfo.isEmpty()) {
-								groupDosageMap.put(groupId, displayInfo);
-							}
-						}
-					}
-	
-					for (int j = 0; j < drugs.size(); j++) {
-						JSONObject drug = drugs.getJSONObject(j);
-						Hashtable<String, Object> drugData = new Hashtable<>();
-	
-						int drugId = drug.getInt("id");
-						String drugName = drug.getString("name");
-						String din = drug.getString("din");
-	
-						// Get dosage info by group_id only
-						String dosageInfo = groupDosageMap.getOrDefault(groupId, "");
-	
-						// Construct display name
-						String displayName = drugName;
-						if (!dosageInfo.isEmpty()) {
-							displayName += " - " + dosageInfo;  // Show name - value unit
-						}
-	
-						drugData.put("id", drugId);
-						drugData.put("name", displayName);
-						drugData.put("din", din);
-	
-						vec.add(drugData);
-						// System.out.println("   - Drug: " + displayName + ", ID: " + drugId + ", DIN: " + din);
-					}
-				}
-			} else {
-				System.out.println("❌ API returned no results.");
-			}
-	
-			jsonify(vec, response);
-	
-		} catch (Exception e) {
-			System.out.println("❌ Exception while fetching data: " + e.getMessage());
-			e.printStackTrace();
-			return mapping.findForward("error");
+		
+			return null;
 		}
-	
-		return null;
-	}
 
 
 	

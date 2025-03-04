@@ -602,14 +602,16 @@ if (dataArray != null && dataArray.length() > 0) {
 	System.out.println("Extracted Drug Category: [" + drugCategory + "]");  
 
    // Extract the actual drug name from the "drugs" array if available
-JSONArray drugsArray = firstDrug.optJSONArray("drugs");
-String drugName = "";
-if (drugsArray != null && drugsArray.length() > 0) {
-    drugName = drugsArray.getJSONObject(0).optString("name", "Not Found");  // ✅ Use "name" from "drugs" array
-} else {
-    drugName = "Not Found";  // Fallback if "name" is missing
-}
-System.out.println("Extracted Drug Name: [" + drugName + "]");  // ✅ Log the drug name
+// Extract the group name directly
+String groupName = firstDrug.optString("group_name", "Not Found");
+System.out.println("Extracted Group Name: [" + groupName + "]");  // ✅ Log the group name
+
+// Use groupName directly for drugName
+String drugName = groupName;          // ✅ Use "group_name" for drugName
+
+// Log final assignment
+System.out.println("Assigned Group Name to drugName: [" + drugName + "]");
+
 
 // Use drugName directly for brandName and genericName
 brandName = drugName;          // ✅ Use "name" for brandName
