@@ -99,13 +99,17 @@ if (heading != null){
 <h4 style="margin-bottom:1px;margin-top:3px;"><%=heading%></h4>
 <%}%>
 <div class="drugProfileText" style="">
-    <table width="100%" cellpadding="3" border="0" class="sortable" id="Drug_table<%=heading%>">
-        <tr>
-        	<th align="left"><b>Entered Date</b></th>
-            <th align="left"><b><bean:message key="SearchDrug.msgRxDate"/></b></th>
-            <th align="left"><b>Days to Exp</b></th>
-            <th align="left"><b>LT Med</b></th>
+    <table width="100%" cellpadding="3" border="0" class="sortable" style="border-spacing: 0px;" id="Drug_table<%=heading%>">
+       <tr style="font-size: 12px; background-color: #e9e5e5">
             <th align="left"><b><bean:message key="SearchDrug.msgPrescription"/></b></th>
+            <th align="left"><b>Qty</b></th>
+            <%-- <th align="left"><b>Duration</b></th> --%>
+            <th align="left" style="width:70px"><b>Rx Date</b></th>
+            <%-- <th align="left" style="width:65px"><b><bean:message key="SearchDrug.msgRxDate"/></b></th> --%>
+            <%-- <th align="left" style="width:60px"><b>End Date</b></th> --%>
+            <th align="left" style="width:76px"><b>Days to Exp</b></th>
+            <th align="left" style="width:46px"><b>LT Med</b></th>
+            <th align="center" width="95px" style="text-align: left;" title="<bean:message key="SearchDrug.msgReason_help"/>"><b><bean:message key="SearchDrug.msgReason"/></b></th>
 			<%if(securityManager.hasWriteAccess("_rx",roleName$,true)) {%>
             <th align="center" width="35px"><b><bean:message key="SearchDrug.msgReprescribe"/></b></th>
             	<%if(!OscarProperties.getInstance().getProperty("rx.delete_drug.hide","false").equals("true")) {%>
@@ -114,17 +118,20 @@ if (heading != null){
 			}
             %>
             <th align="center" width="35px"><b><bean:message key="SearchDrug.msgDiscontinue"/></b></th>
-			<th align="center" width="35px" title="<bean:message key="SearchDrug.msgReason_help"/>"><b><bean:message key="SearchDrug.msgReason"/></b></th>
-            <th align="center" width="35px"><b><bean:message key="SearchDrug.msgPastMed"/></b></th>
+		
+            <th align="center" width="35px" style="width: 40px;"><b><bean:message key="SearchDrug.msgPastMed"/></b></th>
             <%if(securityManager.hasWriteAccess("_rx",roleName$,true)) {%>
             	<th align="center" width="15px">&nbsp;</th>
             <% } %>
-            <th align="center"><bean:message key="SearchDrug.msgLocationPrescribed"/></th>
+            <%-- <th align="center" style="width: 70px;"><bean:message key="SearchDrug.msgLocationPrescribed"/></th> --%>
             <th align="center" title="<bean:message key="SearchDrug.msgHideCPP_help"/>"><bean:message key="SearchDrug.msgHideCPP"/></th>
+             <%-- <th align="left"><b>Batch ID</b></th> --%>
+            <th align="center"><b></b></th>
             <%if(OscarProperties.getInstance().getProperty("rx.enable_internal_dispensing","false").equals("true")) {%>
              <th align="center"><bean:message key="SearchDrug.msgDispense"/></th>
              <%} %>
              <th align="center"></th>
+        	
         </tr>
 
         <%
@@ -149,6 +156,78 @@ if (heading != null){
             long month = 1000L * 60L * 60L * 24L * 30L;
 			for (int x=0;x<prescriptDrugs.size();x++) {
 				Drug prescriptDrug = prescriptDrugs.get(x);
+                // Get the full outline for the drug
+                    String fullOutline = RxPrescriptionData.getFullOutLine(prescriptDrug.getSpecial());
+
+                    // Get the duration for the drug
+                    String durationStr = prescriptDrug.getDuration();
+                    int duration = 0;
+
+                    // Check if duration is not null and is a valid number
+                    if (durationStr != null && !durationStr.isEmpty()) {
+                        try {
+                            duration = Integer.parseInt(durationStr);
+                        } catch (NumberFormatException e) {
+                            // Handle the error, if the duration is not a valid integer (e.g., set to a default value)
+                            duration = 0;
+                        }
+                    }
+
+                    // Prepare the duration text with singular/plural handling
+                    String durationText = duration + " " + (duration == 1 ? "day" : "days");
+
+                    // Extract start date for the drug
+                    String startDate = oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate());
+                    startDate = partialDateDao.getDatePartial(startDate, PartialDate.DRUGS, prescriptDrug.getId(), PartialDate.DRUGS_STARTDATE);
+
+                    // Extract the end date for the drug earlier
+                    Date endDate = prescriptDrug.getEndDate();
+                    String endDateFormatted = "";  // To hold the formatted date string
+
+                    // Check if endDate is not null before formatting
+                    if (endDate != null) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        endDateFormatted = dateFormat.format(endDate);  // Format the date as "yyyy-MM-dd"
+                    }
+
+                    // Format start date and end date for display (Mar 5, 25 format)
+                    SimpleDateFormat displayFormat = new SimpleDateFormat("MMM d, yy");
+                    String startDateDisplay = "";
+                    String endDateDisplay = "";
+
+                    if (startDate != null && !startDate.isEmpty()) {
+                        Date parsedStartDate = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+                        startDateDisplay = displayFormat.format(parsedStartDate);
+                    }
+
+                    if (endDate != null) {
+                        endDateDisplay = displayFormat.format(endDate);
+                    }
+
+                    // Extract the quantity (Qty) using regex
+                    String qty = "";
+                    java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("Qty:(\\d+)").matcher(fullOutline);
+                    if (matcher.find()) {
+                        qty = matcher.group(1);  // Get only the number after Qty:
+                    }
+
+                    // Split the full outline by semicolons
+                    String[] outlineParts = fullOutline.split(";");
+
+                    // Get the first part as the medication name (before the first semicolon)
+                    String medicationName = prescriptDrug.getBrandName();  
+
+                    // Extract the reason (between the first and second semicolon, if present)
+                    String reason = "";
+                    if (outlineParts.length > 1 && !outlineParts[1].trim().startsWith("Qty:")) {
+                        reason = outlineParts[1].trim();
+                    }
+
+                    // Build the updated medication name structure
+                    String updatedMedicationName = medicationName + "<br>" + duration + " days (" + startDateDisplay + " - " + endDateDisplay + ")";
+
+
+
 				boolean isPrevAnnotation=false;
                 String styleColor = "";
                 //test for previous note
@@ -190,7 +269,7 @@ if (heading != null){
                 }
 
                 //add all long term med drugIds to an array.
-                styleColor = getClassColour( prescriptDrug, now, month);
+                // styleColor = getClassColour( prescriptDrug, now, month);
                 String specialText=prescriptDrug.getSpecial();
                 specialText= specialText == null ? "" : specialText.replace("\n"," ");
                 Integer prescriptIdInt=prescriptDrug.getId();
@@ -199,30 +278,75 @@ if (heading != null){
                 boolean startDateUnknown = prescriptDrug.getStartDateUnknown();
         %>
         <tr>
-        <td valign="top"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getCreateDate())%></a></td>
-            <td valign="top">
-            	<% if(startDateUnknown) { %>
+       <%
+			//display comment as tooltip if not null - simply using the TITLE attr
+			String xComment=prescriptDrug.getComment();
+			String tComment="";
+			if(xComment!=null ){
+				tComment="TITLE='"+xComment+" '";
+			}
 
-            	<% } else {
-            		String startDate = oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate());
-            		startDate = partialDateDao.getDatePartial(startDate, PartialDate.DRUGS,  prescriptDrug.getId(), PartialDate.DRUGS_STARTDATE);
-            	%>
-		    <%=startDate%></nobr>
-            	<% } %>
-            </td>
-            <td valign="top">
-            	<% if(startDateUnknown) { %>
+			%>
+<%-- <td valign="top">
+    <a id="prescrip_<%=prescriptIdInt%>" <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=response.encodeURL(prescriptDrug.getCustomName())%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>" <%=tComment%> title="<%=prescriptDrug.getGenericName()%>">
+        <%=updatedMedicationName%>
+    </a>
+</td> --%>
 
-            	<% } else { %>
-            		<%=prescriptDrug.daysToExpire()%>
-            	<% } %>
-            </td>
-            <td valign="top">
+
+<td valign="top">
+    <%-- <a id="prescrip_<%=prescriptIdInt%>" <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=response.encodeURL(prescriptDrug.getCustomName())%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>" <%=tComment%> title="<%=prescriptDrug.getGenericName()%>"> --%>
+        <span style="font-size: 13px; color: #0088cc;">
+            <%=medicationName%>
+        </span>
+        <br>
+        <span style="font-size: 10px; color: #000000;">
+            <%= durationText %> (<%= startDateDisplay %> - <%= endDateDisplay %>)
+        </span>
+    </a>
+</td>
+
+
+ <td  style="text-align: center;" valign="top">
+    <%= qty %> <!-- Displaying the extracted quantity -->
+</td>
+
+<%-- <td style="text-align: center;" valign="top">
+    <%= duration %> <!-- Displaying the extracted duration -->
+</td> --%>
+<td valign="top"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getCreateDate())%></a></td>
+
+
+<td valign="top" style="text-align: center;">
+    <% 
+        if (startDateUnknown || endDate == null) { 
+            out.print("N/A"); // Display "N/A" if date information is incomplete
+        } else {
+            Date currentDate = new Date();
+            Date rxDate = prescriptDrug.getRxDate();
+
+            // Determine which date to use as the starting point
+            Date calculationStartDate = rxDate.after(currentDate) ? rxDate : currentDate;
+
+            // Calculate days to expire from selected start date to end date
+            long daysToExpire = oscar.util.UtilDateUtilities.getNumDays(calculationStartDate, endDate);
+
+            if (daysToExpire <= 0) { %>
+                Expired
+            <% } else { %>
+                <%= daysToExpire %>
+            <% }
+        }
+    %>
+</td>
+
+
+            <td valign="top" style="text-align: center;">
                 <%
                         if(prescriptDrug.isLongTerm())
                         {
                         %>
-                                <a id="longTermDrug_<%=prescriptIdInt%>" title="<bean:message key='oscarRx.Prescription.changeDrugShortTerm'/>" onclick="changeLt('<%=prescriptIdInt%>', true);" href="javascript:void(0);">
+                                <a id="longTermDrug_<%=prescriptIdInt%>" title="<bean:message key='oscarRx.Prescription.changeDrugShortTerm'/>" style="text-decoration: none !important; color: black !important;">
                                         <bean:message key='global.yes'/>
                                 </a>
                         <%
@@ -235,7 +359,7 @@ if (heading != null){
                                                         <%
                                                                 if(securityManager.hasWriteAccess("_rx",roleName$,true)) {
                                                         %>
-                                                <a id="notLongTermDrug_<%=prescriptIdInt%>" title="<bean:message key='oscarRx.Prescription.changeDrugLongTerm'/>" onclick="changeLt('<%=prescriptIdInt%>', false);" href="javascript:void(0);">
+                                                <a id="notLongTermDrug_<%=prescriptIdInt%>" title="<bean:message key='oscarRx.Prescription.changeDrugLongTerm'/>" style="text-decoration: none !important; color: black !important;">
                                                 <bean:message key='global.no'/>
                                                 </a>
                                                         <% } else { %>
@@ -253,18 +377,17 @@ if (heading != null){
                                 }
                                 %>
             </td>
+          <td style="vertical-align:top;">
+    <%= prescriptDrug.getComment() != null && !prescriptDrug.getComment().isEmpty() ? prescriptDrug.getComment() : "No reason provided" %>
+</td>
+          
+           
+			
 
-			<%
-			//display comment as tooltip if not null - simply using the TITLE attr
-			String xComment=prescriptDrug.getComment();
-			String tComment="";
-			if(xComment!=null ){
-				tComment="TITLE='"+xComment+" '";
-			}
 
-			%>
-            <td valign="top"><a id="prescrip_<%=prescriptIdInt%>" <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=response.encodeURL(prescriptDrug.getCustomName())%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>"   <%=tComment%>  title="<%=prescriptDrug.getGenericName()%>" ><%=RxPrescriptionData.getFullOutLine(prescriptDrug.getSpecial()).replaceAll(";", " ")%></a></td>
-			<%
+
+
+            <%
 	           	if(securityManager.hasWriteAccess("_rx",roleName$,true)) {
            	%>
             <td width="20px" align="center" valign="top">
@@ -305,29 +428,7 @@ if (heading != null){
                   <%=prescriptDrug.getArchivedReason()%>
                 <%}%>
             </td>
-  <%-- DRUG REASON --%>
-            <td style="vertical-align:top;">
-            	<%
-            		List<DrugReason> drugReasons  = drugReasonDao.getReasonsForDrugID(prescriptDrug.getId(),true);
 
-            		if (prescriptDrug.getRemoteFacilityId()==null && securityManager.hasWriteAccess("_rx",roleName$,true) )
-            		{
-            			%>
-			           	 	<a href="javascript:void(0);"  onclick="popupRxReasonWindow(<%=patient.getDemographicNo()%>,<%=prescriptIdInt%>);"  title="<%=displayDrugReason(codingSystemManager,drugReasons,true) %>">
-            			<%
-            		}
-            	%>
-            	<%=StringUtils.maxLenString(displayDrugReason(codingSystemManager,drugReasons,false), 4, 3, StringUtils.ELLIPSIS)%>
-				<%
-		      		if (prescriptDrug.getRemoteFacilityId()==null  && securityManager.hasWriteAccess("_rx",roleName$,true))
-		      		{
-		      			%>
-			            	</a>
-            			<%
-            		}
-				%>
-            </td>
-  <%-- END DRUG REASON --%>
             <%
             Boolean past_med = prescriptDrug.getPastMed();
             %>
@@ -356,7 +457,7 @@ if (heading != null){
             </td>
             <% } %>
 
-            <td width="10px" align="center" valign="top">
+            <%-- <td width="10px" align="center" valign="top">
                 <%
                 if (prescriptDrug.getRemoteFacilityName() != null){ %>
                     <span class="external"><%=prescriptDrug.getRemoteFacilityName()%></span>
@@ -367,7 +468,7 @@ if (heading != null){
                 <%}%>
 
 
-            </td>
+            </td> --%>
 
 			<td align="center" valign="top">
 				<%
@@ -379,6 +480,27 @@ if (heading != null){
 				%>
 				<input type="checkbox" id="hidecpp_<%=prescriptIdInt%>" <%=checked%>/>
 			</td>
+
+            <%-- <td><%= prescriptDrug.getPrescriptionBatchId() %></td> --%>
+
+<td style="text-align: center;">
+    <% if (prescriptDrug.getPdfFileName() != null && !prescriptDrug.getPdfFileName().isEmpty()) { %>
+        <a href="<%= request.getContextPath() %>/secure-pdf?file=<%= prescriptDrug.getPdfFileName() %>" target="_blank">
+            <i class="fa fa-file-pdf" style="color:red; font-size:20px;"></i> 
+        </a>
+    <% } else { %>
+        No PDF Available
+    <% } %>
+</td>
+
+<%-- 
+<td>
+    <% if (prescriptDrug.getPdfFileName() != null && !prescriptDrug.getPdfFileName().isEmpty()) { %>
+        <a href="/oscar/form/pdfservlet/secure-pdf?file=<%= prescriptDrug.getPdfFileName() %>" target="_blank">View PDF</a>
+    <% } else { %>
+        No PDF Available
+    <% } %>
+</td> --%>
 
 			<%if(OscarProperties.getInstance().getProperty("rx.enable_internal_dispensing","false").equals("true")) {%>
 			<td align="center" valign="top">
@@ -395,15 +517,17 @@ if (heading != null){
 			</td>
 			<% } %>
 
-			<td nowrap="nowrap" align="center" valign="top">
+			<%-- <td nowrap="nowrap" align="center" valign="top">
 				<%if(!(prescriptDrugs.get(prescriptDrugs.size()-1) == prescriptDrug)) {%>
 				<img border="0" src="<%=request.getContextPath()%>/images/icon_down_sort_arrow.png" onclick="moveDrugDown(<%=prescriptDrug.getId() %>,<%=prescriptDrugs.get(x+1).getId() %>,<%=prescriptDrug.getDemographicId()%>);return false;"/>
 				<% } %>
 				<%if(!(prescriptDrugs.get(0) == prescriptDrug)) {%>
 				<img border="0" src="<%=request.getContextPath()%>/images/icon_up_sort_arrow.png" onclick="moveDrugUp(<%=prescriptDrug.getId() %>,<%=prescriptDrugs.get(x-1).getId() %>,<%=prescriptDrug.getDemographicId()%>);return false;"/>
 				<%} %>
-			</td>
+			</td> --%>
+
         </tr>
+
         <script>
 Event.observe('hidecpp_<%=prescriptIdInt%>', 'change', function(event) {
 	var val = $('hidecpp_<%=prescriptIdInt%>').checked;

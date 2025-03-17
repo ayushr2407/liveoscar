@@ -94,6 +94,7 @@ public class RxPrescriptionData {
 			prescription.setPatientCompliance_p("unknown");
 		}      
 		prescription.setFrequency(drug.getFrequency());
+		prescription.setPrescriptionBatchId(drug.getPrescriptionBatchId());
 		prescription.setRxCreatedDate(drug.getCreateDate());
 		prescription.setRxDate(drug.getRxDate());
 		prescription.setEndDate(drug.getEndDate());
@@ -197,6 +198,7 @@ public class RxPrescriptionData {
 		prescription.setDrugForm(favorite.getDrugForm());
 		prescription.setCustomInstr(favorite.getCustomInstr());
 		prescription.setDosage(favorite.getDosage());
+		prescription.setPrescriptionBatchId(null);
 
 		return prescription;
 	}
@@ -210,6 +212,7 @@ public class RxPrescriptionData {
 		prescription.setEndDate_p(rePrescribe.getEndDate_p());
 		prescription.setPatientCompliance_p(rePrescribe.getPatientCompliance_p()); // Map patient compliance
         prescription.setFrequency(rePrescribe.getFrequency()); // Map frequency
+		prescription.setPrescriptionBatchId(rePrescribe.getPrescriptionBatchId());
 		prescription.setRxDate(RxUtil.Today());
 		prescription.setWrittenDate(RxUtil.Today());
 		prescription.setEndDate(null);
@@ -321,6 +324,7 @@ public class RxPrescriptionData {
 		p.setDosage(drug.getDosage());
 		p.setLongTerm(drug.getLongTerm());
 		p.setLongterm_p(drug.getLongTerm());
+		p.setPrescriptionBatchId(drug.getPrescriptionBatchId());
 if (drug.getPatientCompliance() != null) {
 	p.setPatientCompliance_p(drug.getPatientCompliance() ? "yes" : "no");
 } else {
@@ -684,6 +688,7 @@ if (drug.getEndDate() != null) {
 		boolean archived = false; // ADDED BY JAY DEC 3 2002
 		String atcCode = null;
 		String script_no = null;
+		String prescriptionBatchId = null;
 		String regionalIdentifier = null;
 		String method = null;
 		String unit = null;
@@ -949,6 +954,15 @@ if (drug.getEndDate() != null) {
 		public String getScript_no() {
 			return this.script_no;
 		}
+
+		public String getPrescriptionBatchId() {
+			return prescriptionBatchId;
+		}
+		
+		public void setPrescriptionBatchId(String prescriptionBatchId) {
+			this.prescriptionBatchId = prescriptionBatchId;
+		}
+		
 
 		public void setIndivoIdx(String idx) {
 			indivoIdx = idx;
@@ -1731,7 +1745,7 @@ if (getLongterm_p() != null) {
 
 		public boolean Save(String scriptId) {
 
-			this.calcEndDate();
+			// this.calcEndDate();
 
 			// clean up fields
 			if (this.takeMin > this.takeMax) this.takeMax = this.takeMin;
@@ -1747,7 +1761,11 @@ if (getLongterm_p() != null) {
 
 			this.position = this.getNextPosition();
 			syncDrug(drug, ConversionUtils.fromIntString(scriptId));
-			dao.persist(drug);
+			if (drug.getId() == null) {
+				dao.persist(drug);  // New record
+			} else {
+				dao.merge(drug);  // Update existing record
+			}
 			drugId = drug.getId();
 
 			return true;
@@ -1755,6 +1773,7 @@ if (getLongterm_p() != null) {
 
 		private void syncDrug(Drug drug, Integer scriptId) {
 			// the fields set are based on previous code, I don't know the details of why which are and are not set and can not audit it at this point in time.
+			System.out.println("DEBUG: prescriptionBatchId BEFORE saving: " + getPrescriptionBatchId());
 			drug.setProviderNo(getProviderNo());
 			drug.setDemographicId(getDemographicNo());
 			drug.setRxDate(getRxDate());
@@ -1809,6 +1828,10 @@ if (getLongterm_p() != null) {
 			drug.setProtocol(protocol);
 			drug.setPriorRxProtocol(priorRxProtocol);
 			drug.setPharmacyId(getPharmacyId());
+			drug.setPrescriptionBatchId(getPrescriptionBatchId());
+			System.out.println("Saving Drug: Drug ID = " + drug.getId() + 
+			", Prescription Batch ID = " + drug.getPrescriptionBatchId() + 
+			", Script ID = " + scriptId);  
 		}
 
        		public boolean SetLongTermAndSave(boolean lt) {

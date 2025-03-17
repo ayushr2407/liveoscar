@@ -254,10 +254,10 @@ public final class RxSearchDrugAction extends DispatchAction {
 			}
 			
 		
-			System.out.println("🔎 User searched for: " + encodedSearchStr);
+			// System.out.println("User searched for: " + encodedSearchStr);
 		
 			String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + encodedSearchStr;
-			System.out.println("📡 Fetching drug data from API: " + apiUrl);
+			// System.out.println("Fetching drug data from API: " + apiUrl);
 		
 			Vector<Hashtable<String, Object>> vec = new Vector<>();
 		
@@ -268,7 +268,7 @@ public final class RxSearchDrugAction extends DispatchAction {
 				conn.setRequestProperty("Accept", "application/json");
 		
 				if (conn.getResponseCode() != 200) {
-					System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+					System.out.println("API request failed! HTTP Error Code: " + conn.getResponseCode());
 					return mapping.findForward("error");
 				}
 		
@@ -281,7 +281,7 @@ public final class RxSearchDrugAction extends DispatchAction {
 				br.close();
 				conn.disconnect();
 		
-				// System.out.println("✅ API Response received: " + jsonResponse.toString());
+				// System.out.println("API Response received: " + jsonResponse.toString());
 		
 				JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
 		
@@ -290,7 +290,7 @@ public final class RxSearchDrugAction extends DispatchAction {
 		
 					// Create a map to store dosage info based on group ID
 					// Create a set to track added group names to avoid duplicates
-	Set<String> addedGroups = new HashSet<>();
+					Set<Integer> addedGroups = new HashSet<>();
 	Map<Integer, String> groupDosageMap = new HashMap<>();  // Keep this if needed later
 
 	for (int i = 0; i < drugGroups.size(); i++) {
@@ -302,8 +302,8 @@ public final class RxSearchDrugAction extends DispatchAction {
 		String groupName = group.optString("group_name", "Unknown Group");
 
 		// Check if the group name is already added to avoid duplicates
-		if (!addedGroups.contains(groupName)) {
-			addedGroups.add(groupName);  // Track added group name to avoid duplicates
+		if (!addedGroups.contains(groupId)) {
+			addedGroups.add(groupId);		
 
 			// Use the first drug's ID and DIN for unique identification
 			if (drugs.size() > 0) {
@@ -311,35 +311,55 @@ public final class RxSearchDrugAction extends DispatchAction {
 				int firstDrugId = firstDrug.getInt("id");
 				String firstDrugDin = firstDrug.getString("din");
 
-	// Extract active ingredient names if available
-// Create a list of active ingredients
-// Create a list of active ingredients
+// Create a list of active ingredients with strength and unit
 JSONArray activeIngredients = group.optJSONArray("active_ingredients");
 StringBuilder activeIngredientsList = new StringBuilder();
 
 // Check if active ingredients are present
 if (activeIngredients != null && activeIngredients.size() > 0) {
     // Loop through all active ingredients and append them
-    for (int j = 0; j < activeIngredients.size(); j++) {  // Use 'j' instead of 'i' to avoid duplication
+    for (int j = 0; j < activeIngredients.size(); j++) {  
         JSONObject ingredient = activeIngredients.getJSONObject(j);
         String ingredientName = ingredient.optString("ingredient_name", "Unknown Ingredient");
+        String strength = ingredient.optString("strength", "").trim();
+        String strengthUnit = ingredient.optString("strength_unit", "").trim();
 
         if (j > 0) {
             activeIngredientsList.append(", ");  // Add separator for multiple ingredients
         }
-        activeIngredientsList.append(ingredientName);
+
+        // Append ingredient with strength and unit if available
+        if (!strength.isEmpty() && !strengthUnit.isEmpty()) {
+            activeIngredientsList.append(ingredientName).append(" (").append(strength).append(" ").append(strengthUnit).append(")");
+        } else {
+            activeIngredientsList.append(ingredientName);  // No strength or unit available
+        }
     }
 }
 
-// Create display name with group name and active ingredients (if any)
+// Debug: Check the list of active ingredients
+// System.out.println("Active Ingredients List: " + activeIngredientsList.toString());
+
+// Create display name with group name first
 String displayName = groupName;  // Start with group name
 
-// Append active ingredients after group name
+// Store active ingredients in a separate variable (this is now independent of displayName)
+String activeIngredientsText = "";
 if (activeIngredientsList.length() > 0) {
-    displayName += "<br><span style='font-size: 12px; color: gray;'>Active Ingredient(s) - " + activeIngredientsList.toString() + "</span>";
+    activeIngredientsText = "<span class='ingredient'>" + activeIngredientsList.toString() + "</span>";
 }
 
+// Debug: Check the final active ingredients text
+// System.out.println("Active Ingredients Text: " + activeIngredientsText);
 
+// Add active ingredients below the group name in the display name
+displayName = groupName + activeIngredientsText.replace("&", "&amp;")
+                                               .replace("<", "&lt;")
+                                               .replace(">", "&gt;")
+                                               .replace("\"", "&quot;")
+                                               .replace("'", "&#039;");
+
+   System.out.println("Adding groupId: " + groupId + ", Name: " + groupName);
 
 
 	// Create a new hashtable to store group data
@@ -355,13 +375,13 @@ if (activeIngredientsList.length() > 0) {
 	}
 
 				} else {
-					System.out.println("❌ API returned no results.");
+					System.out.println("API returned no results.");
 				}
 		
 				jsonify(vec, response);
 		
 			} catch (Exception e) {
-				System.out.println("❌ Exception while fetching data: " + e.getMessage());
+				System.out.println("Exception while fetching data: " + e.getMessage());
 				e.printStackTrace();
 				return mapping.findForward("error");
 			}
@@ -387,11 +407,11 @@ if (activeIngredientsList.length() > 0) {
 //         searchStr = request.getParameter("name");
 //     }
 
-//     System.out.println("🔎 User searched for: " + searchStr);
+//     System.out.println("User searched for: " + searchStr);
 
 //     // Construct API URL
 //     String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + searchStr;
-//     System.out.println("📡 Fetching drug data from API: " + apiUrl);
+//     System.out.println("Fetching drug data from API: " + apiUrl);
 
 //     Vector<Hashtable<String, Object>> vec = new Vector<>();
 
@@ -403,7 +423,7 @@ if (activeIngredientsList.length() > 0) {
 //         conn.setRequestProperty("Accept", "application/json");
 
 //         if (conn.getResponseCode() != 200) {
-//             System.out.println("❌ API request failed! HTTP Error Code: " + conn.getResponseCode());
+//             System.out.println("API request failed! HTTP Error Code: " + conn.getResponseCode());
 //             return mapping.findForward("error");
 //         }
 
@@ -417,7 +437,7 @@ if (activeIngredientsList.length() > 0) {
 //         br.close();
 //         conn.disconnect();
 
-//         System.out.println("✅ API Response received: " + jsonResponse.toString());
+//         System.out.println("API Response received: " + jsonResponse.toString());
 
 //         // Parse JSON response
 //         JSONObject responseObject = JSONObject.fromObject(jsonResponse.toString());
@@ -442,13 +462,13 @@ if (activeIngredientsList.length() > 0) {
 //                 }
 //             }
 //         } else {
-//             System.out.println("❌ API returned no results.");
+//             System.out.println("API returned no results.");
 //         }
 
 //         jsonify(vec, response);
 
 //     } catch (Exception e) {
-//         System.out.println("❌ Exception while fetching data: " + e.getMessage());
+//         System.out.println("Exception while fetching data: " + e.getMessage());
 //         e.printStackTrace();
 //         return mapping.findForward("error");
 //     }
@@ -475,33 +495,33 @@ if (activeIngredientsList.length() > 0) {
 //         searchStr = request.getParameter("name");
 //     }
 
-//     System.out.println("🔎 User searched for: " + searchStr);
+//     System.out.println("User searched for: " + searchStr);
 
 //     String wildcardRightOnly = OscarProperties.getInstance().getProperty("rx.search_right_wildcard_only", "false");                      
 //     Vector<Hashtable<String, Object>> vec = null;
 
 //     try {
 //         // Send search query to DrugRef
-//         System.out.println("📡 Sending search query to DrugRef: " + searchStr + ", WildcardRightOnly: " + wildcardRightOnly);
+//         System.out.println("Sending search query to DrugRef: " + searchStr + ", WildcardRightOnly: " + wildcardRightOnly);
 //         vec = drugref.list_drug_element3(searchStr, wildCardRight(wildcardRightOnly));
 
 //         // Print returned drug list
-//         System.out.println("✅ Drug search results received:");
+//         System.out.println("Drug search results received:");
 //         if (vec != null && !vec.isEmpty()) {
 //             for (Hashtable<String, Object> drug : vec) {
 //                 System.out.println("   - Drug: " + drug.get("name") + ", ID: " + drug.get("id"));
 //             }
 //         } else {
-//             System.out.println("   ❌ No results found.");
+//             System.out.println("No results found.");
 //         }
 
 //         jsonify(vec, response);
 //     } catch (IOException e) {
-//         System.out.println("❌ Exception while attempting to contact DrugRef: " + e.getMessage());
+//         System.out.println("Exception while attempting to contact DrugRef: " + e.getMessage());
 //         e.printStackTrace();
 //         return mapping.findForward("error");
 //     } catch (Exception e) {
-//         System.out.println("❌ Unknown Error: " + e.getMessage());
+//         System.out.println("Unknown Error: " + e.getMessage());
 //         e.printStackTrace();
 //         return mapping.findForward("error");
 //     }

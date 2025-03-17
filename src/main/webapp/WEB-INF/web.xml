@@ -226,6 +226,18 @@
 		<listener-class>org.oscarehr.web.OscarSessionListener</listener-class>
 	</listener>
 
+	<!-- Serve prescription pdfs -->
+	<servlet>
+    <servlet-name>SecurePdfServlet</servlet-name>
+    <servlet-class>oscar.form.pdfservlet.SecurePdfServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>SecurePdfServlet</servlet-name>
+		<url-pattern>/secure-pdf</url-pattern>
+	</servlet-mapping>
+
+
 	<!-- CXF -->
 	<servlet>
 		<servlet-name>CXFServlet</servlet-name>

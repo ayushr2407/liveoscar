@@ -107,6 +107,10 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private String atc = null;
 	@Column(name = "script_no")
 	private Integer scriptNo = 0;
+	@Column(name = "prescription_batch_id")
+	private String prescriptionBatchId;
+	@Column(name = "pdf_file_name")
+    private String pdfFileName;
 	@Column(name = "regional_identifier")
 	private String regionalIdentifier = null;
 	private String unit = null;
@@ -578,6 +582,22 @@ private String frequency;
 	public void setScriptNo(Integer scriptNo) {
 		this.scriptNo = scriptNo;
 	}
+
+	public String getPrescriptionBatchId() {
+		return prescriptionBatchId;
+	}
+	
+	public void setPrescriptionBatchId(String prescriptionBatchId) {
+		this.prescriptionBatchId = prescriptionBatchId;
+	}
+
+	public String getPdfFileName() {
+        return pdfFileName;
+    }
+
+    public void setPdfFileName(String pdfFileName) {
+        this.pdfFileName = pdfFileName;
+    }
 
 	public String getRegionalIdentifier() {
 		return regionalIdentifier;

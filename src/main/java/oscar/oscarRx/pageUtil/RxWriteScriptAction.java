@@ -89,6 +89,9 @@ import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.RxUtil;
 import oscar.util.StringUtils;
 
+import java.util.Map;
+
+
 public final class RxWriteScriptAction extends DispatchAction {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
@@ -549,15 +552,15 @@ public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpSer
         String drugId = request.getParameter("drugId");
         String text = request.getParameter("text");
 		String din = request.getParameter("din");
-		System.out.println("🔍 Drug DIN from Request in create new rx is: " + din);  // ✅ Log DIN
+		// System.out.println("Drug DIN from Request in create new rx is: " + din);
 
 
-		System.out.println("drugid is " + drugId);
+		// System.out.println("drugid is: " + drugId);
 
         // API call to get drug data
         // String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + drugId;
 		String apiUrl = "https://oatrx.ca/api/fetch-drug-data?search=" + URLEncoder.encode(din, "UTF-8");
-		System.out.println("📡 Fetching drug data from API: " + apiUrl);
+		// System.out.println("Fetching drug data from API: " + apiUrl);
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(apiUrl);
@@ -567,7 +570,7 @@ public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpSer
 
         // Parse JSON response
         // Log raw API response
-System.out.println("Raw API Response: " + jsonResponse);
+// System.out.println("Raw API Response: " + jsonResponse);
 
 JSONObject dmono = new JSONObject(jsonResponse);
 JSONArray dataArray = dmono.optJSONArray("data");
@@ -579,63 +582,83 @@ String regionalIdentifier = "";
 String drugCategory = ""; 
 
 if (dataArray != null) {
-    System.out.println("Data Array Found. Size: " + dataArray.length());
+    // System.out.println("Data Array Found. Size: " + dataArray.length());
 } else {
     System.out.println("Data Array is null!");
 }
 
 if (dataArray != null && dataArray.length() > 0) {
     JSONObject firstDrug = dataArray.getJSONObject(0);
-    System.out.println("First Drug Object: " + firstDrug.toString());
+    // System.out.println("First Drug Object: " + firstDrug.toString());
 
     // Log all keys
-    for (String key : firstDrug.keySet()) {
-        System.out.println("Key in first object: [" + key + "]");
-    }
+    // for (String key : firstDrug.keySet()) {
+    //     System.out.println("Key in first object: [" + key + "]");
+    // }
 
     // Extract and log dosage_form
-    System.out.println("Extracting dosage_form...");
     drugForm = firstDrug.optString("dosage_form", "Not Found");
-    System.out.println("Extracted Drug Form: [" + drugForm + "]");
 
 	drugCategory = firstDrug.optString("drug_category", "Not Found");
-	System.out.println("Extracted Drug Category: [" + drugCategory + "]");  
 
-   // Extract the actual drug name from the "drugs" array if available
 // Extract the group name directly
 String groupName = firstDrug.optString("group_name", "Not Found");
-System.out.println("Extracted Group Name: [" + groupName + "]");  // ✅ Log the group name
 
 // Use groupName directly for drugName
-String drugName = groupName;          // ✅ Use "group_name" for drugName
+String drugName = groupName;          // Use "group_name" for drugName
 
-// Log final assignment
-System.out.println("Assigned Group Name to drugName: [" + drugName + "]");
+// Extract technical reasons and SIGs from the API response
+JSONArray technicalReasonsArray = firstDrug.optJSONArray("technical_reasons");
+List<String> technicalReasons = new ArrayList<>();
+Map<String, List<String>> sigMap = new HashMap<>();  // Map to store SIGs for each reason
+
+if (technicalReasonsArray != null) {
+    for (int i = 0; i < technicalReasonsArray.length(); i++) {
+        JSONObject reasonObject = technicalReasonsArray.getJSONObject(i);
+        String technicalReason = reasonObject.optString("technical_reason", "");
+
+        if (!technicalReason.isEmpty()) {
+            technicalReasons.add(technicalReason);
+
+            // Extract SIGs for each reason
+            JSONArray sigsArray = reasonObject.optJSONArray("sigs");
+            List<String> sigs = new ArrayList<>();
+            if (sigsArray != null) {
+                for (int j = 0; j < sigsArray.length(); j++) {
+                    String sig = sigsArray.getJSONObject(j).optString("sig", "");
+                    if (!sig.isEmpty()) {
+                        sigs.add(sig);
+                    }
+                }
+            }
+            sigMap.put(technicalReason, sigs);  // Store SIGs for the reason
+        }
+    }
+}
+
+// Pass technical reasons and SIG map to JSP
+request.setAttribute("technicalReasons", technicalReasons);
+request.setAttribute("sigMap", sigMap);  // Pass SIG map
+// System.out.println("Technical Reasons: " + technicalReasons);
+// System.out.println("SIG Map: " + sigMap);
+
+
 
 
 // Use drugName directly for brandName and genericName
-brandName = drugName;          // ✅ Use "name" for brandName
-genericName = drugName;        // ✅ Use "name" for genericName
+brandName = drugName;          // Use "name" for brandName
+genericName = drugName;        // Use "name" for genericName
 
 
     // Extract and log atcCode (if it exists)
     atcCode = firstDrug.optString("atc", "Not Found");
-    System.out.println("Extracted ATC Code: [" + atcCode + "]");
 
     // Extract and log regionalIdentifier (if it exists)
     regionalIdentifier = firstDrug.optString("regionalIdentifier", "Not Found");
-    System.out.println("Extracted Regional Identifier: [" + regionalIdentifier + "]");
 
 } else {
     System.out.println("No valid data in API response.");
 }
-
-// Log final results
-System.out.println("Final Drug Form: [" + drugForm + "]");
-System.out.println("Final Brand Name: [" + brandName + "]");
-System.out.println("Final Generic Name: [" + genericName + "]");
-System.out.println("Final ATC Code: [" + atcCode + "]");
-System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 
 
 
@@ -666,12 +689,9 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
         }
         rx.setDrugFormList(drugForm);
 
-		// ✅ Pass the drug form to the JSP page
+		// Pass the drug form to the JSP page
 		request.setAttribute("drugForm", rx.getDrugForm());
-		System.out.println("Drug Form being set in createnewrx: " + rx.getDrugForm());  // Log the form for debugging
-		request.setAttribute("drugCategory", drugCategory);  // ✅ Make available in JSP as ${drugCategory}
-		System.out.println("Drug category being set in createnewrx is : " + drugCategory);
-
+		request.setAttribute("drugCategory", drugCategory);
 
         // Handle route
         JSONArray routeArray = dmono.optJSONArray("route");
@@ -1017,6 +1037,11 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 
 	public ActionForward updateSaveAllDrugs(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, Exception {
 		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
+
+		// Generate a unique prescription batch ID for this prescription session
+		String prescriptionBatchId = request.getParameter("prescriptionBatchId");
+		System.out.println("Generated Prescription Batch ID in updatesavealldrugs writescriptclass: " + prescriptionBatchId);
+
 		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		request.getSession().setAttribute("rePrint", null);// set to print.
@@ -1090,9 +1115,19 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 						} else if (elem.equals("duration_" + num)) {
 							rx.setDuration(val);
 						} else if (elem.equals("endDate_" + num)) {
-							String endDateValue = val.trim(); // Retrieve end date value
-							rx.setEndDate_p(endDateValue); // Map end date to Prescription class
+							String endDateValue = val.trim(); 
+							rx.setEndDate_p(endDateValue);
+							if ((endDateValue == null) || (endDateValue.equals(""))) {
+								rx.setEndDate(null); 
+								// System.out.println("DEBUG: endDate is empty, set to NULL.");
+							} else {
+								Date parsedEndDate = RxUtil.StringToDate(endDateValue, "yyyy-MM-dd");
+								rx.setEndDate(parsedEndDate);  
+								// System.out.println("DEBUG: endDate received: " + endDateValue);
+								// System.out.println("DEBUG: endDate set to: " + rx.getEndDate());
+							}
 						}
+						
 						 else if(elem.equals("codingSystem_" + num)) {
 							if(val != null) {
 								rx.setDrugReasonCodeSystem(val);
@@ -1117,13 +1152,20 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 								}
 							}
 						} if (elem.equals("longTerm_" + num)) {
-							if ("yes".equals(val)) {
-								rx.setLongterm_p(true);
-							} else if ("no".equals(val)) {
-								rx.setLongterm_p(false);
+							switch (val.toLowerCase()) {
+								case "yes":
+									rx.setLongTerm(true);
+									break;
+								case "no":
+									rx.setLongTerm(false);
+									break;
+								default:
+									rx.setLongTerm(null);  // For "Long Term" or unexpected values
 							}
-							System.out.println("DEBUG: LongTerm Value Set: " + rx.getLongTerm());
-						} else if (elem.equals("compliance_" + num)) {
+							// System.out.println("DEBUG: Payload Value for longTerm: " + val);
+							// System.out.println("DEBUG: Converted LongTerm Value Set: " + rx.getLongTerm());
+						}
+						 else if (elem.equals("compliance_" + num)) {
 							String complianceValue = val.trim().toLowerCase(); // Retrieve dropdown value
 							rx.setPatientCompliance_p(complianceValue); // Map dropdown to Prescription class
 						
@@ -1161,14 +1203,18 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
                         	rx.setPriorRxProtocol(val);
 						} else if (elem.equals("lastRefillDate_" + num)) {
 							rx.setLastRefillDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-						} else if (elem.equals("rxDate_" + num)) {
+						}else if (elem.equals("startDate_" + num)) {  // Check if startDate is passed from frontend
 							if ((val == null) || (val.equals(""))) {
-								rx.setRxDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
+								rx.setRxDate(null);  // Save as NULL if empty
+								// System.out.println("DEBUG: startDate is empty, rxDate set to NULL.");
 							} else {
-								rx.setRxDateFormat(partialDateDao.getFormat(val));
-								rx.setRxDate(partialDateDao.StringToDate(val));
+								Date parsedDate = RxUtil.StringToDate(val, "yyyy-MM-dd");
+								rx.setRxDate(parsedDate);  // Save startDate as rxDate
+								// System.out.println("DEBUG: startDate received: " + val);
+								// System.out.println("DEBUG: rxDate set to: " + rx.getRxDate());
 							}							
-                        } else if (elem.equals("pickupDate_" + num)) {
+						}
+						 else if (elem.equals("pickupDate_" + num)) {
 							if ((val != null) && (! val.equals(""))) {
 								pickupDate = RxUtil.StringToDate(val, "yyyy-MM-dd");
 							} 														
@@ -1216,7 +1262,8 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 							} else {
 								isStartDateUnknown = false;
 							}
-						} else if (elem.equals("comment_" + num)) {
+						} else if (elem.equals("instructions_" + num)) {
+							// System.out.println("Received instructions value for comment: " + val);
 							rx.setComment(val);
 						} else if (elem.equals("patientCompliance_" + num)) {
 							if ("yes".equals(val)) {
@@ -1250,7 +1297,7 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 					rx.setDispenseInternal(isDispenseInternal);
 					rx.setPatientCompliance(patientCompliance);
 					rx.setStartDateUnknown(isStartDateUnknown);
-					rx.setLongTerm(isLongTerm);
+					// rx.setLongTerm(isLongTerm);
 					rx.setShortTerm(isShortTerm);
                     rx.setNonAuthoritative(isNonAuthoritative);
                     rx.setNosubs(nosubs);
@@ -1322,7 +1369,7 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 			}
 		}
 
-		saveDrug(request);
+		saveDrug(request, prescriptionBatchId);
 		return null;
 	}
 
@@ -1378,7 +1425,7 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 }
 
 
-	public void saveDrug(final HttpServletRequest request) throws Exception {
+	public void saveDrug(final HttpServletRequest request, String prescriptionBatchId) throws Exception {
 		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
 		
@@ -1393,10 +1440,16 @@ System.out.println("Final Regional Identifier: [" + regionalIdentifier + "]");
 		for (int i = 0; i < bean.getStashSize(); i++) {
 			try {
 				rx = bean.getStashItem(i);
-				rx.Save(scriptId);// new drug id available after this line			
+				// FIX: Ensure `prescriptionBatchId` is set before saving
+				rx.setPrescriptionBatchId(prescriptionBatchId); 
+				System.out.println("DEBUG: Assigned prescriptionBatchId = " + rx.getPrescriptionBatchId());
+				
+				rx.Save(scriptId);// new drug id available after this line		
 				bean.addRandomIdDrugIdPair(rx.getRandomId(), rx.getDrugId());
 				auditStr.append(rx.getAuditString());
 				auditStr.append("\n");
+				// Debugging Output
+				System.out.println("Saving Drug ID from savedrug writescript class: " + rx.getDrugId() + " with Batch ID: " + prescriptionBatchId);
 				
 				// save drug reason. Method borrowed from 
 				// RxReasonAction. 

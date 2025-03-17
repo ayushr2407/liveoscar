@@ -58,6 +58,14 @@
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
+<%
+    // Retrieve prescriptionBatchId from request parameters
+    String prescriptionBatchId = request.getParameter("prescriptionBatchId");
+
+    // Print to Tomcat logs
+    System.out.println("Prescription Batch ID received in ViewScript2.jsp: " + prescriptionBatchId);
+%>
+
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -268,6 +276,7 @@ if (userAgent != null) {
     var useSC = false;
     var scAddress = "";
     var rxPageSize = "A4";  // Set default page size to A4
+    var prescriptionBatchId = "<%= request.getParameter("prescriptionBatchId") %>";
 
     <% if (vecAddressName != null) { %>
         useSC = true;
@@ -282,7 +291,8 @@ if (userAgent != null) {
                  "&useSC=" + useSC + 
                  "&scAddress=" + scAddress + 
                  "&rxPageSize=" + rxPageSize + 
-                 "&scriptId=" + scriptId;
+                 "&scriptId=" + scriptId +
+                 "&prescriptionBatchId=" + encodeURIComponent(prescriptionBatchId);
 
     document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
     document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target = "_blank";
@@ -559,7 +569,8 @@ function sendFax()
 	var faxNumber = document.getElementById('faxNumber');
 	frames['preview'].document.getElementById('finalFax').value = faxNumber.options[faxNumber.selectedIndex].value;
 	frames['preview'].document.getElementById('pdfId').value='<%=signatureRequestId%>';	
-	onPrint2('oscarRxFax', "<%=request.getParameter("scriptId")%>");
+    var prescriptionBatchId = "<%= request.getParameter("prescriptionBatchId") %>";
+	onPrint2('oscarRxFax', "<%=request.getParameter("scriptId")%>", prescriptionBatchId);
 }
 
 function unloadMess(){

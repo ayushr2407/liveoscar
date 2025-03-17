@@ -722,89 +722,75 @@ function returnToRx(){
     function triggerGeocoding(fullAddress) {
     console.log('[Debug] Triggering geocoding for address: ' + fullAddress);
 
-    // Clean and encode the address
     var cleanAddress = fullAddress.trim();
     if (!cleanAddress) {
-        console.error('[Geocoding Script] Full Address is empty. Cannot proceed.');
+        console.error('[Geocoding Script] Full Address is empty. Falling back to default.');
+        fetchPharmaciesSortedByDistance(0, 0); // Fallback
         return;
     }
 
     var encodedAddress = encodeURIComponent(cleanAddress);
-    console.log('[Debug] Encoded Address for API: ' + encodedAddress);
-
     var apiKey = 'AIzaSyBzuzGR9_XoLdb7nx-L9UdPPmIwZyiSOdM';
     var apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedAddress + '&key=' + apiKey;
-    console.log('[Debug] Full API URL: ' + apiUrl);
+    
+    console.log('[Debug] Geocoding API URL: ' + apiUrl);
 
-    // Call the geocoding API
     fetch(apiUrl)
-        .then(function(response) {
-            console.log('[Debug] API Response:', response);
+        .then(response => {
             if (!response.ok) {
                 throw new Error('HTTP Error! Status: ' + response.status);
             }
             return response.json();
         })
-        .then(function(data) {
-            // console.log('[Geocoding Script] Geocoding response:', data);
-            
+        .then(data => {
             if (data.results && data.results.length > 0) {
                 var location = data.results[0].geometry.location;
-                // console.log('[Geocoding Script] Latitude: ' + location.lat + ', Longitude: ' + location.lng);
+                console.log('[Geocoding Script] Latitude: ' + location.lat + ', Longitude: ' + location.lng);
 
-                // Fetch pharmacies based on latitude and longitude
+                // Call pharmacy API with actual lat/lng
                 fetchPharmaciesSortedByDistance(location.lat, location.lng);
             } else {
-                console.error('[Geocoding Script] No results found for geocoding.');
+                console.error('[Geocoding Script] No results found for geocoding. Falling back to default.');
+                fetchPharmaciesSortedByDistance(0, 0); // Fallback
             }
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('[Geocoding Script] Error during geocoding:', error);
+            fetchPharmaciesSortedByDistance(0, 0); // Fallback
         });
 }
 
-   function fetchPharmaciesSortedByDistance(lat, lng) {
-    // console.log('[Debug] Latitude (type and value):', typeof lat, lat);
-    // console.log('[Debug] Longitude (type and value):', typeof lng, lng);
 
-    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        console.error('[Error] Invalid latitude or longitude:', { lat, lng });
-        alert('Error: Unable to fetch pharmacies due to invalid location coordinates.');
-        return;
+   function fetchPharmaciesSortedByDistance(lat, lng) {
+    if (typeof lat !== "number" || isNaN(lat) || typeof lng !== "number" || isNaN(lng)) {
+        console.warn("[Warning] Invalid latitude or longitude. Fetching all pharmacies without sorting.");
+        var pharmacyApiUrl = `https://oatrx.ca/api/fetch-all-pharmacies`; // Fallback
+    } else {
+        console.log("[Info] Fetching pharmacies using coordinates: Lat =", lat, "Lng =", lng);
+        var pharmacyApiUrl = 'https://oatrx.ca/api/fetch-all-pharmacies?lat= ' + lat +'&long='+ lng;
     }
 
-    // console.log('[Debug] Fetching pharmacies near latitude:', lat, 'and longitude:', lng);
+    console.log("[Debug] Constructed Pharmacy API URL:", pharmacyApiUrl);
 
-    var pharmacyapiUrl = "https://oatrx.ca/api/fetch-all-pharmacies?lat=" + lat + "&long=" + lng;
-    // console.log('[Debug] Pharmacy API URL:', pharmacyapiUrl);
-
-    fetch(pharmacyapiUrl)
+    fetch(pharmacyApiUrl)
         .then(response => {
             if (!response.ok) throw new Error("HTTP Error! Status: " + response.status);
             return response.json();
         })
         .then(data => {
-            // console.log("[Pharmacy Script] Pharmacies data:", data);
-
             if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-                const pharmacies = data.data; 
-                populatePharmacyTable(pharmacies); // Call the populatePharmacyTable function
+                populatePharmacyTable(data.data);
             } else {
-                const tableBody = document.querySelector("#pharmacyList tbody");
-                if (tableBody) {
-                    tableBody.innerHTML = `<tr><td colspan="8">No pharmacies found</td></tr>`;
-                }
+                console.warn("[Warning] No pharmacies found, displaying empty list.");
+                document.querySelector("#pharmacyList tbody").innerHTML = `<tr><td colspan="8">No pharmacies found</td></tr>`;
             }
         })
         .catch(error => {
-            console.error("[Pharmacy Script] Error during pharmacy fetching:", error);
-            const tableBody = document.querySelector("#pharmacyList tbody");
-            if (tableBody) {
-                tableBody.innerHTML = `<tr><td colspan="8">Error fetching pharmacies</td></tr>`;
-            }
-            alert("Error: Unable to fetch pharmacies. Please try again.");
+            console.error("[Error] Failed to fetch pharmacies:", error);
+            document.querySelector("#pharmacyList tbody").innerHTML = `<tr><td colspan="8">Error fetching pharmacies</td></tr>`;
         });
 }
+
 
 function populatePharmacyTable(pharmacies) {
     const tableBody = document.querySelector("#pharmacyList tbody"); // Select the table body
@@ -837,9 +823,10 @@ function populatePharmacyTable(pharmacies) {
         const postalCode = String(pharmacy.zip_code || "No Postal Code").trim();
         const phone = String(pharmacy.phone || "No Phone").trim();
         const fax = String(pharmacy.fax || "No Fax").trim();
-        const distance = (pharmacy.distance !== undefined && !isNaN(pharmacy.distance))
+        const distance = (pharmacy.distance !== undefined && pharmacy.distance !== null && !isNaN(pharmacy.distance))
                             ? String(pharmacy.distance).trim() + ' kms away'
-                            : 'Distance undefined';
+                            : 'Undetermined';
+
 
         // const distance = pharmacy.distance !== undefined && !isNaN(pharmacy.distance)
         //     ? `${pharmacy.distance} kms away`

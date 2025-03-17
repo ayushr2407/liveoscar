@@ -106,6 +106,8 @@ import oscar.OscarProperties;
  import com.lowagie.text.pdf.PdfPCell;
  import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
+import org.oscarehr.common.dao.DrugDao;
+
 
 import java.time.format.DateTimeFormatterBuilder;
 
@@ -118,12 +120,18 @@ import java.time.format.DateTimeFormatterBuilder;
  
 	 @Override
 public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    String prescriptionBatchId = req.getParameter("prescriptionBatchId"); // Retrieve batch ID
+    System.out.println("Prescription Batch ID received in FrmCustomedPDFServlet: " + prescriptionBatchId);
+
     ByteArrayOutputStream baosPDF = null;
 
     try {
+        Object[] result = generatePDFDocumentBytes(req, this.getServletContext());
+        baosPDF = (ByteArrayOutputStream) result[0];
+        String prescriptionNumber = (String) result[1];
+        System.out.println("Prescription Number in Service Method: " + prescriptionNumber);
         String method = req.getParameter("__method");
         boolean isFax = method.equals("oscarRxFax");
-        baosPDF = generatePDFDocumentBytes(req, this.getServletContext());
 
         if (isFax) {
             res.setContentType("text/html");
@@ -133,11 +141,19 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
                 writer.println("<script>alert('Error: No fax number found!');window.close();</script>");
             } else {
                 // Write to file
-                String pdfFile = "prescription_" + req.getParameter("pdfId") + ".pdf";
+                String pdfFile = "prescription_" + prescriptionBatchId + ".pdf";
                 String path = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/";
                 FileOutputStream fos = new FileOutputStream(path + pdfFile);
                 baosPDF.writeTo(fos);
                 fos.close();
+
+                // Ensure PDF filename is saved when faxing
+                if (prescriptionBatchId != null && !prescriptionBatchId.isEmpty()) {
+                    DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
+                    drugDao.updateDrugsWithPDF(prescriptionBatchId);
+                    System.out.println("PDF filename saved in drugs table where Batch ID: " + prescriptionBatchId);
+                }
+
 
                 String tempPath = OscarProperties.getInstance().getProperty(
                     "fax_file_location", System.getProperty("java.io.tmpdir"));
@@ -193,20 +209,40 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
                 }
             }
         } else {
-            StringBuilder sbFilename = new StringBuilder();
-            sbFilename.append("filename_");
-            sbFilename.append(".pdf");
+            String pdfFileName = "prescription_" + prescriptionBatchId  + ".pdf";
+            String path = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/";
 
+            // Ensure the directory exists
+            File directory = new File(path);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Console output for debugging
+            System.out.println("Saving PDF on Generate PDF button click: " + path + pdfFileName);
+
+            // Save PDF to server
+            try (FileOutputStream fos = new FileOutputStream(path + pdfFileName)) {
+                baosPDF.writeTo(fos);
+                logger.info("PDF successfully saved: " + path + pdfFileName);
+            } catch (IOException e) {
+                logger.error("Error saving PDF file: " + path + pdfFileName, e);
+            }
+
+            // Save PDF filename to database for matching batch_id in the drugs table
+            if (prescriptionBatchId != null && !prescriptionBatchId.isEmpty()) {
+                DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
+                drugDao.updateDrugsWithPDF(prescriptionBatchId);
+                System.out.println("PDF filename saved in drugs table where Batch ID: " + prescriptionBatchId);
+            }
+
+            // Send PDF directly to browser
             res.setHeader("Cache-Control", "max-age=0");
             res.setDateHeader("Expires", 0);
-
             res.setContentType("application/pdf");
-            StringBuilder sbContentDispValue = new StringBuilder();
-            sbContentDispValue.append("inline; filename=");
-            sbContentDispValue.append(sbFilename);
-            res.setHeader("Content-disposition", sbContentDispValue.toString());
-
+            res.setHeader("Content-disposition", "inline; filename=" + pdfFileName);
             res.setContentLength(baosPDF.size());
+
             ServletOutputStream sos = res.getOutputStream();
             baosPDF.writeTo(sos);
             sos.flush();
@@ -502,7 +538,7 @@ public void service(HttpServletRequest req, HttpServletResponse res) throws Serv
     }
     
  
-	protected ByteArrayOutputStream generatePDFDocumentBytes(final HttpServletRequest req, final ServletContext ctx) throws Exception {
+	protected Object[] generatePDFDocumentBytes(final HttpServletRequest req, final ServletContext ctx) throws Exception {
         logger.debug("***in generatePDFDocumentBytes2 FrmCustomedPDFServlet.java***");
     
 
@@ -756,6 +792,7 @@ if ("oscarRxFax".equals(isFaxRequest)) {
 
         // Generate the prescription number using pracNo instead of clinicName
         prescriptionNumber = pracNo + todayStr + String.format("%03d", continuousCount);
+        System.out.println("Prescription Number in generatepdf documentbytes: " + prescriptionNumber);
     }
 
     // Write the updated prescription number back to the file
@@ -961,7 +998,8 @@ if (imgBase64.isEmpty() && imgPath != null && !imgPath.isEmpty()) {
          renderer.createPDF(baosPDF);
      
          logger.debug("***END in generatePDFDocumentBytes2 FrmCustomedPDFServlet.java***");
-         return baosPDF;}
+         return new Object[] { baosPDF, prescriptionNumber };
+        }
     
 
 // Method to convert image file to Base64 string

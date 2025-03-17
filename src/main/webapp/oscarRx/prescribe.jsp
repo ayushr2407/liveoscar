@@ -49,6 +49,34 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+
+<%
+    // Extract the technical reasons passed from Action.java
+    List<String> technicalReasons = (List<String>) request.getAttribute("technicalReasons");
+    if (technicalReasons == null) {
+        technicalReasons = new ArrayList<>();
+    }
+
+// Extract the SIG map passed from Action.java
+    Map<String, List<String>> sigMap = (Map<String, List<String>>) request.getAttribute("sigMap");
+    if (sigMap == null) {
+        sigMap = new HashMap<>();
+    }
+
+ // Convert the sigMap to JSON manually
+    org.json.JSONObject sigMapJson = new org.json.JSONObject();
+    for (Map.Entry<String, List<String>> entry : sigMap.entrySet()) {
+        org.json.JSONArray sigArray = new org.json.JSONArray(entry.getValue());
+        sigMapJson.put(entry.getKey(), sigArray);
+    }
+
+%>
+
+<%
+String rand = "";
+%>
+
+
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -82,7 +110,7 @@ if(listRxDrugs!=null){
             String specStr=RxUtil.getSpecialInstructions();
 
   for(RxPrescriptionData.Prescription rx : listRxDrugs ){
-         String rand            = Long.toString(rx.getRandomId());
+        rand            = Long.toString(rx.getRandomId());
          String instructions    = rx.getSpecial();
          String specialInstruction=rx.getSpecialInstruction();
          String startDateStr = (rx.getStartDate() != null) ? RxUtil.DateToString(rx.getStartDate(), "yyyy-MM-dd") : "";
@@ -203,6 +231,23 @@ if(listRxDrugs!=null){
 
 <style>
 
+ .bubble {
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 12px;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 5px;
+        border: 1px solid #e1e1e1;
+    }
+    
+    .bubble:hover {
+        background-color: #3b73af;
+        color: #fff;
+    }
+
 .card-body {
     padding: 0 !important;
 }
@@ -249,7 +294,12 @@ label {
 </style>
 
 <fieldset style="margin-top:2px;width:740px;" id="set_<%=rand%>">
-    <a tabindex="-1" href="javascript:void(0);"  style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;" onclick="$('set_<%=rand%>').remove();deletePrescribe('<%=rand%>');removeReRxDrugId('<%=DrugReferenceId%>')"><img src='<c:out value="${ctx}/images/close.png"/>' border="0"></a>
+<a tabindex="-1" href="javascript:void(0);"
+   style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;"
+   onclick="removeDrug('<%=rand%>')">
+   <img src='<c:out value="${ctx}/images/close.png"/>' border="0">
+</a>
+    <%-- <a tabindex="-1" href="javascript:void(0);"  style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;" onclick="$('set_<%=rand%>').remove();deletePrescribe('<%=rand%>');removeReRxDrugId('<%=DrugReferenceId%>')"><img src='<c:out value="${ctx}/images/close.png"/>' border="0"></a> --%>
     <%-- <a tabindex="-1" href="javascript:void(0);" style="float:right;margin-left:5px;margin-top:0px;padding-top:0px;" onclick="checkRxInteract();" title="Drug-Drug interactions limited to this Rx">dd</a>
     <a tabindex="-1" href="javascript:void(0);"  style="float:right;;margin-left:5px;margin-top:0px;padding-top:0px;" title="Add to Favorites" onclick="addFav('<%=rand%>','<%=drugName%>')">F</a> --%>
     <%-- <a tabindex="-1" href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="$('rx_more_<%=rand%>').toggle();">  <span id="moreLessWord_<%=rand%>" onclick="updateMoreLess(id)" >more</span> </a> --%>
@@ -275,11 +325,11 @@ label {
             <!-- First Row: Name and Drug Form -->
             <div class="row mb-2 align-items-center">
                 <div class="col-md-6">
-                    <label for="drugName_<%=rand%>" class="form-label">Name:</label>
+                    <label for="drugName_<%=rand%>" class="form-label">Name</label>
                     <input type="hidden" name="atcCode" value="<%=ATCcode%>" />
                     <input tabindex="-1" type="text" id="drugName_<%=rand%>" name="drugName_<%=rand%>" class="form-control"
-                        <% if (gcn == 0) { %> onkeyup="saveCustomName(this);" value="<%=drugName%>"
-                        <% } else { %> value="<%=drugName%>" onchange="changeDrugName('<%=rand%>', '<%=drugName%>');" <% } %>
+                        <% if (gcn == 0)  { %> readonly="readonly" value="<%=drugName%>"
+                         <% } else { %> readonly="readonly" value="<%=drugName%>" <% } %>
                         title="<%=drugName%>" />
                     <!-- Drug Form Below Name -->
                     <small class="text-muted">
@@ -299,44 +349,141 @@ label {
                 </div>
 
                 <div class="col-md-3">
-                    <select id="longTerm_<%=rand%>" name="longTerm_<%=rand%>" class="form-select w-auto">
-                        <option value="" disabled selected>Long Term</option>
+                    <select id="longTerm_<%=rand%>" name="longTerm_<%=rand%>" class="form-select w-auto" onchange="syncLongTermRadio(this, '<%=rand%>')">
+                        <option value="" disabled <%= (rx.getLongterm_p() == null) ? "selected" : "" %>>Long Term</option>
                         <option value="yes" <% if (rx.getLongterm_p() != null && rx.getLongterm_p()) { %> selected <% } %>>Yes</option>
                         <option value="no" <% if (rx.getLongterm_p() != null && !rx.getLongterm_p()) { %> selected <% } %>>No</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Second Row: Indication -->
-            <div class="row mb-2">
-                <div class="col-md-12">
-                    <label for="jsonDxSearch_<%=rand%>" class="form-label">Indication:</label>
-                    <input type="hidden" name="reasonCode_<%=rand%>" id="codeTxt_<%=rand%>" />
-                    <input type="text" class="form-control" name="jsonDxSearch_<%=rand%>" id="jsonDxSearch_<%=rand%>"
-                        placeholder="Search Dx" />
-                </div>
-            </div>
+        <script>
+    var technicalReasons = <%= new org.json.JSONArray(technicalReasons).toString() %>;
+    console.log("Technical Reasons Loaded:", technicalReasons);  // For debugging
 
-            <!-- Third Row: Instructions -->
-            <div class="row mb-2">
-                <div class="col">
-                    <label for="instructions_<%=rand%>" class="form-label">Instructions:</label>
-                    <div class="input-group">
-                        <input type="text" id="instructions_<%=rand%>" name="instructions_<%=rand%>" class="form-control"
-                            onkeypress="handleEnter(this,event);" value="<%=instructions%>" onchange="parseIntr(this);" />
-                    </div>
-                </div>
-            </div>
+    // Create a master object to store SIG maps for all drugs
+    window.allSigMaps = window.allSigMaps || {};
+
+    // Store SIG map for the current drug using `rand` as the key
+    window.allSigMaps['<%= rand %>'] = <%= sigMapJson.toString() %>;
+    console.log("All SIG Maps Loaded:", allSigMaps);  // For debugging
+
+    // Function to handle when a reason is selected
+    window.appendToInstructions = function(reason, inputId, sigContainerId, rand) {
+        const instructionsInput = document.getElementById(inputId);
+        if (instructionsInput) {
+            instructionsInput.value = reason;  // Set the selected reason in the Instructions input field
+            displaySIGs(reason, sigContainerId, rand);  // Pass `rand` to access correct SIG map
+        } else {
+            console.error("Input field not found for ID:", inputId);
+        }
+    }
+
+    // Function to display SIGs for the selected reason
+    function displaySIGs(reason, sigContainerId, rand) {
+        const sigContainer = document.getElementById(sigContainerId);  // Use the `sigContainerId` passed as an argument
+        sigContainer.innerHTML = "";  // Clear previous SIGs
+
+        console.log("Reason in display sigs:", reason);
+        console.log("SIG Map for drug " + rand + ":", allSigMaps[rand]);  // Correct way to print the current drug's SIG map
+
+        // Check if there are SIGs for the selected reason
+        const sigMap = allSigMaps[rand] || {};  // Fetch the SIG map for the current drug
+        const sigs = sigMap[reason] || [];  // Default to an empty array if no SIGs found
+
+        if (sigs.length > 0) {
+            // Iterate over each SIG and create a bubble for it
+            sigs.forEach(function(sig) {
+                const sigBubble = document.createElement("div");
+                sigBubble.className = "bubble";
+                sigBubble.innerText = sig;
+
+                // When a SIG bubble is clicked, set it in the Special Instructions field
+                sigBubble.onclick = function() {
+                    appendToSpecialInstructions(sig, 'siInput_' + rand);  // Dynamically set SIG to the correct input field based on `rand`
+                };
+
+                sigContainer.appendChild(sigBubble);  // Add the bubble to the container
+            });
+        } else {
+            sigContainer.innerHTML = "<p style='color: #666; font-style: italic;'>No SIGs available</p>";
+        }
+    }
+
+    // Function to append SIG to Special Instructions field
+    function appendToSpecialInstructions(sig, inputId) {
+        const specialInstructionsInput = document.getElementById(inputId);
+        if (specialInstructionsInput) {
+            specialInstructionsInput.value = sig;  // Set the selected SIG in Special Instructions field
+            updateSpecialInstruction(inputId);
+        } else {
+            console.error("Special Instructions input field not found for ID:", inputId);
+        }
+    }
+</script>
+
+
+<div class="row mb-2">
+    <div class="col">
+        <label for="instructions_<%=rand%>" class="form-label">Indication</label>
+        <div class="input-group">
+            <input type="text" id="instructions_<%=rand%>" name="instructions_<%=rand%>" class="form-control"
+                onkeypress="handleEnter(this,event);" value="" onchange="parseIntr(this);" />
+        </div>
+    </div>
+</div>
+
+<!-- Bubble Suggestions Container (Technical Reasons) -->
+<div id="bubble-container" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+    <%
+        // Display technical reasons as clickable bubbles and append them to Instructions
+        if (technicalReasons != null && !technicalReasons.isEmpty()) {
+            for (String reason : technicalReasons) {
+    %>
+                <div class="bubble" 
+    onclick="appendToInstructions('<%= org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(reason) %>', 
+    'instructions_<%=rand%>', 'sig-container_<%=rand%>', '<%=rand%>')">
+    <%= reason %>
+</div>
+
+    <%
+            }
+        } else {
+    %>
+        <p style="color: #666; font-style: italic;">No suggestions available</p>
+    <%
+        }
+    %>
+</div>
+
+<!-- Third Row: Instructions -->
+<div class="row mb-2">
+    <div class="col">
+        <label for="siInput_<%=rand%>" class="form-label">Instructions</label>
+        <div class="input-group">
+            <input type="text" id="siInput_<%=rand%>" name="siInput_<%=rand%>" class="form-control"
+                onkeypress="handleEnter(this,event);" value=""
+                onchange="updateSpecialInstruction('siInput_<%=rand%>'); parseIntr(this);" />
+        </div>
+    </div>
+</div>
+
+<!-- SIG Bubble Container Below Special Instructions Field -->
+<div id="sig-container_<%=rand%>" style="margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px;">
+<span style="color: #919191; font-style: italic; font-size: 12px; line-height: 0; margin-bottom: 20px;">
+    Select a reason to view SIGs
+</span>
+</div>
 
             <!-- Fourth Row: Required Quantity & Refills -->
             <div class="row mb-2 align-items-center">
                 <div class="col-md-6">
-                    <label class="form-label">Required Quantity:</label>
+                    <label class="form-label">Required Quantity</label>
                     <input type="number" id="quantity_<%=rand%>" name="quantity_<%=rand%>" class="form-control"
                         value="<%= quantityText %>" min="1" required onblur="calculateEndDate('<%=rand%>');">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Refills:</label>
+                    <label class="form-label">Refills</label>
                     <input type="number" id="repeats_<%=rand%>" name="repeats_<%=rand%>" class="form-control"
                         value="<%=repeats%>" min="0" required onInput="updateLongTerm('<%=rand%>',this)" onblur="updateProperty(this.id)">
                 </div>
@@ -345,25 +492,25 @@ label {
             <!-- Fifth Row: Start Date, Duration, End Date -->
             <div class="row mb-2">
                 <div class="col">
-                    <label class="form-label">Start Date:</label>
+                    <label class="form-label">Start Date</label>
                     <input type="date" id="startDate_<%=rand%>" name="startDate_<%=rand%>" class="form-control"
                         value="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
                         min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" required>
                 </div>
                 <div class="col">
-                    <label class="form-label">Duration:</label>
+                    <label class="form-label">Duration</label>
                     <input type="text" id="duration_<%=rand%>" name="duration_<%=rand%>" class="form-control"
                         value="<%= (duration != null) ? duration : "" %>">
                 </div>
                 <div class="col">
-                    <label class="form-label">End Date:</label>
+                    <label class="form-label">End Date</label>
                     <input type="date" id="endDate_<%=rand%>" name="endDate_<%=rand%>" class="form-control" readonly>
                 </div>
             </div>
 
             <!-- Sixth Row: Patient Compliance & Frequency Options -->
             <div class="row mb-2 align-items-center">
-                <label class="col-md-2 col-form-label">Patient Compliance:</label>
+                <label class="col-md-2 col-form-label">Patient Compliance</label>
                 <div class="col-md-3">
                     <select id="compliance_<%=rand%>" name="compliance_<%=rand%>" class="form-select"
                         onchange="handleComplianceChange('<%=rand%>')">
@@ -783,15 +930,15 @@ label {
                var archD='<%=archivedDate%>';
                //oscarLog("in js discon "+archR+"--"+archD);
 
-                    if(confirm('This drug was discontinued on <%=archivedDate%> because of <%=archivedReason%> are you sure you want to continue it?')==true){
-                        //do nothing
-                    }
-                    else{
-                        $('set_<%=rand%>').remove();
-                        //call java class to delete it from stash pool.
-                        var randId='<%=rand%>';
-                        deletePrescribe(randId);
-                    }
+                    // if(confirm('This drug was discontinued on <%=archivedDate%> because of <%=archivedReason%> are you sure you want to continue it?')==true){
+                    //     //do nothing
+                    // }
+                    // else{
+                    //     $('set_<%=rand%>').remove();
+                    //     //call java class to delete it from stash pool.
+                    //     var randId='<%=rand%>';
+                    //     deletePrescribe(randId);
+                    // }
             }
             var listRxDrugSize=<%=listRxDrugs.size()%>;
             //oscarLog("listRxDrugsSize="+listRxDrugSize);

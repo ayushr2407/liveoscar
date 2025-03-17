@@ -225,6 +225,7 @@
             ,
             <jsp:getProperty name="patient" property="firstName"/>
         </title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
         <link rel="stylesheet" type="text/css" href="styles.css">
         <html:base/>
 
@@ -531,7 +532,14 @@ alertlist +'<p>source: <a href="https://lhncbc.nlm.nih.gov/RxNav/" target="blank
         display = drugName;
     }
 
-    return display;
+var unescapedName = oResultData.name.replace(/&amp;/g, '&')
+                                    .replace(/&lt;/g, '<')
+                                    .replace(/&gt;/g, '>')
+                                    .replace(/&quot;/g, '"')
+                                    .replace(/&#039;/g, "'");
+return '<div style=" white-space: normal; max-width: 600px; overflow-wrap: break-word;" class="dropdown-item">' + 
+       '<span style="display: block; font-weight: bold; font-size: 14px; text-transform: uppercase;">' + unescapedName + '</span>' + 
+       '</div>';
 };
 
 
@@ -994,6 +1002,99 @@ THEME 2*/
                 text-decoration: none;
                 color: black;
             }
+
+            #addDrugButton {
+    margin-left: 10px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    background-color: #0b5ed7 !important;
+    border-radius: 5px !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+/* Ensure the 'Add New Drug' button doesn't get affected by external styles */
+#addDrugButton, #saveButton {
+    all: unset;
+    display: inline-block;
+}
+
+            
+            /* Force the h2 element to use consistent styles */
+h2 {
+    font-weight: bold !important;  /* Restore bold font weight */
+    line-height: normal !important; /* Restore normal line height */
+}
+
+
+#searchString {
+    width: 278px !important;
+    position: static !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    background-color: white !important;
+    border: 1px solid #ccc !important;
+    padding: 5px !important;
+}
+
+/* Ensure the 'Create Rx' button doesn't shift styles */
+    #saveButton {
+        margin-left: 10px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        background-color: #0b5ed7 !important;
+        border-radius: 5px !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+    /* Remove any additional styles applied by Bootstrap or other libraries */
+    #searchString, #saveButton {
+        all: unset;
+        display: inline-block;
+    }
+
+    li {
+    border-bottom: 1px solid #e1e1e1;
+    }
+
+    .ingredient {
+        font-size: 10px;
+        font-weight: normal !important;
+        color: #a8a8a8;
+        display: block;
+    }
+
+    /* Define hover effect on the li */
+    li:hover .ingredient {
+        color: white;
+    }
+
+    /* Define hover effect on li */
+    li:hover {
+        background-color: #426FD9;
+        color: white;
+    }
+
+    #searchLoader {
+    position: absolute;
+    top: 15%; /* ✅ Moves spinner slightly up */
+    right: 10px; /* ✅ Keeps it inside the right corner */
+    transform: translateY(-50%);
+    width: 16px; /* ✅ Ensures proper size */
+    height: 16px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none; /* ✅ Initially hidden */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
         </style>
         <!--[if IE]>
         <style type="text/css">
@@ -1032,7 +1133,7 @@ THEME 2*/
                 <table cellpadding="0" cellspacing="0"
                        style="border-left:1px solid black; border-right:1px solid black; border-bottom:1px solid black; border-collapse: collapse">
                     <tr><!--put this left-->
-                        <td valign="top" align="left">
+                        <td valign="top" align="left" style="background: #e5f1ff; border-bottom: 1px solid rgb(0, 96, 148)">
                             <%if (securityManager.hasWriteAccess("_rx", roleName2$, true)) {%>
                             <html:form action="/oscarRx/searchDrug" onsubmit="return checkEnterSendRx();"
                                        style="display: inline; margin-bottom:0;" styleId="drugForm">
@@ -1043,60 +1144,54 @@ THEME 2*/
                                 <input type="hidden" id="rxPharmacyId" name="rxPharmacyId" value=""/>
                                 <html:hidden property="demographicNo"
                                              value="<%=new Integer(patient.getDemographicNo()).toString()%>"/>
+                                <h2 id="writeNewPrescription" style="padding: 0; margin: 0 0 5px 10px; font-size: 14px;">Write New Prescription</h2>
                                 <table border="0" style="border-collapse:collapse;">
+
                                     <tr width="100%" valign="top">
-                                        <td style="width:330px;">
-                                            &nbsp;&nbsp;<span style="font-size:20px;"><i class="icon-search"></i></span>
-                                            &nbsp;&nbsp;
-                                            <html:text styleId="searchString" property="searchString"
-                                                       onfocus="changeContainerHeight();"
-                                                       onblur="changeContainerHeight();"
-                                                       onclick="changeContainerHeight();"
-                                                       onkeydown="changeContainerHeight();"
-                                                       style="width:278px;\" autocomplete=\"off"/>
-                                            <div id="autocomplete_choices" class="drugchoices"
-                                                 style="color:black;overflow:auto;width:600px"></div>
-                                            <span id="indicator1" style="display: none"> <!--img src="/images/spinner.gif" alt="Working..." --></span>
-                                        </td>
+                                        <!-- Search Bar Container -->
+                                            <td style="padding-left:10px;">
+                                                   <!-- Search Bar Container with Loader -->
+                                                    <div style="position: relative; display: inline-block;">
+                                                        <html:text styleId="searchString" property="searchString"
+                                                            onfocus="changeContainerHeight();"
+                                                            onblur="changeContainerHeight();"
+                                                            onclick="changeContainerHeight();"
+                                                            onkeydown="changeContainerHeight();"
+                                                            style="width:278px;position:static !important;\ padding-right: 35px;\" autocomplete=\"off"/>
+                                                        <div id="searchLoader" class="spinner" style="display: none;"></div>
+                                                    </div>
+
+                                                    <!-- Autocomplete Dropdown -->
+                                                    <div id="autocomplete_choices" class="drugchoices" style="color:black;overflow:auto;width:600px"></div>
+                                                    <span id="indicator1" style="display: none">  <!--img src="/images/spinner.gif" alt="Working..." --></span>
+                                                <!-- "Add New Drug" Button (Initially Hidden) -->
+                                            <button id="addDrugButton" type="button"
+                                                    class="ControlPushButton btn btn-primary"
+                                                    onclick="showSearchBar();"
+                                                    style="display: none;">
+                                                Add New Drug
+                                            </button>
+
+                                            </td>
                                         <td>
-                                            <input type="button" name="search" class="ControlPushButton btn"
-                                                   value="<bean:message key="SearchDrug.msgSearch"/>"
-                                                   onclick="popupRxSearchWindow();"
-                                                   title="<bean:message key="SearchDrug.help.Search"/>">
-                                            <input id="customDrug" type="button" class="ControlPushButton btn"
-                                                   onclick="customWarning2();"
-                                                   value="<bean:message key="SearchDrug.msgCustomDrugRx3"/>"
-                                                   title="<bean:message key="SearchDrug.help.CustomDrug"/>"/>
-                                            <input id="customNote" type="button" class="ControlPushButton btn"
-                                                   onclick="customNoteWarning();"
-                                                   value="<bean:message key="SearchDrug.msgNoteRx3"/>"
-                                                   title="<bean:message key="SearchDrug.help.CustomNote"/>"/>
-                                            <input id="reset" type="button" class="ControlPushButton btn"
-                                                   title="Clear pending prescriptions" onclick="resetStash();"
-                                                   value="<bean:message key="SearchDrug.msgResetPrescriptionRx3"/>"/>
-                                            <% if (!OscarProperties.getInstance().getProperty("rx.drugofchoice.hide", "false").equals("true")) { %>
-                                            <input type="button" class="ControlPushButton btn"
-                                                   onclick="callTreatments('searchString','treatmentsMyD')"
-                                                   value="<bean:message key="SearchDrug.msgDrugOfChoiceRx3"/>"
-                                                   title="<bean:message key="SearchDrug.help.DrugOfChoice"/>"/>
-                                            <% } %>
+                                           
+
                                             <%if (OscarProperties.getInstance().hasProperty("ONTARIO_MD_INCOMINGREQUESTOR")) {%>
                                             <a href="javascript:goOMD();"
                                                title="<bean:message key="SearchDrug.help.OMD"/>"><bean:message
                                                     key="SearchDrug.msgOMDLookup"/></a>
                                             <% } %>
                                             &nbsp;
-                                            <security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="x">
-                                                <input id="saveButton" type="button"
-                                                       class="ControlPushButton btn btn-primary"
-                                                       onclick="updateSaveAllDrugsPrint();"
-                                                       value="<bean:message key="SearchDrug.msgSaveAndPrint"/>"
-                                                       title="<bean:message key="SearchDrug.help.SaveAndPrint"/>"/>
-                                            </security:oscarSec>
-                                            <input id="saveOnlyButton" type="button" class="ControlPushButton btn"
-                                                   onclick="updateSaveAllDrugs();"
-                                                   value="<bean:message key="SearchDrug.msgSaveOnly"/>"
-                                                   title="<bean:message key="SearchDrug.help.Save"/>"/>
+                                            <!-- Save and Print Button initially hidden -->
+<security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="x">
+    <input id="saveButton" type="button"
+           class="ControlPushButton btn btn-primary"
+           onclick="updateSaveAllDrugsPrint();"
+           value="Generate Prescription"
+           title="<bean:message key='SearchDrug.help.SaveAndPrint'/>"
+           style="display: none;"/>  <!-- Initially hidden -->
+</security:oscarSec>
+
                                             <%
                                                 if (OscarProperties.getInstance().getProperty("oscarrx.medrec", "false").equals("true")) {
                                             %>
@@ -1118,7 +1213,6 @@ THEME 2*/
                                 </table>
                             </html:form>
                             <br>
-                            <hr style="border:1px solid black;">
                             <div id="previewForm" style="display:none;"></div>
                             <% } %>
                         </td>
@@ -1127,77 +1221,7 @@ THEME 2*/
                         <td align="left" valign="top">
                             <div>
                                 <table width="100%"><!--drug profile, view and listdrugs.jsp-->
-                                    <tr>
-                                        <td>
-                                            <div class="DivContentSectionHead" style="text-decoration:underline;">
-                                                <bean:message key="SearchDrug.section2Title"/>
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                <a href="javascript:void(0)" onClick="printDrugProfile();"><bean:message
-                                                        key="SearchDrug.Print"/></a>
-                                                &nbsp;&nbsp;
-                                                <%if (securityManager.hasWriteAccess("_rx", roleName2$, true)) {%>
-                                                <a href="#" onclick="$('reprint').toggle();return false;"><bean:message
-                                                        key="SearchDrug.Reprint"/></a>
-                                                &nbsp;&nbsp;
-                                                <a href="javascript:void(0);" name="cmdRePrescribe"
-                                                   onclick="javascript:RePrescribeLongTerm();"
-                                                   style="width: 200px"><bean:message
-                                                        key="SearchDrug.msgReprescribeLongTermMed"/></a>
-                                                &nbsp;&nbsp;
-                                                <% } %>
-                                                <a href="javascript:popupWindow(720,920,'chartDrugProfile.jsp?demographic_no=<%=demoNo%>','PrintDrugProfile2')">Timeline
-                                                    Drug Profile</a>
-                                                &nbsp;&nbsp;
-                                                <a href="javascript: void(0);"
-                                                   onclick="callReplacementWebService('GetmyDrugrefInfo.do?method=view','interactionsRxMyD');">DS
-                                                    run</a>
-                                                &nbsp;&nbsp;
-                                                <a href="javascript: void(0);"
-                                                   onclick="checkAllDrugs();" title="Drug-Drug Interactions for Rx and all Current Drugs">All Interactions</a>
-                                                <oscar:oscarPropertiesCheck property="oneid.oauth2.enabled"
-                                                                            value="true">
-                                                    <% if (loggedInInfo.hasOneIdKey() && patient.getHin() != null && !patient.getHin().trim().isEmpty() && "ON".equalsIgnoreCase(patient.getHcType())) { %>
-                                                    <a href="javascript:popupWindow(720,920,'../dhdr/?demographic_no=<%=demoNo%>','OMD-CONTEXT-AWARE');"
-                                                       title="<%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.version","V1")%>"><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name", "DHDR")%>
-                                                    </a>
-                                                    &nbsp;&nbsp;
-                                                    <%} else if (loggedInInfo.hasOneIdKey() && (patient.getHin() == null || patient.getHin().trim().isEmpty())) { %>
-                                                    <a style="color: grey;cursor: not-allowed;"
-                                                       title="HIN required for DHDR"><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name", "DHDR")%>
-                                                    </a>
-                                                    &nbsp;&nbsp;
-                                                    <%} else if (loggedInInfo.hasOneIdKey() && !"ON".equalsIgnoreCase(patient.getHcType())) { %>
-                                                    <a style="color: grey;cursor: not-allowed;"
-                                                       title="Ontario HIN required for DHDR"><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name", "DHDR")%>
-                                                    </a>
-                                                    &nbsp;&nbsp;
-                                                    <% } %>
-                                                </oscar:oscarPropertiesCheck>
-                                                <%
-                                                    if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user"))) {
-                                                        MyOscarLoggedInInfo myOscarLoggedInInfo = MyOscarLoggedInInfo.getLoggedInInfo(session);
-                                                        boolean enabledMyOscarButton = MyOscarUtils.isMyOscarSendButtonEnabled(myOscarLoggedInInfo, Integer.valueOf(demoNo));
-                                                        if (enabledMyOscarButton) {
-                                                            String sendDataPath = request.getContextPath() + "/phr/send_medicaldata_to_myoscar.jsp?"
-                                                                    + "demographicId=" + demoNo + "&"
-                                                                    + "medicalDataType=Prescriptions" + "&"
-                                                                    + "parentPage=" + request.getRequestURI();
-                                                %>
-                                                &nbsp;&nbsp; <a
-                                                    href="<%=sendDataPath%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%>
-                                            </a>
-                                                <%
-                                                } else {
-                                                %>
-                                                &nbsp;&nbsp;<span
-                                                    style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
-                                                <%
-                                                        }
-                                                    }
-                                                %>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    
                                     <tr>
                                         <td>
                                                 <%-- Start List Drugs Prescribed --%>
@@ -1358,43 +1382,6 @@ THEME 2*/
                                                             <html:hidden property="drugList"/>
                                                         </html:form></td>
                                                 </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <table width="100%"><!--drug profile, view and listdrugs.jsp-->
-                                    <tr>
-                                        <td>
-                                            <div class="DivContentSectionHead" style="text-decoration:underline;">
-                                                <bean:message key='oscarRx.OtherMedications'/>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <table class="sortable" id="OMedsTabls" width="50%" border="0"
-                                                   cellpadding="3">
-                                                <tr>
-                                                    <th align="left">Date Entered</th>
-                                                    <th align="left">Medication</th>
-                                                </tr>
-                                                <%
-                                                    // java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("yyyy-MM-dd");
-
-                                                    for (CaseManagementNote note : notes) {
-                                                        if (!note.isLocked() && !note.isArchived()) {
-                                                            String str = note.getNote();
-                                                %>
-                                                <tr>
-                                                    <td><%=formatter.format(note.getCreate_date()) %>
-                                                    </td>
-                                                    <td><%=StringEscapeUtils.escapeHtml(str)%>
-                                                    </td>
-                                                </tr>
-                                                <%
-                                                        }
-                                                    }
-                                                %>
                                             </table>
                                         </td>
                                     </tr>
@@ -2094,7 +2081,7 @@ THEME 2*/
             $('deleteOnCloseRxBox').value = 'true';
         }
 
-        function popForm2(scriptId) {
+        function popForm2(scriptId, prescriptionBatchId) {
             try {
                 //oscarLog("popForm2 called");
                 var url1 = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=checkNoStashItem&rand=" + Math.floor(Math.random() * 10001);
@@ -2115,12 +2102,12 @@ THEME 2*/
                         if (json != null && json != "") {
                             var pharmacy = JSON.parse(json);
                             if (pharmacy != null) {
-                                url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId + "&pharmacyId=" + pharmacy.id;
+                                url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId + "&pharmacyId=" + pharmacy.id+ "&prescriptionBatchId=" + prescriptionBatchId;
                             } else {
-                                url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId;
+                                url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId+ "&prescriptionBatchId=" + prescriptionBatchId;
                             }
                         } else {
-                            url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId;
+                            url = "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId=" + scriptId+ "&prescriptionBatchId=" + prescriptionBatchId;
                         }
                         //oscarLog( "preview2 done");
                         myLightWindow.activateWindow({
@@ -2174,64 +2161,86 @@ THEME 2*/
         YAHOO.example.FnMultipleFields = function () {
             var url = "<c:out value="${ctx}"/>" + "/oscarRx/searchDrug.do?method=jsonSearch";
             var oDS = new YAHOO.util.XHRDataSource(url, {connMethodPost: true, connXhrMode: 'ingoreStaleResponse'});
-            oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;// Set the responseType
-            // Define the schema of the delimited results
-            oDS.responseSchema = {
-                resultsList: "results",
-                fields: ["name", "id", "dosage_value", "dosage_unit", "isInactive", "din"]
-            };
-            // Add the filtering function to exclude inactive drugs
-    oDS.doBeforeParseData = function (oRequest, oFullResponse) {
-        // Filter out inactive drugs from the response
-        if (oFullResponse && oFullResponse.results) {
-            oFullResponse.results = oFullResponse.results.filter(function (result) {
-                return !result.isInactive; // Only include drugs where isInactive is false or undefined
-            });
+oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
+oDS.responseSchema = {
+    resultsList: "results",
+    fields: ["name", "id", "dosage_value", "dosage_unit", "isInactive", "din"]
+};
+
+// Filter out inactive drugs
+oDS.doBeforeParseData = function (oRequest, oFullResponse) {
+    if (oFullResponse && oFullResponse.results) {
+        oFullResponse.results = oFullResponse.results.filter(function (result) {
+            return !result.isInactive; // Only include drugs where isInactive is false or undefined
+        });
+    }
+    return oFullResponse; // Return the modified response
+};
+
+var oAC = new YAHOO.widget.AutoComplete("searchString", "autocomplete_choices", oDS);
+oAC.useShadow = true;
+oAC.resultTypeList = false;
+oAC.queryMatchSubset = false;
+oAC.minQueryLength = 3;
+oAC.maxResultsDisplayed = 150;
+oAC.formatResult = resultFormatter2;
+oAC.allowHtml = true;
+
+oAC.dataRequestEvent.subscribe(function() {
+    var searchLoader = document.getElementById('searchLoader');
+
+    if (searchLoader) {
+        searchLoader.style.display = 'block'; // Show loader inside search bar
+    }
+});
+
+oAC.dataReturnEvent.subscribe(function() {
+    var searchLoader = document.getElementById('searchLoader');
+
+    if (searchLoader) {
+        searchLoader.style.display = 'none'; // Hide loader when results arrive
+    }
+});
+
+oAC.dataErrorEvent.subscribe(function() {
+    var searchLoader = document.getElementById('searchLoader');
+
+    if (searchLoader) {
+        searchLoader.style.display = 'none'; // Hide loader on error
+    }
+    console.error("Failed to fetch drug data.");
+});
+
+
+// Footer for more results
+oAC.doBeforeExpandContainer = function (sQuery, oResponse) {
+    if (oAC._nDisplayedItems < oAC.maxResultsDisplayed) {
+        oAC.setFooter("");
+    } else {
+        oAC.setFooter("<a href='javascript:void(0)' onClick='popupRxSearchWindow();oAC.collapseContainer();'>See more results...</a>");
+    }
+    return true;
+}
+// Selection handler function to process the selected item
+var myHandler = function (type, args) {
+    var arr = args[2]; // Get the selected item
+    var url = "<c:out value='${ctx}'/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx"; //"prescribe.jsp";
+    var ran_number = Math.round(Math.random() * 1000000);
+    var name = encodeURIComponent(arr.name);
+    var din = arr.din;
+    var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number + "&din=" + din;
+
+    // Send selected item data via Ajax
+    new Ajax.Updater('rxText', url, {
+        method: 'get', parameters: params, evalScripts: true,
+        insertion: Insertion.Bottom, onSuccess: function (transport) {
+            updateCurrentInteractions();
         }
-        return oFullResponse; // Return the modified response
-    };
-            // Enable caching
-            oDS.maxCacheEntries = 0;
-            oDS.connXhrMode = "cancelStaleRequests";
-            // Instantiate AutoComplete
-            var oAC = new YAHOO.widget.AutoComplete("searchString", "autocomplete_choices", oDS);
-            oAC.useShadow = true;
-            oAC.resultTypeList = false;
-            oAC.queryMatchSubset = true;
-            oAC.minQueryLength = 3;
-            oAC.maxResultsDisplayed = 150;
-            oAC.formatResult = resultFormatter2;
+    });
 
-            // Define an event handler to populate a hidden form field
-            // when an item gets selected and populate the input field
-            //var myHiddenField = YAHOO.util.Dom.get("myHidden");
-            var myHandler = function (type, args) {
-                var arr = args[2];
-                var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx"; //"prescribe.jsp";
-                var ran_number = Math.round(Math.random() * 1000000);
-                var name = encodeURIComponent(arr.name);
-                // var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number;  //hack to get around ie caching the page
-                var din = arr.din;
-                var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number + "&din=" + din;
-
-                // var params = "demographicNo=<%=demoNo%>&drugId=" + arr.id + "&text=" + name + "&randomId=" + ran_number;  //hack to get around ie caching the page
-                new Ajax.Updater('rxText', url, {
-                    method: 'get', parameters: params, evalScripts: true,
-                    insertion: Insertion.Bottom, onSuccess: function (transport) {
-                        updateCurrentInteractions();
-                    }
-                });
-                $('searchString').value = "";
-            };
-
-            oAC.doBeforeExpandContainer = function (sQuery, oResponse) {
-                if (oAC._nDisplayedItems < oAC.maxResultsDisplayed) {
-                    oAC.setFooter("");
-                } else {
-                    oAC.setFooter("<a href='javascript:void(0)' onClick='popupRxSearchWindow();oAC.collapseContainer();'>See more results...</a>");
-                }
-                return true;
-            }
+    // Clear search input field after selection
+    document.getElementById('searchString').value = "";
+};
 
             oAC.itemSelectEvent.subscribe(myHandler);
             var collapseFn = function () {
@@ -2724,7 +2733,9 @@ THEME 2*/
             }
             <% } %>
             setPharmacyId();
-            var data = Form.serialize($('drugForm'));
+             var prescriptionBatchId = "batch_" + Math.floor(Math.random() * 1000000);
+            console.log("Generated prescriptionBatchId:", prescriptionBatchId); 
+            var data = Form.serialize($('drugForm')) + "&prescriptionBatchId=" + encodeURIComponent(prescriptionBatchId);
             var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateSaveAllDrugs&rand=" + Math.floor(Math.random() * 10001);
             new Ajax.Request(url,
                 {
@@ -2732,7 +2743,7 @@ THEME 2*/
                     onSuccess: function (transport) {
 
                         callReplacementWebService("ListDrugs.jsp", 'drugProfile');
-                        popForm2(null);
+                        popForm2(null, prescriptionBatchId);
                         resetReRxDrugList();
                     }
                 });
@@ -3080,6 +3091,90 @@ console.log({'random id': randomId ,'frequency': frequency,frequencyRadioButton,
 
     // Start observing the document for dynamically added nodes
     prescriptionObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Flag indicating if search bar was manually activated
+let isSearchActive = false;
+
+// Counter to keep track of drugs added
+let drugCounter = 0;
+
+// Adjusted checkForInstructionsField function
+function checkForInstructionsField() {
+    var instructionsFields = document.querySelectorAll("[id^='instructions_']");
+
+    if (instructionsFields.length === 0) {
+        const writeNewPrescription = document.getElementById("writeNewPrescription");
+        if (writeNewPrescription) {
+            writeNewPrescription.style.display = "block";
+        }
+
+        document.getElementById("searchString").style.display = "inline-block";
+        document.getElementById("addDrugButton").style.display = "none";
+        document.getElementById("saveButton").style.display = "none";
+
+        isSearchActive = false;
+
+        console.log("No drugs left. Showing initial state.");
+
+    } else {
+        drugCounter = instructionsFields.length;
+        console.log(`${drugCounter} drug${drugCounter > 1 ? 's' : ''} added`);
+
+        document.getElementById("saveButton").style.display = "inline-block";
+        document.getElementById("writeNewPrescription").style.display = "none";
+
+        if (isSearchActive) {
+            // If search is active, hide "Add New Drug"
+            document.getElementById("addDrugButton").style.display = "none";
+            document.getElementById("searchString").style.display = "inline-block";
+        } else {
+            // If search is inactive, show "Add New Drug" button
+            document.getElementById("addDrugButton").style.display = "inline-block";
+            document.getElementById("searchString").style.display = "none";
+        }
+    }
+}
+
+
+// Show search bar explicitly when "Add New Drug" is clicked
+function showSearchBar() {
+    isSearchActive = true;  // User has manually activated search
+    document.getElementById("searchString").style.display = "inline-block";
+    document.getElementById("addDrugButton").style.display = "none";
+    document.getElementById("searchString").focus();
+
+    const writeNewPrescription = document.getElementById("writeNewPrescription");
+    if (writeNewPrescription) {
+        writeNewPrescription.style.display = "none";
+    }
+}
+
+// Function to remove a drug and update state accordingly
+function removeDrug(rand) {
+    console.log("Removing drug with id: " + rand);
+    document.getElementById("set_" + rand).remove();
+
+    drugCounter--;
+    console.log(`${drugCounter} drug${drugCounter > 1 ? 's' : ''} left`);
+
+    checkForInstructionsField();
+}
+
+// Every 500ms, check the DOM for new instructions fields
+setInterval(() => {
+    const prevDrugCounter = drugCounter;  // Remember previous state
+    checkForInstructionsField();
+
+    // If new drug was detected (drugCounter increased), reset search state
+    if (drugCounter > prevDrugCounter) {
+        isSearchActive = false;  // User finished adding a drug
+    }
+}, 500);
+
+
+
+
+
 </script>
 
     </body>

@@ -33,8 +33,15 @@ import org.apache.commons.lang.StringUtils;
 import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.util.MiscUtils;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DrugDao extends AbstractDao<Drug> {
+
+	@PersistenceContext
+    private EntityManager entityManager;
 
 	public DrugDao() {
 		super(Drug.class);
@@ -526,5 +533,34 @@ public class DrugDao extends AbstractDao<Drug> {
 		return (results);
 
 	}
+
+	@Transactional
+public void updateDrugsWithPDF(String batchId) {
+    System.out.println("DEBUG: batchId in drugdao= " + batchId);
+
+    try {
+        // Construct the correct filename with .pdf extension
+        String pdfFileName = "prescription_" + batchId + ".pdf";
+
+        Query query = entityManager.createQuery(
+            "UPDATE Drug d SET d.pdfFileName = :pdfFileName WHERE d.prescriptionBatchId = :batchId"
+        );
+        query.setParameter("pdfFileName", pdfFileName);
+        query.setParameter("batchId", batchId);
+
+        int updatedRecords = query.executeUpdate();
+
+        if (updatedRecords > 0) {
+            System.out.println("PDF filename updated to: " + pdfFileName + " for batch ID: " + batchId);
+        } else {
+            System.out.println("No records updated. Check batch ID: " + batchId);
+        }
+    } catch (Exception e) {
+        System.err.println("Error updating PDF filename: " + e.getMessage());
+        e.printStackTrace();
+        throw e;  // Ensure rollback in Spring
+    }
+}
+
 	
 }

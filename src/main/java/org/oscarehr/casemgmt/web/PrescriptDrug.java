@@ -39,6 +39,26 @@ public class PrescriptDrug {
 	private Date createDate=null;
 	private boolean longTerm=false;
         private boolean nonAuthoritative=false;
+		private String prescriptionBatchId;
+		private String pdfFileName; 
+
+		public String getPrescriptionBatchId() {
+			return prescriptionBatchId;
+		}
+	
+		public void setPrescriptionBatchId(String prescriptionBatchId) {
+			this.prescriptionBatchId = prescriptionBatchId;
+		}
+	
+		// Getter & Setter for pdfFileName
+		public String getPdfFileName() {
+			return pdfFileName;
+		}
+	
+		public void setPdfFileName(String pdfFileName) {
+			this.pdfFileName = pdfFileName;
+		}
+	
 
         public boolean isNonAuthoritative() {
 		return this.nonAuthoritative;
