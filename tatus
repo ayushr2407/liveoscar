@@ -1,0 +1,12 @@
+[1mdiff --git a/src/main/java/org/oscarehr/web/SearchAutoCompleteAction.java b/src/main/java/org/oscarehr/web/SearchAutoCompleteAction.java[m
+[1mindex d88db558e7..0f602b5bdb 100644[m
+[1m--- a/src/main/java/org/oscarehr/web/SearchAutoCompleteAction.java[m
+[1m+++ b/src/main/java/org/oscarehr/web/SearchAutoCompleteAction.java[m
+[36m@@ -53,4 +53,4 @@[m [mpublic class SearchAutoCompleteAction extends Action {[m
+         return null; // No forward, direct JSON response[m
+     }[m
+ }[m
+[31m-// homepage searchbox[m
+\ No newline at end of file[m
+[32m+[m[32m// homepage searchbox for patient[m
+\ No newline at end of file[m

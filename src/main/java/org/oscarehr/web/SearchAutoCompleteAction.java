@@ -53,4 +53,4 @@ public class SearchAutoCompleteAction extends Action {
         return null; // No forward, direct JSON response
     }
 }
-// homepage searchbox
+// homepage searchbox for patient (name and PHN)
