@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+/* Resetting margin and padding for the entire document */
+
+* {
+margin: 0;
+padding: 0;
+}
+body {
+font-family: Arial, sans-serif;
+padding: 0px;
+background-color: #fff;
+}
+.container {
+width: 100%;
+}
+.left-column {
+width: 30%; /* Adjusted width for side-by-side layout */
+padding: 5px;
+border-right: 1px solid #cfcfcf; /* Vertical divider */
+position: fixed;
+left:0;
+top:0;
+height: 100%;
+z-index: 99;
+background-color: white;
+}
+.right-column {
+width: 100%; /* Adjusted width for side-by-side layout */
+padding: 5px;
+position: fixed;
+top:0;
+left:0;
+z-index:98;
+background-color: white;
+border-bottom: 1px solid #cfcfcf;
+}
+.header {
+ margin-left: 30%;
+ padding:0 20px;
+}
+.maincontent {
+margin-left:30%;
+margin-top:170px;
+padding:30px;
+
+}
+/* .break-after {
+    page-break-after: always; 
+}
+.break-before {
+    page-break-before: always; 
+} */
+.logo {
+width: 90px;
+margin-bottom: 10px;
+}
+p {
+font-size: 13px;
+line-height: 1.4em;
+}
+.section {
+margin-bottom: 15px;
+}
+.section-title {
+font-weight: bold;
+font-size: 16px;
+margin-bottom: 8px;
+}
+
+.prescription-number {
+position: absolute;
+top: 0;
+right: 0;
+font-size: 13px;
+text-align: right;
+}
+.signature-section {
+margin-top: 15px;
+}
+.signature-section img {
+width: 150px;
+height: auto;
+}
+
+.footer {
+width: 100%; /* Adjusted width for side-by-side layout */
+padding: 5px;
+position: fixed;
+bottom:0;
+left:0;
+z-index:98;
+margin-left:30%;
+padding:0 20px;
+background-color: white;
+border-top: 1px solid #cfcfcf;
+
+}
+
+
+
+.maincontent {
+            page-break-inside: avoid;
+        }
+
+        /* Avoid breaking inside sections and allow breaks after */
+        .maincontent    .section {
+            page-break-inside: avoid;
+            page-break-before: auto;
+            page-break-after: auto;
+        }
+
+        /* Prevent paragraphs from breaking inside */
+        .maincontent  p {
+            page-break-inside: avoid;
+        }
+
+        /* Define page size and margins */
+        @page {
+            size: A4;
+            margin: 0.15in;
+        }
+</style>
+</head>
+<body>
+
+<div class="container">
+<!-- Left Column -->
+<div class="left-column">
+<img src="${logo}" alt="Clinic Logo" class="logo" />
+<p>Date:<strong>${currentDate}</strong></p>
+<br />
+
+<p>
+    ${clinicName}<br>
+    ${clinicAddress}<br>
+    ${clinicCity} ${clinicProvince} ${clinicPostal}
+</p>
+<p>Ph. ${clinicTel} <br />Fax. ${clinicFax}</p>
+<br /><hr><br />
+<div class="divider"></div>
+
+<p>${deliveryOption}</p><br />
+
+<div class="section">
+<p style="margin: 0;">Recipient</p><br />
+<p><strong>${pharmaName}</strong><br />
+${pharmaAddress1}<br />
+${pharmaAddress2}<br />
+Ph. ${pharmaTel}<br />
+Fax. ${pharmaFax}</p>
+</div>
+<br /><br />
+<p>{{faxInfo}}</p>
+</div>
+
+<!-- Right Column -->
+<div class="right-column">
+    <div class="header">
+<div class="prescription-number" style="padding-right:20px;">
+    <p>Order <strong>#${prescriptionBatchId}</strong></p>
+</div>
+
+<div class="section">
+<p style="font-weight: bold;">Patient Details</p>
+<p>${patientName} <br /> (PHN ${patientHIN})<br />
+${patientGender} / ${patientDOB} / ${age} years old<br />
+${patientAddress}, ${patientCityPostal}<br />
+Phone (H): ${patientPhone}</p>
+<br />
+<p>Drug Allergies<br /><strong>${patientAllergies}</strong></p>
+</div>
+</div>
+</div>
+
+<div class="maincontent" >
+<div class="section ">
+<p>{{prescriptions}}
+</p><br /> <br />
+<div class="section">
+    <p>Additional Instructions: ${additNotes}</p>
+    </div>
+</div>
+
+
+</div>
+
+<div class="footer">
+<div class="signature-section">
+<img src="${imgPath}" alt="Doctor's Signature"/>
+<p style="display: block; margin-top: 5px;">${sigDoctorName}
+<br />License #${pracNo}</p>
+<p style="font-size: 11px;">Signed on ${currentDate} at ${currentTime} </p>
+</div>
+</div>
+
+</div>
+
+</body>
+</html> 

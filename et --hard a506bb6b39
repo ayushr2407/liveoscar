@@ -1,0 +1,32 @@
+[33m371147cc3a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to HEAD~3
+[33m3da53ef248[m HEAD@{1}: commit: s3 dynamic credentials and removed hardcoded ones
+[33m5d5fe436e8[m HEAD@{2}: commit: s3 dynamic credentials
+[33ma506bb6b39[m HEAD@{3}: commit: pdf to s3 with dynamic credentials on both save and fetch final
+[33m371147cc3a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{4}: commit: pdf to s3 with dynamic credentials on both save and fetch 1
+[33mda86a10e02[m HEAD@{5}: commit: pdf to s3 with dynamic credentials on both save and fetch
+[33m1fb801ecd8[m HEAD@{6}: commit: pdf to s3 with dynamic credentials
+[33ma3d0aabdec[m HEAD@{7}: commit: pdf on s3 bucket
+[33m90bb1f7a06[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{8}: commit: pdf link on local directory
+[33m331fc84ed9[m HEAD@{9}: pull origin main: Fast-forward
+[33m9c9bb56045[m HEAD@{10}: commit: commit 03-03-25
+[33m93043d6418[m HEAD@{11}: commit: eform pdf and login issue resolved(minoe UI changes)
+[33m4965f296e0[m HEAD@{12}: commit: eform pdf in docs
+[33md31fa35ac2[m HEAD@{13}: commit: multiple signature stamps
+[33m6c71c37fdf[m HEAD@{14}: commit: date issue in pdf
+[33m515d6aef8e[m HEAD@{15}: pull origin main: Fast-forward
+[33me23031602f[m HEAD@{16}: commit: 23-01-2025
+[33m150919dbc0[m HEAD@{17}: commit: before rx redirect start
+[33md4a9c3fd56[m HEAD@{18}: commit: 07-01-2025
+[33meca8098039[m HEAD@{19}: commit: sorted on distance,UI Changes etc
+[33m2102433d14[m HEAD@{20}: commit: 26-12-2024/ipdates to add and update record page
+[33me1c447da5f[m HEAD@{21}: commit: preferred pharmacy addedto add record page , DOB validation and health Ins. field at top populating the original field
+[33m43e37530a8[m HEAD@{22}: commit: 19-12-2024 - compliance added to update page
+[33md3eefccf93[m HEAD@{23}: commit: 19-12-2024
+[33m315800cca5[m HEAD@{24}: commit: 18-12-2024
+[33mba9848d351[m HEAD@{25}: pull origin main: Fast-forward
+[33me9c660cfd5[m HEAD@{26}: reset: moving to origin/main
+[33mbc6f52b490[m HEAD@{27}: pull origin main: Fast-forward
+[33m0745c90126[m HEAD@{28}: commit: Updated PDF servlet, template, and preview JSP for enhancements
+[33me680f55338[m HEAD@{29}: Branch: renamed refs/heads/stable to refs/heads/main
+[33me680f55338[m HEAD@{31}: commit: Initial commit
+[33meb23682ff4[m[33m ([m[1;31morigin/stable[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{32}: clone: from https://bitbucket.org/oscaremr/oscar/branches/stable
