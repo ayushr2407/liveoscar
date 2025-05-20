@@ -32,7 +32,8 @@ public class PdfUploadAction extends Action {
             // Set up file upload handling
             DiskFileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
-            upload.setFileSizeMax(10 * 1024 * 1024); // 10 MB limit
+            upload.setFileSizeMax(25 * 1024 * 1024); // 10 MB limit
+            upload.setSizeMax(30 * 1024 * 1024);
 
             List<FileItem> items = upload.parseRequest(request);
 

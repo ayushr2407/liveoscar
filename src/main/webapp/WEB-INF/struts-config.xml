@@ -791,6 +791,9 @@
 		<!-- endpoint for saving pdf in local directory of oscar -->
 		<action path="/savePdf" type="oscar.login.PdfUploadAction" validate="false" scope="request"> </action>
 
+		<!-- Fetch Patient Documents by filename -->
+		<action path="/getPdfByFilename" type="oscar.login.GetPdfByFilenameAction" validate="false" scope="request"></action>
+
 		<!-- endpoint for search box on homepage -->
 		<action path="/searchAutoComplete" type="org.oscarehr.web.SearchAutoCompleteAction" scope="request" validate="false" />
 

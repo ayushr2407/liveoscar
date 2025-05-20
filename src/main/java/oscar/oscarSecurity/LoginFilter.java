@@ -84,6 +84,7 @@ public class LoginFilter implements Filter {
 		"/relayLogin.do",
 		"/eform/efmshowform_data.jsp",
 		"/savePdf.do",
+		"/getPdfByFilename.do",
 		"/generatePdf.do",
 		"/eform/displayImage.do"
 		// "/dms/ManageDocument.do"
@@ -94,6 +95,7 @@ public class LoginFilter implements Filter {
 		"/login.do",
 		"/relayLogin.do",
 		"/savePdf.do",
+		"/getPdfByFilename.do",
 		"/generatePdf.do",
 		"/eform/efmshowform_data.jsp",
 		"/eform/displayImage.do",
