@@ -11,93 +11,115 @@ import org.apache.struts.action.ActionMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Base64;
-
 
 public class GetPdfByFilenameAction extends Action {
 
     private static final String DOCUMENT_PATH = "/usr/share/oscar-emr/OscarDocument/oscar/document/";
 
     @Override
-public ActionForward execute(ActionMapping mapping, ActionForm form,
-                             HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward execute(ActionMapping mapping, ActionForm form,
+                                 HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-    String[] filenames = request.getParameterValues("filename");
+        String[] parFilenames = request.getParameterValues("par_filenames");
+        String[] otherFilenames = request.getParameterValues("other_filenames");
 
-    if (filenames == null || filenames.length == 0) {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.getWriter().write("Missing 'filename' parameter(s).");
+        if ((parFilenames == null || parFilenames.length == 0) &&
+            (otherFilenames == null || otherFilenames.length == 0)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Missing 'par_filenames' or 'other_filenames' parameters.");
+            return null;
+        }
+
+        // Prioritize PAR filenames, else use OTHER
+        String[] filenames = (parFilenames != null && parFilenames.length > 0) ? parFilenames : otherFilenames;
+        String filenameLabel = (parFilenames != null && parFilenames.length > 0) ? "par_pdf" : "other_docs_pdf";
+
+        // --- If only one filename, stream the file directly (preserve metadata, AcroForm, etc) ---
+        if (filenames.length == 1) {
+            File file = new File(DOCUMENT_PATH + filenames[0]);
+            if (!file.exists() || !file.isFile()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("File not found: " + filenames[0]);
+                return null;
+            }
+            System.out.println("[Oscar] Streaming PAR/Single PDF directly: " + filenames[0] + ", size: " + file.length() + " bytes");
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + filenames[0] + "\"");
+            try (InputStream in = new FileInputStream(file);
+                 OutputStream out = response.getOutputStream()) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                out.flush();
+            }
+            return null;
+        }
+        System.out.println("[Oscar] Merging multiple PDFs: " + String.join(", ", filenames));
+
+        // --- If multiple files, merge as before ---
+        byte[] mergedPdfBytes = mergePdfs(filenames);
+
+        if (mergedPdfBytes == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("No valid PDF files found to merge.");
+            return null;
+        }
+
+        System.out.println("[Oscar] Returning merged PDF: " + filenameLabel + ".pdf, size: " + mergedPdfBytes.length + " bytes");
+
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filenameLabel + ".pdf\"");
+        OutputStream out = response.getOutputStream();
+        out.write(mergedPdfBytes);
+        out.flush();
+        out.close();
+
         return null;
     }
 
-    byte[] pdfBytes;
-
-    if (filenames.length == 1) {
-        // Single file case
-        String filename = filenames[0];
-        File file = new File(DOCUMENT_PATH + filename);
-
-        if (!file.exists() || !file.isFile()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("File not found: " + filename);
+    private byte[] mergePdfs(String[] filenames) {
+        if (filenames == null || filenames.length == 0) {
             return null;
         }
 
-        try (FileInputStream fis = new FileInputStream(file);
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = fis.read(buffer)) != -1) {
-                baos.write(buffer, 0, len);
+        try {
+            ByteArrayOutputStream mergedPdfStream = new ByteArrayOutputStream();
+            Document mergedDoc = new Document();
+            PdfCopy copy = new PdfCopy(mergedDoc, mergedPdfStream);
+            mergedDoc.open();
+
+            boolean atLeastOneFile = false;
+
+            for (String filename : filenames) {
+                if (filename == null || filename.trim().isEmpty()) continue;
+
+                File file = new File(DOCUMENT_PATH + filename);
+                if (!file.exists() || !file.isFile()) continue;
+
+                PdfReader reader = new PdfReader(new FileInputStream(file));
+                int pages = reader.getNumberOfPages();
+
+                for (int i = 1; i <= pages; i++) {
+                    copy.addPage(copy.getImportedPage(reader, i));
+                }
+                reader.close();
+                atLeastOneFile = true;
             }
-            pdfBytes = baos.toByteArray();
-        }
 
-    } else {
-        // Multiple files merge case
-        ByteArrayOutputStream mergedPdfStream = new ByteArrayOutputStream();
-        Document mergedDoc = new Document();
-        PdfCopy copy = new PdfCopy(mergedDoc, mergedPdfStream);
-        mergedDoc.open();
+            mergedDoc.close();
 
-        boolean atLeastOneFile = false;
-
-        for (String filename : filenames) {
-            if (filename == null || filename.trim().isEmpty()) continue;
-
-            File file = new File(DOCUMENT_PATH + filename);
-            if (!file.exists() || !file.isFile()) continue;
-
-            PdfReader reader = new PdfReader(new FileInputStream(file));
-            int pages = reader.getNumberOfPages();
-
-            for (int i = 1; i <= pages; i++) {
-                copy.addPage(copy.getImportedPage(reader, i));
+            if (!atLeastOneFile) {
+                return null;
             }
-            reader.close();
-            atLeastOneFile = true;
-        }
 
-        mergedDoc.close();
+            return mergedPdfStream.toByteArray();
 
-        if (!atLeastOneFile) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("None of the requested files were found.");
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
-
-        pdfBytes = mergedPdfStream.toByteArray();
     }
-
-    // Encode PDF bytes to base64
-    String base64Pdf = Base64.getEncoder().encodeToString(pdfBytes);
-
-    // Return as JSON
-    String jsonResponse = "{\"base64_pdf\":\"" + base64Pdf + "\"}";
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-    response.getWriter().write(jsonResponse);
-
-    return null;
-}
 }
