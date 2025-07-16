@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%@ page contentType="application/javascript; charset=UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%
 String newticklerwarningwindow=null;

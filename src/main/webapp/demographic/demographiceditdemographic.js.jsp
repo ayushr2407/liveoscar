@@ -23,6 +23,8 @@
     Ontario, Canada
 
 --%>
+
+<%@ page contentType="application/javascript; charset=UTF-8" %>
 <%@page import="oscar.OscarProperties" %>
 
 <%@page import="org.oscarehr.util.SpringUtils"%>

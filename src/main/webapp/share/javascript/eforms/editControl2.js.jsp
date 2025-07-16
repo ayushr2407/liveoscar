@@ -24,6 +24,7 @@
 
 --%>
 
+<%@ page contentType="application/javascript; charset=UTF-8" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.OscarProperties" %>
