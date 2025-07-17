@@ -852,7 +852,7 @@ if(wcbneeds != null){%>
 <%}%>
 
 <div class="container">
-<html:form action="/billing/CA/BC/CreateBilling" onsubmit="toggleWCB();return checkUnits();">
+<html:form action="/billing/CA/BC/CreateBilling" onsubmit="prepareTimes();toggleWCB();return checkUnits();">
   <input type="hidden" name="fromBilling" value=""/>
 
 <%
@@ -1632,6 +1632,41 @@ if(wcbneeds != null){%>
       </td>
     </tr>
   </table>
+
+<script>
+function normalizeTimeInput(input) {
+    // Trim and check if input is 4 digits (e.g., "1100")
+    input = input.trim();
+    if (/^\d{4}$/.test(input)) {
+        return input.substring(0, 2) + ":" + input.substring(2);
+    }
+    return input; // Already in HH:mm or invalid
+}
+
+function prepareTimes() {
+    let startTime = document.getElementById("serviceStartTime").value;
+    let endTime = document.getElementById("serviceEndTime").value;
+
+    startTime = normalizeTimeInput(startTime);
+    endTime = normalizeTimeInput(endTime);
+
+    // Update visible input fields with normalized time (optional)
+    document.getElementById("serviceStartTime").value = startTime;
+    document.getElementById("serviceEndTime").value = endTime;
+
+    if (/^\d{2}:\d{2}$/.test(startTime)) {
+        const startParts = startTime.split(":");
+        document.getElementById("xml_starttime_hr").value = startParts[0];
+        document.getElementById("xml_starttime_min").value = startParts[1];
+    }
+
+    if (/^\d{2}:\d{2}$/.test(endTime)) {
+        const endParts = endTime.split(":");
+        document.getElementById("xml_endtime_hr").value = endParts[0];
+        document.getElementById("xml_endtime_min").value = endParts[1];
+    }
+}
+</script>
 
 </html:form>
  </div>
